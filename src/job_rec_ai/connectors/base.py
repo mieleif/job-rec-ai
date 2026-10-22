@@ -12,7 +12,7 @@ renvoyée par l'ATS (« Novartis Pharma AG ») : c'est lui qui sert aux facettes
 """
 
 import logging
-from collections.abc import Callable
+from collections.abc import Callable, Iterator
 from datetime import UTC, date, datetime
 from typing import Protocol
 
@@ -51,16 +51,37 @@ def parse_date(value) -> date | None:
         return None
 
 
-def build_jobs(rows, to_job: Callable[[dict], Job]) -> list[Job]:
-    """Applique to_job à chaque offre brute, en écartant (et en comptant) les invalides.
+def paginate(fetch_page: Callable[[int], tuple[list, int]], page_size: int,
+             max_pages: int) -> Iterator[dict]:
+    """Parcourt une liste paginée par offset. fetch_page(offset) → (offres, total).
+
+    Le total n'est lu que s'il est non nul (Workday ne le renvoie qu'en première page) ;
+    max_pages est un garde-fou contre une API qui paginerait à l'infini.
+    """
+    total = 0
+    for page in range(max_pages):
+        items, page_total = fetch_page(page * page_size)
+        total = total or page_total
+        yield from items
+        if not items or (page + 1) * page_size >= total:
+            break
+
+
+def build_jobs(payload: dict, to_fields: Callable[[dict], dict]) -> list[Job]:
+    """Transforme chaque offre brute en Job, en écartant (et en comptant) les invalides.
+
+    to_fields ne s'occupe que des champs propres à l'ATS ; la provenance (entreprise
+    canonique, source) est tamponnée ici, une fois pour tous les connecteurs, car le
+    stockage en dépend (expiration par entreprise et par source).
 
     Une offre malformée ne doit pas faire échouer tout le lot : on la journalise et on
     continue. Le nombre d'offres rejetées est un indicateur de qualité à surveiller.
     """
+    provenance = {"company": payload["company"], "source": payload["ats"]}
     jobs, rejected = [], 0
-    for row in rows:
+    for row in payload.get("postings", []):
         try:
-            jobs.append(to_job(row))
+            jobs.append(Job(**to_fields(row), **provenance))
         except (KeyError, TypeError, ValidationError) as exc:
             rejected += 1
             log.warning("offre ignorée : %s", exc)

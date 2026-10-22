@@ -11,7 +11,7 @@ import gzip
 import json
 import logging
 import re
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -28,38 +28,59 @@ log = logging.getLogger(__name__)
 RAW_DIR = Path("data/raw")
 
 
-def enrich(job: Job) -> dict:
-    """Job → ligne de la table jobs, avec les colonnes dérivées (langue, canton, classes)."""
-    c = classify(job.title)
+def derive(title: str, location: str, description: str) -> dict:
+    """Les colonnes dérivées d'une offre : recalculables à volonté, sans re-télécharger."""
     return {
-        **job.model_dump(mode="json", exclude={"language"}),
-        "language": job.language or detect_language(job.description),
-        "canton": canton_of(job.location),
-        "family": c.family,
-        "family_keyword": c.family_keyword,
-        "seniority": c.seniority,
-        "workload_min": c.workload_min,
-        "workload_max": c.workload_max,
+        "language": detect_language(description),
+        "canton": canton_of(location),
+        **asdict(classify(title)),
     }
 
 
-def ingest(con, payload: dict, seen_at: datetime) -> int:
-    """Charge un payload brut en base. Rejouable : c'est ce qui rend le bronze utile."""
+def enrich(job: Job) -> dict:
+    """Job → ligne de la table jobs (champs du Job + colonnes dérivées)."""
+    row = {**job.model_dump(mode="json"), **derive(job.title, job.location, job.description)}
+    row["language"] = job.language or row["language"]  # la langue déclarée par l'ATS prime
+    return row
+
+
+def ingest(con, payload: dict) -> tuple[int, int]:
+    """Charge le payload brut d'UNE entreprise : upsert puis expiration de ses offres
+    absentes. Un payload est un instantané complet de l'entreprise à `fetched_at` : c'est
+    ce qui rend le bronze rejouable. Renvoie (offres chargées, offres expirées)."""
+    seen_at = datetime.fromisoformat(payload["fetched_at"]).replace(tzinfo=None)
     jobs = dedupe(REGISTRY[payload["ats"]].parse(payload))
     storage.upsert_jobs(con, [enrich(j) for j in jobs], seen_at)
-    return len(jobs)
+    expired = storage.expire_missing(con, payload["company"], payload["ats"], seen_at)
+    return len(jobs), expired
 
 
 def _slug(name: str) -> str:
     return re.sub(r"[^a-z0-9]+", "-", normalize(name)).strip("-")
 
 
-def save_raw(payload: dict, raw_dir: Path, day: str) -> Path:
+def save_raw(payload: dict, raw_dir: Path) -> Path:
+    day = payload["fetched_at"][:10]
     path = raw_dir / day / f"{payload['ats']}__{_slug(payload['company'])}.json.gz"
     path.parent.mkdir(parents=True, exist_ok=True)
     with gzip.open(path, "wt", encoding="utf-8") as f:
         json.dump(payload, f, ensure_ascii=False)
     return path
+
+
+def skip_reason(company: dict) -> str | None:
+    """Pourquoi on ne peut pas collecter cette entreprise (None : on peut)."""
+    if company["ats"] and company["ats"] not in REGISTRY:
+        return f"pas de connecteur « {company['ats']} »"
+    if not company["ats"] or not company["board"]:
+        return "ATS ou board inconnu"
+    return None
+
+
+def fetch_company(company: dict, client: PoliteClient) -> dict:
+    """Rapporte le payload brut d'une entreprise, limité à l'arc lémanique."""
+    return REGISTRY[company["ats"]].fetch(company["board"], company["company"], client,
+                                          keep=is_target)
 
 
 @dataclass
@@ -70,18 +91,16 @@ class CrawlReport:
 
 
 def crawl(con, companies: list[dict], client: PoliteClient, raw_dir: Path = RAW_DIR,
-          only: set[str] | None = None) -> CrawlReport:
+          only: list[str] | None = None) -> CrawlReport:
     started = datetime.now(UTC).replace(tzinfo=None)
-    day = started.date().isoformat()
+    wanted = {normalize(n) for n in only} if only else None
     storage.upsert_companies(con, companies)
     report = CrawlReport()
     for company in companies:
-        name, ats, board = company["company"], company["ats"], company["board"]
-        if only and normalize(name) not in only:
+        name, ats = company["company"], company["ats"]
+        if wanted and normalize(name) not in wanted:
             continue
-        reason = (None if ats in REGISTRY and board
-                  else f"pas de connecteur « {ats} »" if ats and ats not in REGISTRY
-                  else "ATS ou board inconnu")
+        reason = skip_reason(company)
         if reason:
             report.skipped.append((name, reason))
             storage.log_run(con, started_at=started, company=name, ats=ats, status="skipped",
@@ -89,17 +108,16 @@ def crawl(con, companies: list[dict], client: PoliteClient, raw_dir: Path = RAW_
             continue
         try:
             log.info("collecte %s (%s)", name, ats)
-            payload = REGISTRY[ats].fetch(board, name, client, keep=is_target)
-            save_raw(payload, raw_dir, day)
-            loaded = ingest(con, payload, started)
-            expired = storage.expire_missing(con, name, ats, started)
+            payload = fetch_company(company, client)
+            save_raw(payload, raw_dir)
+            loaded, expired = ingest(con, payload)
         except Exception as exc:  # une entreprise en échec ne doit pas arrêter les autres
             log.exception("échec %s", name)
-            report.errors.append((name, f"{type(exc).__name__}: {exc}"))
+            error = f"{type(exc).__name__}: {exc}"
+            report.errors.append((name, error))
             storage.log_run(con, started_at=started, company=name, ats=ats, status="error",
-                            error=f"{type(exc).__name__}: {exc}"[:500])
+                            error=error[:500])
             continue
-        company["verified"] = True
         report.ok.append((name, loaded, expired))
         storage.log_run(con, started_at=started, company=name, ats=ats, status="ok",
                         fetched=len(payload["postings"]), loaded=loaded)
@@ -111,22 +129,16 @@ def replay(con, raw_dir: Path = RAW_DIR) -> int:
     total = 0
     for path in sorted(raw_dir.glob("*/*.json.gz")):
         with gzip.open(path, "rt", encoding="utf-8") as f:
-            payload = json.load(f)
-        seen_at = datetime.fromisoformat(payload["fetched_at"]).replace(tzinfo=None)
-        total += ingest(con, payload, seen_at)
+            total += ingest(con, json.load(f))[0]
     return total
 
 
-def reclassify(con) -> int:
-    """Recalcule familles, séniorité et taux pour toutes les offres (après un changement de
-    règles), sans rien re-télécharger : les colonnes dérivées se recalculent à volonté."""
-    rows = []
-    for url, title in storage.all_titles(con):
-        c = classify(title)
-        rows.append({"url": url, "family": c.family, "family_keyword": c.family_keyword,
-                     "seniority": c.seniority, "workload_min": c.workload_min,
-                     "workload_max": c.workload_max})
-    storage.update_classification(con, rows)
+def rederive(con) -> int:
+    """Recalcule langue, canton, famille, séniorité et taux pour toutes les offres (après
+    un changement de règles), sans rien re-télécharger."""
+    rows = [{"url": url, **derive(title, location, description)}
+            for url, title, location, description in storage.jobs_for_derivation(con)]
+    storage.update_derived(con, rows)
     return len(rows)
 
 

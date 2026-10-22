@@ -47,7 +47,7 @@ def test_smartrecruiters_fetch_et_parse(client):
 
 
 def test_parse_ignore_les_offres_invalides():
-    payload = {"company": "Acme", "board": "ACME", "postings": [
+    payload = {"ats": "smartrecruiters", "company": "Acme", "board": "ACME", "postings": [
         {"id": "9", "name": "   "},  # titre vide → rejetée, sans faire échouer le lot
         {"id": "10", "name": "Analyste", "location": {"city": "Genève"}},
     ]}

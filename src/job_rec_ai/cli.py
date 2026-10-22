@@ -11,21 +11,16 @@ from datetime import date
 from pathlib import Path
 
 from job_rec_ai import benchmark, pipeline, storage
-from job_rec_ai.companies import DEFAULT_CSV, load_companies, save_companies
+from job_rec_ai.companies import DEFAULT_CSV, find, load_companies
 from job_rec_ai.connectors import REGISTRY
-from job_rec_ai.geo import is_target
 from job_rec_ai.http import PoliteClient
-from job_rec_ai.text import normalize
 
 FIXTURES = Path("tests/fixtures")
 
 
 def _cmd_crawl(args, con):
-    companies = load_companies(args.companies)
-    only = {normalize(n) for n in args.company} if args.company else None
     with PoliteClient(delay=args.delay) as client:
-        report = pipeline.crawl(con, companies, client, only=only)
-    save_companies(companies, args.companies)  # mémorise les boards qui ont fonctionné
+        report = pipeline.crawl(con, load_companies(args.companies), client, only=args.company)
     for name, loaded, expired in report.ok:
         print(f"  ok      {name:<35} {loaded:>5} offres  ({expired} expirées)")
     for name, error in report.errors:
@@ -36,11 +31,11 @@ def _cmd_crawl(args, con):
 
 def _cmd_boards(args, con):
     """Couverture : quels ATS couvrent combien d'entreprises ? → quel connecteur écrire."""
-    companies = load_companies(args.companies)
+    verified = storage.verified_companies(con)
     by_ats: dict[str, list[str]] = {}
-    for c in companies:
+    for c in load_companies(args.companies):
         by_ats.setdefault(c["ats"] or "(inconnu)", []).append(
-            c["company"] + ("" if c["verified"] else " ?"))
+            c["company"] + ("" if c["company"] in verified else " ?"))
     for ats, names in sorted(by_ats.items(), key=lambda kv: -len(kv[1])):
         status = "connecteur ✓" if ats in REGISTRY else "—"
         print(f"{ats:<16} {len(names):>3}  {status:<12} {', '.join(names)}")
@@ -56,8 +51,7 @@ def _print_counts(con, facet, limit):
 
 
 def _cmd_stats(args, con):
-    (active,) = con.execute("SELECT count(*) FROM jobs WHERE active").fetchone()
-    (total,) = con.execute("SELECT count(*) FROM jobs").fetchone()
+    active, total = storage.totals(con)
     print(f"{active} offres actives ({total} vues au total)")
     for facet in args.facets or ["company", "family", "canton", "seniority", "language"]:
         _print_counts(con, facet, args.limit)
@@ -78,11 +72,11 @@ def _cmd_search(args, con):
 
 def _cmd_fixture(args, con):
     """Enregistre une VRAIE réponse d'ATS (réduite à quelques offres) comme fixture de test."""
-    company = next(c for c in load_companies(args.companies)
-                   if normalize(c["company"]) == normalize(args.company))
+    company = find(load_companies(args.companies), args.company)
+    if reason := pipeline.skip_reason(company):
+        raise SystemExit(f"{company['company']} : {reason}")
     with PoliteClient() as client:
-        payload = REGISTRY[company["ats"]].fetch(company["board"], company["company"], client,
-                                                 keep=is_target)
+        payload = pipeline.fetch_company(company, client)
     payload["postings"] = payload["postings"][: args.n]
     FIXTURES.mkdir(parents=True, exist_ok=True)
     path = FIXTURES / f"{company['ats']}.json"
@@ -93,10 +87,9 @@ def _cmd_fixture(args, con):
 def _cmd_benchmark(args, con):
     keys = benchmark.credentials()
     tracked = [c["company"] for c in load_companies(args.companies)]
-    ours = dict(con.execute("SELECT company, count(*) FROM jobs WHERE active GROUP BY ALL")
-                .fetchall())
+    ours = dict(storage.counts(con, "company", limit=None))
     with PoliteClient(delay=args.delay) as client:
-        for where in args.where:
+        for where in args.where or benchmark.DEFAULT_WHERE:
             print(f"\n── Adzuna, top employeurs : {where} ──")
             print(f"  {'entreprise':<34} {'Adzuna':>7} {'nous':>6} {'rappel':>7}")
             for row in benchmark.compare(benchmark.top_companies(client, where, keys), ours,
@@ -110,8 +103,8 @@ def _cmd_replay(args, con):
     print(f"{pipeline.replay(con)} offres rechargées depuis data/raw/")
 
 
-def _cmd_reclassify(args, con):
-    print(f"{pipeline.reclassify(con)} offres reclassées")
+def _cmd_rederive(args, con):
+    print(f"{pipeline.rederive(con)} offres recalculées")
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -151,22 +144,20 @@ def build_parser() -> argparse.ArgumentParser:
     p.set_defaults(func=_cmd_fixture)
 
     p = sub.add_parser("benchmark", help="couverture comparée à Adzuna (clé API requise)")
-    p.add_argument("--where", action="append", default=None,
-                   help="lieu Adzuna (répétable, défaut : Genève et Lausanne)")
+    p.add_argument("--where", action="append",
+                   help=f"lieu Adzuna (répétable, défaut : {', '.join(benchmark.DEFAULT_WHERE)})")
     p.add_argument("--delay", type=float, default=1.0)
     p.set_defaults(func=_cmd_benchmark)
 
     sub.add_parser("replay", help="reconstruire la base depuis data/raw").set_defaults(
         func=_cmd_replay)
-    sub.add_parser("reclassify", help="réappliquer les règles de classement").set_defaults(
-        func=_cmd_reclassify)
+    sub.add_parser("rederive", help="recalculer langue, canton et classement").set_defaults(
+        func=_cmd_rederive)
     return parser
 
 
 def main(argv: list[str] | None = None) -> None:
     args = build_parser().parse_args(argv)
-    if args.command == "benchmark" and not args.where:
-        args.where = ["Genève", "Lausanne"]
     logging.basicConfig(level=logging.INFO if args.verbose else logging.WARNING,
                         format="%(levelname)s %(name)s: %(message)s")
     con = storage.connect(args.db)

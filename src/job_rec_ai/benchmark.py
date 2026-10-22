@@ -18,6 +18,7 @@ from job_rec_ai.http import PoliteClient
 from job_rec_ai.text import normalize
 
 API = "https://api.adzuna.com/v1/api/jobs/ch"
+DEFAULT_WHERE = ["Genève", "Lausanne"]
 # Suffixes juridiques à ignorer pour rapprocher « Rolex SA » de « Rolex »
 _LEGAL = {"sa", "ag", "sarl", "gmbh", "ltd", "inc", "group", "groupe", "holding", "suisse",
           "switzerland", "international", "s.a.", "plc", "llc"}

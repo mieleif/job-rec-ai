@@ -13,7 +13,7 @@ Data & IA, pas dans Ingénierie).
 import re
 from dataclasses import dataclass
 
-from job_rec_ai.text import normalize
+from job_rec_ai.text import compile_keywords, first_match, normalize
 
 OTHER = "Autre"
 
@@ -127,17 +127,8 @@ SENIORITY_RULES: list[tuple[str, list[str]]] = [
 ]
 
 
-def _compile(rules: list[tuple[str, list[str]]]) -> list[tuple[str, re.Pattern]]:
-    compiled = []
-    for label, keywords in rules:
-        # Plus long d'abord : « supply chain » doit gagner sur « chain »
-        alternatives = "|".join(map(re.escape, sorted(keywords, key=len, reverse=True)))
-        compiled.append((label, re.compile(rf"(?<![a-z0-9])({alternatives})(?![a-z0-9])")))
-    return compiled
-
-
-_FAMILIES = _compile(FAMILY_RULES)
-_SENIORITY = _compile(SENIORITY_RULES)
+_FAMILIES = compile_keywords(FAMILY_RULES)
+_SENIORITY = compile_keywords(SENIORITY_RULES)
 # « 80-100% », « 80 – 100 % », « 50% », « Taux d'activité : 100 % »
 _WORKLOAD = re.compile(r"(\d{2,3})\s*%?\s*[-–à]\s*(\d{2,3})\s*%|(\d{2,3})\s*%")
 
@@ -149,14 +140,6 @@ class Classification:
     seniority: str
     workload_min: int | None
     workload_max: int | None
-
-
-def _first_match(compiled, text: str) -> tuple[str, str] | None:
-    for label, pattern in compiled:
-        match = pattern.search(text)
-        if match:
-            return label, match.group(1)
-    return None
 
 
 def workload(title: str) -> tuple[int | None, int | None]:
@@ -174,13 +157,8 @@ def workload(title: str) -> tuple[int | None, int | None]:
 
 def classify(title: str) -> Classification:
     norm = normalize(title)
-    family = _first_match(_FAMILIES, norm)
-    seniority = _first_match(_SENIORITY, norm)
+    family, keyword = first_match(_FAMILIES, norm, default=OTHER)
+    seniority, _ = first_match(_SENIORITY, norm, default="Confirmé·e")
     low, high = workload(title)
-    return Classification(
-        family=family[0] if family else OTHER,
-        family_keyword=family[1] if family else None,
-        seniority=seniority[0] if seniority else "Confirmé·e",
-        workload_min=low,
-        workload_max=high,
-    )
+    return Classification(family=family, family_keyword=keyword, seniority=seniority,
+                          workload_min=low, workload_max=high)

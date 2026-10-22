@@ -23,8 +23,7 @@ CREATE TABLE IF NOT EXISTS companies (
     canton      VARCHAR,
     careers_url VARCHAR,
     ats         VARCHAR,
-    board       VARCHAR,
-    verified    BOOLEAN
+    board       VARCHAR
 );
 
 CREATE TABLE IF NOT EXISTS jobs (
@@ -64,13 +63,6 @@ SELECT j.*, c.sector
 FROM jobs j LEFT JOIN companies c USING (company);
 """
 
-JOB_COLUMNS = [
-    "url", "title", "company", "location", "canton", "description", "language", "posted_at",
-    "source", "source_id", "employment_type", "family", "family_keyword", "seniority",
-    "workload_min", "workload_max",
-]
-
-
 def connect(path: Path | str = DEFAULT_DB) -> duckdb.DuckDBPyConnection:
     if str(path) != ":memory:":
         Path(path).parent.mkdir(parents=True, exist_ok=True)
@@ -79,16 +71,29 @@ def connect(path: Path | str = DEFAULT_DB) -> duckdb.DuckDBPyConnection:
     return con
 
 
+def _upsert(con, table: str, key: str, rows: list[dict], keep: tuple[str, ...] = ()) -> None:
+    """INSERT … ON CONFLICT en UNE requête pour tout le lot (ensembliste).
+
+    Les lignes Python sont d'abord chargées d'un bloc dans une table temporaire
+    (`unnest` d'une liste de structs), puis fusionnées : ~100x plus rapide qu'un
+    `executemany`, qui exécute une requête par ligne. Les colonnes viennent des clés des
+    lignes : une colonne inconnue de la table fait échouer bruyamment, au lieu d'être
+    ignorée en silence. `keep` : colonnes jamais écrasées en cas de conflit.
+    """
+    if not rows:
+        return
+    columns = list(rows[0])
+    con.execute("CREATE OR REPLACE TEMP TABLE _staging AS SELECT unnest($rows, max_depth := 2)",
+                {"rows": rows})
+    updates = ", ".join(f"{c} = excluded.{c}" for c in columns if c != key and c not in keep)
+    con.execute(f"""INSERT INTO {table} ({", ".join(columns)})
+                    SELECT {", ".join(columns)} FROM _staging
+                    ON CONFLICT ({key}) DO UPDATE SET {updates}""")
+    con.execute("DROP TABLE _staging")
+
+
 def upsert_companies(con, companies: list[dict]) -> None:
-    con.executemany(
-        """INSERT INTO companies VALUES ($company, $sector, $canton, $careers_url, $ats,
-                                         $board, $verified)
-           ON CONFLICT (company) DO UPDATE SET
-               sector = excluded.sector, canton = excluded.canton,
-               careers_url = excluded.careers_url, ats = excluded.ats,
-               board = excluded.board, verified = excluded.verified""",
-        companies,
-    )
+    _upsert(con, "companies", "company", companies)
 
 
 def upsert_jobs(con, rows: list[dict], seen_at: datetime) -> None:
@@ -96,18 +101,8 @@ def upsert_jobs(con, rows: list[dict], seen_at: datetime) -> None:
 
     first_seen n'est jamais écrasé : c'est la mémoire de la date d'apparition.
     """
-    if not rows:
-        return
-    columns = ", ".join(JOB_COLUMNS)
-    values = ", ".join(f"${c}" for c in JOB_COLUMNS)
-    updates = ", ".join(f"{c} = excluded.{c}" for c in JOB_COLUMNS if c != "url")
-    con.executemany(
-        f"""INSERT INTO jobs ({columns}, first_seen, last_seen, active)
-            VALUES ({values}, $seen_at, $seen_at, TRUE)
-            ON CONFLICT (url) DO UPDATE SET {updates},
-                last_seen = excluded.last_seen, active = TRUE""",
-        [{**row, "seen_at": seen_at} for row in rows],
-    )
+    stamps = {"first_seen": seen_at, "last_seen": seen_at, "active": True}
+    _upsert(con, "jobs", "url", [{**row, **stamps} for row in rows], keep=("first_seen",))
 
 
 def expire_missing(con, company: str, source: str, seen_at: datetime) -> int:
@@ -133,14 +128,22 @@ def log_run(con, **run) -> None:
     )
 
 
-def update_classification(con, rows: list[dict]) -> None:
-    con.executemany(
-        """UPDATE jobs SET family = $family, family_keyword = $family_keyword,
-                           seniority = $seniority, workload_min = $workload_min,
-                           workload_max = $workload_max
-           WHERE url = $url""",
-        rows,
-    )
+def verified_companies(con) -> set[str]:
+    """Entreprises dont au moins une collecte a réussi : leur board est donc le bon."""
+    return {name for (name,) in con.execute(
+        "SELECT DISTINCT company FROM crawl_runs WHERE status = 'ok'").fetchall()}
+
+
+def update_derived(con, rows: list[dict]) -> None:
+    """Réécrit les colonnes dérivées (clés des lignes, hors url) en une seule requête."""
+    if not rows:
+        return
+    columns = [c for c in rows[0] if c != "url"]
+    con.execute("CREATE OR REPLACE TEMP TABLE _staging AS SELECT unnest($rows, max_depth := 2)",
+                {"rows": rows})
+    con.execute(f"""UPDATE jobs SET {", ".join(f"{c} = s.{c}" for c in columns)}
+                    FROM _staging s WHERE jobs.url = s.url""")
+    con.execute("DROP TABLE _staging")
 
 
 # --- lecture : facettes, tri, agrégats ------------------------------------------------------
@@ -191,7 +194,12 @@ def search(con, *, text: str | None = None, since: date | None = None,
     return [dict(zip(names, row)) for row in cursor.fetchall()]
 
 
-def counts(con, facet: str, limit: int = 20) -> list[tuple[str, int]]:
+def totals(con) -> tuple[int, int]:
+    """(offres actives, offres vues au total)."""
+    return con.execute("SELECT count(*) FILTER (active), count(*) FROM jobs").fetchone()
+
+
+def counts(con, facet: str, limit: int | None = 20) -> list[tuple[str, int]]:
     """Nombre d'offres actives par valeur d'une facette, du plus fréquent au plus rare."""
     if facet not in FACETS:
         raise ValueError(f"facette inconnue : {facet}")
@@ -202,5 +210,5 @@ def counts(con, facet: str, limit: int = 20) -> list[tuple[str, int]]:
     ).fetchall()
 
 
-def all_titles(con) -> list[tuple[str, str]]:
-    return con.execute("SELECT url, title FROM jobs").fetchall()
+def jobs_for_derivation(con) -> list[tuple[str, str, str, str]]:
+    return con.execute("SELECT url, title, location, description FROM jobs").fetchall()

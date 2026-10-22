@@ -10,7 +10,13 @@ La liste ne contient ni description ni lieux complets : il faut une requête par
 import re
 from urllib.parse import urlsplit
 
-from job_rec_ai.connectors.base import LocationFilter, build_jobs, envelope, parse_date
+from job_rec_ai.connectors.base import (
+    LocationFilter,
+    build_jobs,
+    envelope,
+    paginate,
+    parse_date,
+)
 from job_rec_ai.http import PoliteClient
 from job_rec_ai.models import Job
 from job_rec_ai.text import clean_html
@@ -46,42 +52,34 @@ class WorkdayConnector:
     def fetch(self, board: str, company: str, client: PoliteClient,
               keep: LocationFilter) -> dict:
         api = api_base(board)
-        postings, total = [], None
-        for page in range(MAX_PAGES):
+
+        def page(offset: int) -> tuple[list, int]:
             data = client.post_json(f"{api}/jobs", {
-                "appliedFacets": {}, "limit": PAGE_SIZE, "offset": page * PAGE_SIZE,
-                "searchText": "",
+                "appliedFacets": {}, "limit": PAGE_SIZE, "offset": offset, "searchText": "",
             })
-            # Workday ne renvoie le total que sur la première page (0 ensuite)
-            total = total or data.get("total", 0)
-            items = data.get("jobPostings", [])
-            for item in items:
-                where = item.get("locationsText", "")
-                if not (keep(where) or _MULTI.match(where)):
-                    continue
-                detail = client.get_json(f"{api}{item['externalPath']}")
-                if any(keep(loc) for loc in _locations(detail.get("jobPostingInfo", {}))):
-                    postings.append(detail)
-            if not items or (page + 1) * PAGE_SIZE >= total:
-                break
+            return data.get("jobPostings", []), data.get("total", 0)
+
+        postings = []
+        for item in paginate(page, PAGE_SIZE, MAX_PAGES):
+            where = item.get("locationsText", "")
+            if not (keep(where) or _MULTI.match(where)):
+                continue
+            detail = client.get_json(f"{api}{item['externalPath']}")
+            if any(keep(loc) for loc in _locations(detail.get("jobPostingInfo", {}))):
+                postings.append(detail)
         return envelope(self.name, company, board, postings)
 
     def parse(self, payload: dict) -> list[Job]:
-        company = payload["company"]
-
-        def to_job(detail: dict) -> Job:
+        def to_fields(detail: dict) -> dict:
             info = detail["jobPostingInfo"]
-            locations = _locations(info)
-            return Job(
-                title=info["title"],
-                company=company,
-                url=info["externalUrl"],
-                location=" / ".join(locations),
-                description=clean_html(info.get("jobDescription")),
-                posted_at=parse_date(info.get("startDate")),
-                source=self.name,
-                source_id=info.get("jobReqId") or info.get("id"),
-                employment_type=info.get("timeType"),
-            )
+            return {
+                "title": info["title"],
+                "url": info["externalUrl"],
+                "location": " / ".join(_locations(info)),
+                "description": clean_html(info.get("jobDescription")),
+                "posted_at": parse_date(info.get("startDate")),
+                "source_id": info.get("jobReqId") or info.get("id"),
+                "employment_type": info.get("timeType"),
+            }
 
-        return build_jobs(payload.get("postings", []), to_job)
+        return build_jobs(payload, to_fields)

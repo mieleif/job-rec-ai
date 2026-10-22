@@ -7,7 +7,7 @@ de l'arc lémanique où se trouvent les grands employeurs, plus les noms de cant
 
 import re
 
-from job_rec_ai.text import normalize
+from job_rec_ai.text import compile_keywords, first_match, normalize
 
 # Périmètre retenu pour la première base : l'arc lémanique (décision du 22.10.2026)
 TARGET_CANTONS = {"GE", "VD"}
@@ -33,13 +33,9 @@ _PLACES = {
     ],
 }
 
-# Mots entiers uniquement : « geneve » ne doit pas matcher « genevois », ni « onex » « bonex ».
-_PATTERNS = {
-    canton: re.compile(r"(?<![a-z])(" + "|".join(map(re.escape, places)) + r")(?![a-z])")
-    for canton, places in _PLACES.items()
-}
+_PATTERNS = compile_keywords(_PLACES.items())
 # Abréviations de canton en majuscules : « Lausanne, VD » ou « Meyrin (GE) »
-_ABBREV = re.compile(r"\b(GE|VD)\b")
+_ABBREV = re.compile(rf"\b({'|'.join(_PLACES)})\b")
 # Homonymes à l'étranger : Geneva (Illinois, New York), Bellevue (Washington)…
 _FOREIGN = re.compile(
     r"united states|\busa\b|illinois|new york|\b(il|ny|oh|al|wa)\b|ohio|alabama|"
@@ -54,9 +50,9 @@ def canton_of(location: str | None) -> str | None:
     norm = normalize(location)
     if _FOREIGN.search(norm):
         return None
-    for canton, pattern in _PATTERNS.items():
-        if pattern.search(norm):
-            return canton
+    canton, _ = first_match(_PATTERNS, norm)
+    if canton:
+        return canton
     match = _ABBREV.search(location)
     return match.group(1) if match else None
 

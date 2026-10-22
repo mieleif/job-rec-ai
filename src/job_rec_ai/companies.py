@@ -2,30 +2,28 @@
 
 Une ligne = une entreprise, son secteur, son canton, et l'adresse de son ATS
 (colonne `board` : URL du site Workday, identifiant SmartRecruiters…).
-`verified` passe à true quand une collecte a réellement fonctionné.
+Ce fichier est de la configuration écrite par un humain : le code ne le réécrit jamais.
+Savoir si un board fonctionne est un fait observé, qui vit en base (crawl_runs).
 """
 
 import csv
 from pathlib import Path
 
+from job_rec_ai.text import normalize
+
 DEFAULT_CSV = Path("data/companies.csv")
-FIELDS = ["company", "sector", "canton", "careers_url", "ats", "board", "verified"]
+FIELDS = ["company", "sector", "canton", "careers_url", "ats", "board"]
 
 
 def load_companies(path: Path | str = DEFAULT_CSV) -> list[dict]:
     with open(path, encoding="utf-8", newline="") as f:
-        rows = list(csv.DictReader(f))
-    for row in rows:
-        row["verified"] = row.get("verified", "").strip().lower() == "true"
-        for key in ("ats", "board", "sector", "canton", "careers_url"):
-            row[key] = (row.get(key) or "").strip() or None
-    return rows
+        return [{key: (row.get(key) or "").strip() or None for key in FIELDS}
+                for row in csv.DictReader(f)]
 
 
-def save_companies(rows: list[dict], path: Path | str = DEFAULT_CSV) -> None:
-    with open(path, "w", encoding="utf-8", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=FIELDS, lineterminator="\n")
-        writer.writeheader()
-        for row in rows:
-            writer.writerow({**{k: row.get(k) or "" for k in FIELDS},
-                             "verified": str(bool(row.get("verified"))).lower()})
+def find(companies: list[dict], name: str) -> dict:
+    """L'entreprise dont le nom normalisé correspond (« nestle » trouve « Nestlé »)."""
+    for company in companies:
+        if normalize(company["company"]) == normalize(name):
+            return company
+    raise SystemExit(f"entreprise inconnue : {name!r} (voir data/companies.csv)")

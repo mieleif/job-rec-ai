@@ -49,7 +49,8 @@ def clean_html(html: str | None) -> str:
     parser = _TextExtractor()
     parser.feed(html)
     parser.close()
-    text = unescape("".join(parser.parts)).replace("\xa0", " ")
+    # convert_charrefs=True : handle_data reçoit déjà le texte avec les entités décodées
+    text = "".join(parser.parts).replace("\xa0", " ")
     return re.sub(r"\s+", " ", text).strip()
 
 
@@ -58,6 +59,27 @@ def normalize(text: str) -> str:
     text = unicodedata.normalize("NFKD", text.casefold())
     text = "".join(c for c in text if not unicodedata.combining(c))
     return re.sub(r"\s+", " ", text).strip()
+
+
+def compile_keywords(rules) -> list[tuple[str, re.Pattern]]:
+    """[(étiquette, [mots-clés])] → [(étiquette, motif)] qui ne matche que des mots entiers
+    d'un texte normalisé : « it » ne doit pas matcher « audit », ni « onex » « bonex »."""
+    compiled = []
+    for label, keywords in rules:
+        # Plus long d'abord : « supply chain » doit gagner sur « chain »
+        alternatives = "|".join(map(re.escape, sorted(keywords, key=len, reverse=True)))
+        compiled.append((label, re.compile(rf"(?<![a-z0-9])({alternatives})(?![a-z0-9])")))
+    return compiled
+
+
+def first_match(compiled, text: str, default=None) -> tuple[str | None, str | None]:
+    """(étiquette, mot-clé) de la première règle qui matche ; (default, None) sinon.
+    L'ordre des règles est donc une priorité."""
+    for label, pattern in compiled:
+        match = pattern.search(text)
+        if match:
+            return label, match.group(1)
+    return default, None
 
 
 # Mots-outils très fréquents et propres à chaque langue. Compter leurs occurrences est

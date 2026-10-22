@@ -7,15 +7,13 @@ from job_rec_ai.models import Job
 
 COMPANIES = [
     {"company": "Acme", "sector": "Industrie", "canton": "GE", "careers_url": None,
-     "ats": "workday", "board": "https://acme.wd3.myworkdayjobs.com/Acme_Careers",
-     "verified": False},
+     "ats": "workday", "board": "https://acme.wd3.myworkdayjobs.com/Acme_Careers"},
     {"company": "Acme Recherche", "sector": "Recherche", "canton": "GE", "careers_url": None,
-     "ats": "smartrecruiters", "board": "ACME", "verified": False},
+     "ats": "smartrecruiters", "board": "ACME"},
     {"company": "Panne SA", "sector": "Banque", "canton": "GE", "careers_url": None,
-     "ats": "workday", "board": "https://panne.wd1.myworkdayjobs.com/Careers",
-     "verified": False},
+     "ats": "workday", "board": "https://panne.wd1.myworkdayjobs.com/Careers"},
     {"company": "Inconnue SA", "sector": "Banque", "canton": "GE", "careers_url": None,
-     "ats": "successfactors", "board": None, "verified": False},
+     "ats": "successfactors", "board": None},
 ]
 
 
@@ -96,8 +94,27 @@ def test_replay_reconstruit_la_base(con, client, tmp_path):
     assert _count(fresh) == 3
 
 
-def test_reclassify(con):
+def test_rederive(con):
     storage.upsert_jobs(con, [pipeline.enrich(_job(1, "Data Engineer"))], datetime(2026, 10, 1))
-    con.execute("UPDATE jobs SET family = 'Autre'")
-    assert pipeline.reclassify(con) == 1
+    con.execute("UPDATE jobs SET family = 'Autre', canton = NULL")
+    assert pipeline.rederive(con) == 1
     assert storage.counts(con, "family") == [("Data & IA", 1)]
+    assert storage.counts(con, "canton") == [("GE", 1)]
+
+
+def test_replay_rejoue_aussi_les_expirations(con, tmp_path):
+    def payload(day, ids):
+        return {"ats": "smartrecruiters", "company": "Acme", "board": "ACME",
+                "fetched_at": f"2026-10-0{day}T06:00:00+00:00",
+                "postings": [{"id": i, "name": f"Analyste {i}", "location": {"city": "Genève"}}
+                             for i in ids]}
+
+    pipeline.save_raw(payload(1, ["1", "2"]), tmp_path)
+    pipeline.save_raw(payload(2, ["2"]), tmp_path)  # l'offre 1 a disparu le 2 octobre
+    assert pipeline.replay(con, raw_dir=tmp_path) == 3
+    assert storage.totals(con) == (1, 2)
+
+
+def test_boards_verifies_par_les_collectes(con, client, tmp_path):
+    pipeline.crawl(con, [dict(c) for c in COMPANIES], client, raw_dir=tmp_path)
+    assert storage.verified_companies(con) == {"Acme", "Acme Recherche"}

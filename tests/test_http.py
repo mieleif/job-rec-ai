@@ -1,11 +1,12 @@
 import httpx
 import pytest
+from fake_ats import transport
 
 from job_rec_ai.http import DisallowedByRobots, PoliteClient
 
 
 def make_client(handler, sleeps):
-    return PoliteClient(delay=1.0, transport=httpx.MockTransport(handler), sleep=sleeps.append)
+    return PoliteClient(delay=1.0, transport=transport(handler), sleep=sleeps.append)
 
 
 def test_respecte_robots_txt():
@@ -25,7 +26,7 @@ def test_robots_en_panne_on_s_abstient():
         assert not client.allowed("https://down.example/jobs")
 
 
-def test_429_attend_retry_after_puis_reessaie():
+def test_429_attend_retry_after_puis_reessaie(sleeps):
     calls = []
 
     def handler(request):
@@ -36,20 +37,18 @@ def test_429_attend_retry_after_puis_reessaie():
             return httpx.Response(429, headers={"Retry-After": "7"})
         return httpx.Response(200, json={"ok": True})
 
-    sleeps = []
     with make_client(handler, sleeps) as client:
         assert client.get_json("https://x.example/jobs") == {"ok": True}
     assert len(calls) == 2
     assert 7.0 in sleeps
 
 
-def test_5xx_persistant_finit_par_echouer():
+def test_5xx_persistant_finit_par_echouer(sleeps):
     def handler(request):
         if request.url.path == "/robots.txt":
             return httpx.Response(404)
         return httpx.Response(502)
 
-    sleeps = []
     with make_client(handler, sleeps) as client, pytest.raises(httpx.HTTPStatusError):
         client.get_json("https://x.example/jobs")
     assert [s for s in sleeps if s >= 2] == [2, 4, 8, 16]  # backoff exponentiel
