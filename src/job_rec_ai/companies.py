@@ -24,7 +24,7 @@ def load_companies(path: Path | str = DEFAULT_CSV) -> list[dict]:
 
 def save_companies(rows: list[dict], path: Path | str = DEFAULT_CSV) -> None:
     with open(path, "w", encoding="utf-8", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=FIELDS)
+        writer = csv.DictWriter(f, fieldnames=FIELDS, lineterminator="\n")
         writer.writeheader()
         for row in rows:
             writer.writerow({**{k: row.get(k) or "" for k in FIELDS},
