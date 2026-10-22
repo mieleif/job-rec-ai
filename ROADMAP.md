@@ -41,11 +41,11 @@ Lancer un checkpoint : `uv run pytest checkpoints/test_m1_collecte.py -v`
 - [ ] Note : HTTP, codes de statut, JSON, `robots.txt`, rate limiting
 - [ ] Lister 50+ employeurs genevois dans `data/companies.csv` (nom, secteur, URL carrière)
 - [ ] Identifier l'ATS de chacun (Greenhouse, Lever, SmartRecruiters, Workday, Personio…)
-- [ ] Modèle `Job` avec pydantic
+- [x] Modèle `Job` avec pydantic
 - [ ] ⚡ Sauvegarder une vraie réponse JSON d'ATS dans `tests/fixtures/`
-- [ ] Premier connecteur ATS : `fetch()` + `parse()` → `list[Job]`
-- [ ] Deuxième connecteur + `REGISTRY`
-- [ ] Dédoublonnage des offres
+- [x] Premier connecteur ATS : `fetch()` + `parse()` → `list[Job]`
+- [x] Deuxième connecteur + `REGISTRY`
+- [x] Dédoublonnage des offres
 - [ ] Stockage en base (DuckDB pour démarrer) et cap des 1 000 offres
 
 🖼️ Graphique « Top 20 des employeurs qui recrutent à Genève » + répartition des langues.
@@ -62,11 +62,11 @@ Lancer un checkpoint : `uv run pytest checkpoints/test_m1_collecte.py -v`
 🎯 La collecte tourne chaque nuit, toute seule, sans doublons.
 
 - [ ] Note : ETL vs ELT, idempotence, données brutes (bronze / silver / gold)
-- [ ] `clean_html` : HTML → texte propre
-- [ ] ⚡ `detect_language` : fr / en / other
-- [ ] Diff entre deux collectes : nouvelles, modifiées, expirées
-- [ ] Upsert idempotent (relancer = zéro doublon)
-- [ ] Commande `uv run job-rec-ai crawl`
+- [x] `clean_html` : HTML → texte propre
+- [x] ⚡ `detect_language` : fr / en / other
+- [x] Diff entre deux collectes : nouvelles, modifiées, expirées
+- [x] Upsert idempotent (relancer = zéro doublon)
+- [x] Commande `uv run job-rec-ai crawl`
 - [ ] Contrôles qualité (champs vides, anomalies)
 - [ ] Planification nocturne avec GitHub Actions
 
