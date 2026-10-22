@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+
+# Secrets
+.env
+.env.*
+
+# Données
+data/raw/
+data/private/
+*.duckdb
+*.duckdb.wal
+
+# Divers
+.ipynb_checkpoints/
+.DS_Store
+
+# Notes personnelles (privées) : seul le modèle est versionné
+docs/learnings/*
+!docs/learnings/_template.md

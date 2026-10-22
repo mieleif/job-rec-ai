@@ -1,0 +1,39 @@
+[project]
+name = "job-rec-ai"
+version = "0.1.0"
+description = "AI job recommender system: semantic CV-to-job matching on real job postings (embeddings, hybrid search, re-ranking, learning from swipes)."
+readme = "README.md"
+authors = [
+    { name = "Leif", email = "leif@doxarve.com" }
+]
+requires-python = ">=3.12"
+dependencies = []
+
+[project.scripts]
+job-rec-ai = "job_rec_ai:main"
+
+[build-system]
+requires = ["uv_build>=0.13.1,<0.14.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+    "ruff>=0.17.1",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+# E/F : erreurs de style et bugs probables (pycodestyle, pyflakes) ; I : ordre des imports
+select = ["E", "F", "I"]
+
+[tool.ruff.lint.per-file-ignores]
+# Les checkpoints sont des specs écrites à l'avance : on tolère leurs docstrings longues
+"checkpoints/*" = ["E501"]
+
+[tool.pytest.ini_options]
+# Seuls les tests du projet tournent par défaut ; les checkpoints se lancent explicitement
+testpaths = ["tests"]
