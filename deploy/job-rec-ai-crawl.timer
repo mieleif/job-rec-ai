@@ -1,0 +1,12 @@
+[Unit]
+Description=job-rec-ai : collecte chaque nuit
+
+[Timer]
+# 3 h du matin (heure du VPS), à une minute « impaire » pour ne pas tomber pile avec tout le monde
+OnCalendar=*-*-* 03:17
+RandomizedDelaySec=15min
+# Si le VPS était éteint à 3 h, la collecte manquée part au redémarrage
+Persistent=true
+
+[Install]
+WantedBy=timers.target

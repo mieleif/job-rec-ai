@@ -29,6 +29,17 @@ Je n'ouvre pas d'IDE : j'écris mes notes dans le chat et tu les enregistres dan
   et laisse-moi décider de la correction.
 - « modifie la note X : … » → applique la modification demandée.
 
+## Suivi de l'avancement
+
+Chaque session repart d'un clone neuf, sans mémoire des précédentes : `PROGRESS.md` fait le lien.
+
+- **Au début de chaque session**, lis `PROGRESS.md` et vérifie les branches distantes non
+  fusionnées (`git branch -r`) : du travail peut y attendre.
+- **À la fin de chaque tâche significative** (avant le commit), mets `PROGRESS.md` à jour : état
+  des checkpoints, décisions prises avec leur raison, contraintes découvertes, prochaines étapes,
+  une ligne dans le journal des sessions.
+- Les cases de `ROADMAP.md` restent la référence pour les tâches : coche-les, ne les recopie pas.
+
 ## Garde-fous
 
 - Ne modifie **jamais** les fichiers de `checkpoints/` pour faire passer un checkpoint : ce sont les specs.
