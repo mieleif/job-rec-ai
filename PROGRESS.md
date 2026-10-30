@@ -9,7 +9,7 @@ _Dernière mise à jour : 2026-10-30_
 
 | Étape | Checkpoint | Ce qui reste |
 |---|---|---|
-| M0 · Setup | 9/9 (avec une note locale, voir « Contraintes ») | règles perso dans `CLAUDE.md`, Milestones GitHub, questions de contrôle |
+| M0 · Setup | 8/8 | règles perso dans `CLAUDE.md`, Milestones GitHub, questions de contrôle |
 | M1 · Collecte | 7/8 | `tests/fixtures/workday.json` (une vraie réponse d'ATS), vraie collecte : objectif 1 000 offres non vérifié, note HTTP, questions de contrôle |
 | M2 · Pipeline | 7/7 | installer le timer sur le VPS, note ETL/ELT, questions de contrôle |
 | M3 → M8 | pas commencé | |
@@ -28,8 +28,9 @@ Tests du projet : 71 réussis.
   panne, les offres reviennent à la collecte suivante avec leur `first_seen` d'origine.
 - **2026-10-30 · Un fichier brut par collecte** (`<ats>__<entreprise>__<hhmmss>.json.gz`) :
   deux collectes le même jour ne s'écrasent plus.
-- **2026-10-30 · Notes d'apprentissage dans Notion** plutôt que dans git : privées, durables,
-  lisibles hors IDE ; le dépôt public n'en contient que le modèle.
+- **2026-10-30 · Notes d'apprentissage dans Notion, et seulement là** : privées, durables,
+  lisibles hors IDE. Le test M0 qui exigeait une note dans le repo est retiré (à la demande de
+  Leif) : la compréhension se vérifie avec les questions de contrôle, pas avec pytest.
 - **2026-10-22 · Dédoublonnage par URL ou par empreinte « entreprise + titre + lieu ».**
   Compromis accepté : deux vrais postes identiques au même endroit peuvent fusionner.
 
@@ -38,9 +39,8 @@ Tests du projet : 71 réussis.
 - **Le réseau des sessions Claude cloud bloque les ATS** (`*.myworkdayjobs.com`,
   `api.smartrecruiters.com`). Toute collecte réelle, et la création des fixtures
   (`uv run job-rec-ai fixture <entreprise>`), se fait sur le VPS ou en local.
-- **Les notes vivent dans Notion** ([base privée](https://app.notion.com/p/b50dbb73996340038d720ae515550d33)).
-  `docs/learnings/` (gitignoré) n'en est qu'une copie locale, à recréer depuis Notion en début de
-  session : le test `test_premiere_note_de_savoir` en a besoin.
+- **Les notes vivent uniquement dans Notion** ([base privée](https://app.notion.com/p/b50dbb73996340038d720ae515550d33)),
+  hors du repo et hors des tests.
 
 ## Prochaines étapes
 
@@ -55,6 +55,7 @@ Tests du projet : 71 réussis.
 
 - **2026-10-30** : revue et fusion du travail M1/M2 ; première note (venv) ; contrôles qualité
   (alerte d'expiration, commande `quality`, bronze par collecte) ; timer systemd pour le VPS ;
-  création de ce fichier ; notes migrées vers Notion ; PR #1 fusionnée.
+  création de ce fichier ; notes migrées vers Notion ; PR #1 et #2 fusionnées ;
+  test M0 sur les notes retiré, notes hors du repo.
 - **2026-10-22** : M1/M2 : connecteurs Workday et SmartRecruiters, modèle `Job`, DuckDB,
   upsert idempotent, diff de collectes, CLI (`crawl`, `search`, `stats`, `benchmark`…).

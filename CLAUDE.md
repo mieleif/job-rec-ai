@@ -23,13 +23,11 @@ Je n'ouvre pas d'IDE : j'écris mes notes dans le chat et tu les enregistres dan
 base [job-rec-ai · Notes d'apprentissage](https://app.notion.com/p/b50dbb73996340038d720ae515550d33)
 (data source `collection://b51aa0b0-7291-4d73-9eb3-ac5c522e1227`, privée). Une page par concept,
 avec les propriétés Étape (M0…M8), Date et « Question de contrôle » ; structure du contenu :
-`docs/learnings/_template.md`.
+`docs/modele-de-note.md`. Les notes restent dans Notion : aucune copie dans le repo, et aucun
+test ne dépend d'elles.
 
 - Un message qui commence par **`note:`** → crée la page du concept dans Notion (ou complète-la si
   elle existe), puis donne-moi son lien.
-- `docs/learnings/` (gitignoré) n'est qu'une copie locale : écris-y aussi la note en
-  `<concept-en-kebab-case>.md`. En début de session, s'il est vide, recopie-y les notes de Notion
-  (le checkpoint M0 vérifie qu'il en contient au moins une).
 - Garde **mes mots** : corrige seulement l'orthographe et la mise en forme, ne réécris pas le fond.
 - Si ce que j'écris est faux ou imprécis, ne corrige pas en silence : signale-le-moi dans ta réponse
   et laisse-moi décider de la correction.
@@ -49,6 +47,7 @@ Chaque session repart d'un clone neuf, sans mémoire des précédentes : `PROGRE
 ## Garde-fous
 
 - Ne modifie **jamais** les fichiers de `checkpoints/` pour faire passer un checkpoint : ce sont les specs.
+  Elles ne changent que sur ma demande explicite.
 
 ## Conventions
 

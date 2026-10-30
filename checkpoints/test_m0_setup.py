@@ -61,10 +61,3 @@ def test_secrets_ignores():
     assert path.exists(), ".gitignore introuvable"
     text = path.read_text(encoding="utf-8")
     assert ".venv" in text and ".env" in text, ".venv et .env doivent figurer dans .gitignore"
-
-
-def test_premiere_note_de_savoir():
-    """Contenir au moins une note de savoir dans docs/learnings/."""
-    notes = [p for p in (ROOT / "docs" / "learnings").glob("*.md")
-             if not p.name.startswith(("_", "self-check"))]
-    assert notes, "aucune note : copie docs/learnings/_template.md et écris la tienne"

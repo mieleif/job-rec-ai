@@ -6,7 +6,7 @@ Neuf étapes, de la collecte des offres jusqu'à une API en production. Chaque �
 - **Tâches** : petites et cochables. ⚡ = moins de 30 min, pour les jours où l'énergie manque ;
 - **🖼️ Livrable** : quelque chose à montrer (graphique, tableau, démo) à mettre dans le README ;
 - **✅ Checkpoint** : l'étape est terminée quand les tests de `checkpoints/` passent
-  **et** que je sais répondre aux questions de contrôle avec mes mots (réponses notées dans Notion, privé : écrire `note: …` dans le chat).
+  **et** que je sais répondre aux questions de contrôle avec mes mots (réponses notées dans Notion, hors tests : écrire `note: …` dans le chat).
 
 Lancer un checkpoint : `uv run pytest checkpoints/test_m1_collecte.py -v`
 

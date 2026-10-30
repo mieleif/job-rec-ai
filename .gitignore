@@ -18,7 +18,3 @@ data/private/
 # Divers
 .ipynb_checkpoints/
 .DS_Store
-
-# Notes personnelles (privées) : seul le modèle est versionné
-docs/learnings/*
-!docs/learnings/_template.md
