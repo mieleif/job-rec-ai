@@ -10,12 +10,13 @@ construit étape par étape, comme projet d'apprentissage en data engineering et
 
 Voir **[ROADMAP.md](ROADMAP.md)** : 9 étapes, chacune validée par des tests d'acceptation
 (`checkpoints/`).
+Où on en est, et les décisions prises : **[PROGRESS.md](PROGRESS.md)**.
 
 | Étape | Statut |
 |---|---|
 | M0 · Setup | 🚧 en cours |
-| M1 · Collecte | ⏳ |
-| M2 · Pipeline | ⏳ |
+| M1 · Collecte | 🚧 en cours |
+| M2 · Pipeline | 🚧 en cours |
 | M3 · Baseline et évaluation | ⏳ |
 | M4 · Embeddings et recherche sémantique | ⏳ |
 | M5 · Enrichissement par LLM | ⏳ |
