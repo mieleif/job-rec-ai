@@ -1,0 +1,18 @@
+# Collecte nocturne, lancée par job-rec-ai-crawl.timer (unité systemd « utilisateur »).
+# Installation : voir deploy/README.md
+[Unit]
+Description=job-rec-ai : collecte des offres d'emploi
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+# oneshot : le service tourne puis s'arrête. systemd ne lance jamais deux collectes en
+# parallèle : si la précédente tourne encore, le timer attend (DuckDB n'accepte qu'un écrivain).
+Type=oneshot
+WorkingDirectory=%h/job-rec-ai
+# --frozen : on exécute exactement les versions de uv.lock, sans jamais les mettre à jour
+ExecStart=%h/.local/bin/uv run --frozen job-rec-ai crawl
+# Le rapport qualité suit chaque collecte réussie : il finit dans le journal, avec le reste
+ExecStartPost=%h/.local/bin/uv run --frozen job-rec-ai quality
+# Garde-fou : une collecte normale prend quelques dizaines de minutes
+TimeoutStartSec=3h

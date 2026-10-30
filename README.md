@@ -29,11 +29,13 @@ Voir **[ROADMAP.md](ROADMAP.md)** : 9 étapes, chacune validée par des tests d'
 uv run job-rec-ai boards                       # quels ATS couvrent quelles entreprises
 uv run job-rec-ai crawl                        # collecte GE + VD → data/jobs.duckdb
 uv run job-rec-ai stats company family         # répartition des offres actives
+uv run job-rec-ai quality                      # champs vides, collectes en échec
 uv run job-rec-ai search --canton GE --family "Data & IA" --sort recent --urls
 uv run --env-file .env job-rec-ai benchmark    # couverture comparée à Adzuna
 ```
 
 Les entreprises suivies sont dans [`data/companies.csv`](data/companies.csv).
+Collecte nocturne sur un VPS : voir [`deploy/`](deploy/README.md).
 
 ## Structure
 

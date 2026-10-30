@@ -25,6 +25,8 @@ def _cmd_crawl(args, con):
         print(f"  ok      {name:<35} {loaded:>5} offres  ({expired} expirées)")
     for name, error in report.errors:
         print(f"  ERREUR  {name:<35} {error}")
+    for name, held in report.suspect:
+        print(f"  ALERTE  {name:<35} {held} offres disparues d'un coup : gardées actives")
     print(f"\n{len(report.ok)} ok, {len(report.errors)} en erreur, "
           f"{len(report.skipped)} ignorées (sans connecteur : voir `boards`)")
 
@@ -55,6 +57,22 @@ def _cmd_stats(args, con):
     print(f"{active} offres actives ({total} vues au total)")
     for facet in args.facets or ["company", "family", "canton", "seniority", "language"]:
         _print_counts(con, facet, args.limit)
+
+
+def _cmd_quality(args, con):
+    """Les anomalies, par source : une part élevée sur une seule source = parseur à revoir."""
+    columns = [("empty_description", "desc. vide"),
+               ("short_description", f"< {storage.SHORT_DESCRIPTION} car."),
+               ("no_date", "sans date"), ("no_canton", "sans canton"),
+               ("other_language", "ni fr ni en")]
+    print(f"{'source':<16} {'actives':>7}" + "".join(f" {label:>12}" for _, label in columns))
+    for row in storage.quality(con):
+        print(f"{row['source']:<16} {row['active']:>7}"
+              + "".join(f" {row[key]:>12.0%}" for key, _ in columns))
+    failing = storage.failing_companies(con)
+    print(f"\n{len(failing)} entreprise(s) en échec ou suspecte(s) à la dernière collecte")
+    for company, ats, status, error in failing:
+        print(f"  {status:<8} {company:<30} ({ats}) {error or ''}")
 
 
 def _cmd_search(args, con):
@@ -126,6 +144,9 @@ def build_parser() -> argparse.ArgumentParser:
                    help=f"parmi : {', '.join(storage.FACETS)}")
     p.add_argument("--limit", type=int, default=15)
     p.set_defaults(func=_cmd_stats)
+
+    sub.add_parser("quality", help="contrôles qualité : champs vides, collectes en échec"
+                   ).set_defaults(func=_cmd_quality)
 
     p = sub.add_parser("search", help="filtrer et trier les offres")
     for facet in storage.FACETS:

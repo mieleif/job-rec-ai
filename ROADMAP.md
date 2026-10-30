@@ -67,8 +67,8 @@ Lancer un checkpoint : `uv run pytest checkpoints/test_m1_collecte.py -v`
 - [x] Diff entre deux collectes : nouvelles, modifiées, expirées
 - [x] Upsert idempotent (relancer = zéro doublon)
 - [x] Commande `uv run job-rec-ai crawl`
-- [ ] Contrôles qualité (champs vides, anomalies)
-- [ ] Planification nocturne avec GitHub Actions
+- [x] Contrôles qualité (champs vides, anomalies)
+- [ ] Planification nocturne sur le VPS (timer systemd, voir `deploy/`)
 
 🖼️ Notebook « Le marché de l'emploi genevois en 5 graphiques ».
 

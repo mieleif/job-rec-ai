@@ -118,3 +118,66 @@ def test_replay_rejoue_aussi_les_expirations(con, tmp_path):
 def test_boards_verifies_par_les_collectes(con, client, tmp_path):
     pipeline.crawl(con, [dict(c) for c in COMPANIES], client, raw_dir=tmp_path)
     assert storage.verified_companies(con) == {"Acme", "Acme Recherche"}
+
+
+def _payload(ids, at="2026-10-02T06:00:00+00:00"):
+    return {"ats": "smartrecruiters", "company": "Acme", "board": "ACME", "fetched_at": at,
+            "postings": [{"id": i, "name": f"Analyste {i}", "location": {"city": "Genève"}}
+                         for i in ids]}
+
+
+def test_garde_fou_collecte_vide(con):
+    pipeline.ingest(con, _payload(["1", "2"], at="2026-10-01T06:00:00+00:00"))
+    result = pipeline.ingest(con, _payload([]))  # l'ATS ne renvoie plus rien
+    assert (result.loaded, result.expired, result.held) == (0, 0, 2)
+    assert _count(con, "active") == 2
+
+
+def test_garde_fou_disparition_massive(con):
+    ids = [str(i) for i in range(10)]
+    pipeline.ingest(con, _payload(ids, at="2026-10-01T06:00:00+00:00"))
+    assert pipeline.ingest(con, _payload(ids[:3])).held == 7  # 7 sur 10 : suspect
+    assert _count(con, "active") == 10
+    # Retraits ordinaires : 2 offres sur 10, on expire normalement
+    result = pipeline.ingest(con, _payload(ids[:8], at="2026-10-03T06:00:00+00:00"))
+    assert (result.expired, result.held) == (2, 0)
+
+
+@pytest.mark.parametrize(("missing", "active", "loaded", "suspect"), [
+    (0, 10, 10, False),  # rien ne disparaît
+    (2, 10, 8, False),   # retraits ordinaires
+    (6, 10, 4, True),    # plus de la moitié, et au moins MIN_SUSPECT
+    (3, 4, 1, False),    # petite entreprise : 3 sur 4 reste plausible
+    (3, 3, 0, True),     # plus rien du tout : toujours suspect
+])
+def test_expiration_is_suspect(missing, active, loaded, suspect):
+    assert pipeline.expiration_is_suspect(missing, active, loaded) is suspect
+
+
+def test_bronze_une_archive_par_collecte(tmp_path):
+    pipeline.save_raw(_payload(["1"], at="2026-10-02T06:00:00+00:00"), tmp_path)
+    pipeline.save_raw(_payload(["1"], at="2026-10-02T18:30:05+00:00"), tmp_path)
+    names = sorted(p.name for p in tmp_path.glob("*/*.json.gz"))
+    assert names == ["smartrecruiters__acme__060000.json.gz",
+                     "smartrecruiters__acme__183005.json.gz"]
+
+
+def test_crawl_signale_les_suspects(con, client, tmp_path, monkeypatch):
+    # Deux collectes à heures fixes (le vrai fetch horodate à la seconde : trop serré ici)
+    payloads = iter([_payload(["1", "2"], at="2026-10-01T06:00:00+00:00"), _payload([])])
+    monkeypatch.setattr(pipeline, "fetch_company", lambda company, client: next(payloads))
+    companies = [{**COMPANIES[1], "company": "Acme"}]
+    assert pipeline.crawl(con, companies, client, raw_dir=tmp_path).suspect == []
+    assert pipeline.crawl(con, companies, client, raw_dir=tmp_path).suspect == [("Acme", 2)]
+    assert storage.failing_companies(con) == [
+        ("Acme", "smartrecruiters", "suspect", "2 offres disparues, expiration suspendue")]
+
+
+def test_quality(con):
+    rows = [pipeline.enrich(_job(1)), pipeline.enrich(_job(2))]
+    rows[1]["description"] = ""
+    storage.upsert_jobs(con, rows, datetime(2026, 10, 1))
+    (q,) = storage.quality(con)
+    assert (q["source"], q["active"]) == ("workday", 2)
+    assert (q["empty_description"], q["short_description"]) == (0.5, 1.0)
+    assert q["no_date"] == 1.0 and q["no_canton"] == 0.0

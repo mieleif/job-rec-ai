@@ -52,7 +52,7 @@ CREATE TABLE IF NOT EXISTS crawl_runs (
     started_at TIMESTAMP,
     company    VARCHAR,
     ats        VARCHAR,
-    status     VARCHAR,      -- ok | error | skipped
+    status     VARCHAR,      -- ok | suspect | error | skipped
     fetched    INTEGER,      -- offres brutes rapportées par l'ATS (déjà filtrées par lieu)
     loaded     INTEGER,      -- offres valides chargées en base
     error      VARCHAR
@@ -103,6 +103,15 @@ def upsert_jobs(con, rows: list[dict], seen_at: datetime) -> None:
     """
     stamps = {"first_seen": seen_at, "last_seen": seen_at, "active": True}
     _upsert(con, "jobs", "url", [{**row, **stamps} for row in rows], keep=("first_seen",))
+
+
+def expiration_preview(con, company: str, source: str, seen_at: datetime) -> tuple[int, int]:
+    """(offres qu'expire_missing désactiverait, offres actives) : à regarder avant d'expirer."""
+    return con.execute(
+        """SELECT count(*) FILTER (last_seen < ?), count(*) FROM jobs
+           WHERE company = ? AND source = ? AND active""",
+        [seen_at, company, source],
+    ).fetchone()
 
 
 def expire_missing(con, company: str, source: str, seen_at: datetime) -> int:
@@ -212,3 +221,43 @@ def counts(con, facet: str, limit: int | None = 20) -> list[tuple[str, int]]:
 
 def jobs_for_derivation(con) -> list[tuple[str, str, str, str]]:
     return con.execute("SELECT url, title, location, description FROM jobs").fetchall()
+
+
+# --- contrôles qualité ----------------------------------------------------------------------
+
+SHORT_DESCRIPTION = 300  # caractères : en dessous, l'annonce est probablement tronquée
+
+
+def quality(con) -> list[dict]:
+    """Par source : nombre d'offres actives et part de chaque anomalie (entre 0 et 1).
+
+    Une part élevée sur UNE source signale en général un parseur cassé (l'ATS a changé
+    son format), pas un problème du marché.
+    """
+    cursor = con.execute(
+        """SELECT source,
+                  count(*)                                               AS active,
+                  avg((coalesce(description, '') = '')::INT)             AS empty_description,
+                  avg((coalesce(length(description), 0) < ?)::INT)       AS short_description,
+                  avg((posted_at IS NULL)::INT)                          AS no_date,
+                  avg((canton IS NULL)::INT)                             AS no_canton,
+                  avg((coalesce(language, 'other') = 'other')::INT)      AS other_language
+           FROM jobs WHERE active GROUP BY source ORDER BY source""",
+        [SHORT_DESCRIPTION],
+    )
+    names = [d[0] for d in cursor.description]
+    return [dict(zip(names, row)) for row in cursor.fetchall()]
+
+
+def failing_companies(con) -> list[tuple[str, str, str, str | None]]:
+    """Entreprises dont la DERNIÈRE collecte a échoué ou semble suspecte.
+
+    (entreprise, ats, statut, message), triées par entreprise.
+    """
+    return con.execute(
+        """SELECT company, ats, status, error FROM crawl_runs
+           WHERE status <> 'skipped'
+           QUALIFY row_number() OVER (PARTITION BY company ORDER BY started_at DESC) = 1
+                   AND status IN ('error', 'suspect')
+           ORDER BY company"""
+    ).fetchall()
