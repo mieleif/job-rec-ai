@@ -28,6 +28,8 @@ Tests du projet : 71 réussis.
   panne, les offres reviennent à la collecte suivante avec leur `first_seen` d'origine.
 - **2026-10-30 · Un fichier brut par collecte** (`<ats>__<entreprise>__<hhmmss>.json.gz`) :
   deux collectes le même jour ne s'écrasent plus.
+- **2026-10-30 · Notes d'apprentissage dans Notion** plutôt que dans git : privées, durables,
+  lisibles hors IDE ; le dépôt public n'en contient que le modèle.
 - **2026-10-22 · Dédoublonnage par URL ou par empreinte « entreprise + titre + lieu ».**
   Compromis accepté : deux vrais postes identiques au même endroit peuvent fusionner.
 
@@ -36,9 +38,9 @@ Tests du projet : 71 réussis.
 - **Le réseau des sessions Claude cloud bloque les ATS** (`*.myworkdayjobs.com`,
   `api.smartrecruiters.com`). Toute collecte réelle, et la création des fixtures
   (`uv run job-rec-ai fixture <entreprise>`), se fait sur le VPS ou en local.
-- **`docs/learnings/` est gitignoré** : les notes n'existent que sur la machine où elles ont
-  été écrites. Une nouvelle session cloud repart d'un clone sans notes, et le test
-  `test_premiere_note_de_savoir` y échoue. À décider : où garder les notes durablement.
+- **Les notes vivent dans Notion** ([base privée](https://app.notion.com/p/b50dbb73996340038d720ae515550d33)).
+  `docs/learnings/` (gitignoré) n'en est qu'une copie locale, à recréer depuis Notion en début de
+  session : le test `test_premiere_note_de_savoir` en a besoin.
 
 ## Prochaines étapes
 
@@ -53,6 +55,6 @@ Tests du projet : 71 réussis.
 
 - **2026-10-30** : revue et fusion du travail M1/M2 ; première note (venv) ; contrôles qualité
   (alerte d'expiration, commande `quality`, bronze par collecte) ; timer systemd pour le VPS ;
-  création de ce fichier.
+  création de ce fichier ; notes migrées vers Notion ; PR #1 fusionnée.
 - **2026-10-22** : M1/M2 : connecteurs Workday et SmartRecruiters, modèle `Job`, DuckDB,
   upsert idempotent, diff de collectes, CLI (`crawl`, `search`, `stats`, `benchmark`…).
