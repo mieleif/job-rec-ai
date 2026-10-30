@@ -43,7 +43,7 @@ Collecte nocturne sur un VPS : voir [`deploy/`](deploy/README.md).
 ```
 src/job_rec_ai/     le moteur (créé à l'étape M0)
 checkpoints/        tests d'acceptation de chaque étape de la roadmap
-docs/learnings/     notes personnelles (privées, non versionnées) + modèle
+docs/learnings/     modèle des notes personnelles (les notes vivent dans Notion, privées)
 ```
 
 ## Licence
