@@ -126,21 +126,22 @@ def _payload(ids, at="2026-10-02T06:00:00+00:00"):
                          for i in ids]}
 
 
-def test_garde_fou_collecte_vide(con):
+def test_alerte_collecte_vide(con):
     pipeline.ingest(con, _payload(["1", "2"], at="2026-10-01T06:00:00+00:00"))
     result = pipeline.ingest(con, _payload([]))  # l'ATS ne renvoie plus rien
-    assert (result.loaded, result.expired, result.held) == (0, 0, 2)
-    assert _count(con, "active") == 2
+    assert (result.loaded, result.expired, result.suspect) == (0, 2, True)
+    assert _count(con, "active") == 0  # on s'aligne quand même sur la source
 
 
-def test_garde_fou_disparition_massive(con):
+def test_alerte_disparition_massive_puis_retour(con):
     ids = [str(i) for i in range(10)]
     pipeline.ingest(con, _payload(ids, at="2026-10-01T06:00:00+00:00"))
-    assert pipeline.ingest(con, _payload(ids[:3])).held == 7  # 7 sur 10 : suspect
-    assert _count(con, "active") == 10
-    # Retraits ordinaires : 2 offres sur 10, on expire normalement
-    result = pipeline.ingest(con, _payload(ids[:8], at="2026-10-03T06:00:00+00:00"))
-    assert (result.expired, result.held) == (2, 0)
+    result = pipeline.ingest(con, _payload(ids[:3]))  # 7 sur 10 : suspect
+    assert (result.expired, result.suspect) == (7, True)
+    # C'était une panne : tout revient le lendemain, avec la date d'apparition d'origine
+    result = pipeline.ingest(con, _payload(ids, at="2026-10-03T06:00:00+00:00"))
+    assert (result.expired, result.suspect) == (0, False)
+    assert _count(con, "active AND first_seen = TIMESTAMP '2026-10-01 06:00:00'") == 10
 
 
 @pytest.mark.parametrize(("missing", "active", "loaded", "suspect"), [
@@ -170,7 +171,7 @@ def test_crawl_signale_les_suspects(con, client, tmp_path, monkeypatch):
     assert pipeline.crawl(con, companies, client, raw_dir=tmp_path).suspect == []
     assert pipeline.crawl(con, companies, client, raw_dir=tmp_path).suspect == [("Acme", 2)]
     assert storage.failing_companies(con) == [
-        ("Acme", "smartrecruiters", "suspect", "2 offres disparues, expiration suspendue")]
+        ("Acme", "smartrecruiters", "suspect", "2 offres disparues d'un coup")]
 
 
 def test_quality(con):

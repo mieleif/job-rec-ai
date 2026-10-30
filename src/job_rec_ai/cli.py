@@ -25,8 +25,8 @@ def _cmd_crawl(args, con):
         print(f"  ok      {name:<35} {loaded:>5} offres  ({expired} expirées)")
     for name, error in report.errors:
         print(f"  ERREUR  {name:<35} {error}")
-    for name, held in report.suspect:
-        print(f"  ALERTE  {name:<35} {held} offres disparues d'un coup : gardées actives")
+    for name, expired in report.suspect:
+        print(f"  ALERTE  {name:<35} {expired} offres disparues d'un coup : panne de l'ATS ?")
     print(f"\n{len(report.ok)} ok, {len(report.errors)} en erreur, "
           f"{len(report.skipped)} ignorées (sans connecteur : voir `boards`)")
 

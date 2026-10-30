@@ -27,8 +27,10 @@ from job_rec_ai.text import detect_language, normalize
 log = logging.getLogger(__name__)
 RAW_DIR = Path("data/raw")
 
-# Garde-fou d'expiration : une disparition massive ressemble plus à une panne (API modifiée,
-# filtre cassé) qu'à des retraits d'offres. Dans le doute, on garde les offres actives.
+# Alerte d'expiration : une disparition massive ressemble plus à une panne (API modifiée,
+# filtre cassé) qu'à des retraits d'offres. On s'aligne quand même sur la source (elle a
+# raison jusqu'à preuve du contraire), mais on le signale. Si c'était une panne, les offres
+# redeviendront actives à la collecte suivante, avec leur date d'apparition d'origine.
 MAX_EXPIRE_SHARE = 0.5  # au-delà de la moitié des offres actives…
 MIN_SUSPECT = 5         # …et d'au moins 5 offres (3 offres sur 4 chez une PME, c'est plausible)
 
@@ -50,7 +52,7 @@ def enrich(job: Job) -> dict:
 
 
 def expiration_is_suspect(missing: int, active: int, loaded: int) -> bool:
-    """Faut-il refuser d'expirer `missing` offres sur `active` ? (voir MAX_EXPIRE_SHARE)"""
+    """Expirer `missing` offres sur `active` mérite-t-il une alerte ? (voir MAX_EXPIRE_SHARE)"""
     if missing == 0:
         return False
     if loaded == 0:  # l'ATS ne renvoie plus rien : le symptôme classique d'une API cassée
@@ -62,23 +64,22 @@ def expiration_is_suspect(missing: int, active: int, loaded: int) -> bool:
 class Ingested:
     loaded: int   # offres valides chargées
     expired: int  # offres désactivées car absentes de cette collecte
-    held: int     # offres absentes mais gardées actives par le garde-fou (0 si tout va bien)
+    suspect: bool  # disparition massive : expirée quand même, mais à vérifier
 
 
 def ingest(con, payload: dict) -> Ingested:
     """Charge le payload brut d'UNE entreprise : upsert puis expiration de ses offres
-    absentes, sauf si cette expiration semble suspecte. Un payload est un instantané complet
-    de l'entreprise à `fetched_at` : c'est ce qui rend le bronze rejouable."""
+    absentes (signalée si elle semble suspecte). Un payload est un instantané complet de
+    l'entreprise à `fetched_at` : c'est ce qui rend le bronze rejouable."""
     seen_at = datetime.fromisoformat(payload["fetched_at"]).replace(tzinfo=None)
     company, source = payload["company"], payload["ats"]
     jobs = dedupe(REGISTRY[source].parse(payload))
     storage.upsert_jobs(con, [enrich(j) for j in jobs], seen_at)
     missing, active = storage.expiration_preview(con, company, source, seen_at)
-    if expiration_is_suspect(missing, active, len(jobs)):
-        log.warning("%s : %d offres sur %d ont disparu, expiration suspendue",
-                    company, missing, active)
-        return Ingested(len(jobs), 0, missing)
-    return Ingested(len(jobs), storage.expire_missing(con, company, source, seen_at), 0)
+    suspect = expiration_is_suspect(missing, active, len(jobs))
+    if suspect:
+        log.warning("%s : %d offres sur %d ont disparu d'un coup", company, missing, active)
+    return Ingested(len(jobs), storage.expire_missing(con, company, source, seen_at), suspect)
 
 
 def _slug(name: str) -> str:
@@ -117,7 +118,7 @@ def fetch_company(company: dict, client: PoliteClient) -> dict:
 @dataclass
 class CrawlReport:
     ok: list[tuple[str, int, int]] = field(default_factory=list)  # (entreprise, chargées, expirées)
-    suspect: list[tuple[str, int]] = field(default_factory=list)  # (entreprise, offres gardées)
+    suspect: list[tuple[str, int]] = field(default_factory=list)  # (entreprise, expirées)
     errors: list[tuple[str, str]] = field(default_factory=list)
     skipped: list[tuple[str, str]] = field(default_factory=list)
 
@@ -151,13 +152,13 @@ def crawl(con, companies: list[dict], client: PoliteClient, raw_dir: Path = RAW_
                             error=error[:500])
             continue
         report.ok.append((name, result.loaded, result.expired))
-        if result.held:
-            report.suspect.append((name, result.held))
+        if result.suspect:
+            report.suspect.append((name, result.expired))
         storage.log_run(con, started_at=started, company=name, ats=ats,
-                        status="suspect" if result.held else "ok",
+                        status="suspect" if result.suspect else "ok",
                         fetched=len(payload["postings"]), loaded=result.loaded,
-                        error=f"{result.held} offres disparues, expiration suspendue"
-                        if result.held else None)
+                        error=f"{result.expired} offres disparues d'un coup"
+                        if result.suspect else None)
     return report
 
 
