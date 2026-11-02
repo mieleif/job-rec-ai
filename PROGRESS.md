@@ -3,21 +3,28 @@
 Le carnet de bord du projet : où on en est, ce qu'on a décidé et pourquoi, la suite.
 Les tâches cochables restent dans [ROADMAP.md](ROADMAP.md) ; ce fichier ne les recopie pas.
 
-_Dernière mise à jour : 2026-10-30_
+_Dernière mise à jour : 2026-11-02_
 
 ## Où on en est
 
 | Étape | Checkpoint | Ce qui reste |
 |---|---|---|
 | M0 · Setup | 9/9 (avec une note locale, voir « Contraintes ») | règles perso dans `CLAUDE.md`, Milestones GitHub, questions de contrôle |
-| M1 · Collecte | 7/8 | `tests/fixtures/workday.json` (une vraie réponse d'ATS), vraie collecte : objectif 1 000 offres non vérifié, note HTTP, questions de contrôle |
+| M1 · Collecte | 7/8 : fixtures réelles Workday + Greenhouse OK, SmartRecruiters impossible (robots.txt, voir « Décisions ») | **24 offres réelles sur 1 000** : couvrir plus d'employeurs (43 sans ATS identifié), note HTTP, questions de contrôle |
 | M2 · Pipeline | 7/7 | installer le timer sur le VPS, note ETL/ELT, questions de contrôle |
 | M3 → M8 | pas commencé | |
 
-Tests du projet : 71 réussis.
+Tests du projet : 75 réussis.
 
 ## Décisions
 
+- **2026-11-02 · SmartRecruiters : à décider.** Son `robots.txt` interdit l'API à tous les robots
+  sauf LinkedIn (`User-agent: * / Disallow: /`) : le `PoliteClient` refuse donc toute requête,
+  et CERN finit en erreur à chaque collecte. Aucune fixture réelle ne peut être créée
+  légitimement, d'où le checkpoint M1 à 7/8. Options : retirer le connecteur du `REGISTRY`
+  (et adapter les tests du pipeline, qui s'en servent comme ATS générique), ou le garder en sommeil.
+- **2026-11-02 · Connecteur Greenhouse** (Proton) : une seule requête rapporte tout le board,
+  descriptions comprises, et la langue déclarée de l'annonce.
 - **2026-10-30 · La base vit sur le VPS de Leif, la collecte nocturne aussi** (timer systemd,
   voir [`deploy/`](deploy/README.md)). Faire tourner la collecte sur GitHub Actions aurait
   obligé à transférer `jobs.duckdb` dans les deux sens chaque nuit et à confier une clé SSH à
@@ -35,6 +42,9 @@ Tests du projet : 71 réussis.
 
 ## Contraintes à connaître
 
+- **Les URL de board ne sont fiables qu'après une collecte réelle.** Le 2026-11-02, Richemont
+  (`wd3`, 404) et PMI (passé chez Phenom) étaient faux ; Caterpillar, Logitech, Medtronic et
+  Edwards répondent. `uv run job-rec-ai boards` marque d'un « ? » les boards jamais vérifiés.
 - **Le réseau des sessions Claude cloud bloque les ATS** (`*.myworkdayjobs.com`,
   `api.smartrecruiters.com`). Toute collecte réelle, et la création des fixtures
   (`uv run job-rec-ai fixture <entreprise>`), se fait sur le VPS ou en local.
@@ -44,15 +54,23 @@ Tests du projet : 71 réussis.
 
 ## Prochaines étapes
 
-1. Sur le VPS : installer la collecte nocturne ([deploy/README.md](deploy/README.md)),
-   lancer `uv run job-rec-ai fixture Richemont`, committer la fixture.
-2. Interpréter ensemble la première sortie de `uv run job-rec-ai quality`.
-3. M3 : similarité cosinus (intuition géométrique, exemple 2D), puis TF-IDF from scratch et
+1. Décider du sort de SmartRecruiters (voir « Décisions »), pour fermer le checkpoint M1.
+2. Augmenter la couverture : 24 offres pour un objectif de 1 000. Retrouver les boards de
+   Richemont, Cargill, Bunge, Haleon (Workday) ; un connecteur SuccessFactors couvrirait
+   Nestlé et Givaudan ; identifier l'ATS des 43 employeurs restants.
+3. Sur le VPS : installer la collecte nocturne ([deploy/README.md](deploy/README.md)).
+4. Interpréter ensemble la première sortie de `uv run job-rec-ai quality`.
+5. M3 : similarité cosinus (intuition géométrique, exemple 2D), puis TF-IDF from scratch et
    les métriques d'évaluation (precision@k, MRR, nDCG).
-4. Finir M0 : règles perso dans `CLAUDE.md`, Milestones GitHub.
+6. Finir M0 : règles perso dans `CLAUDE.md`, Milestones GitHub.
 
 ## Journal des sessions
 
+- **2026-11-02** (en local, réseau ouvert) : fixture Workday réelle (Logitech) ; connecteur
+  Greenhouse + fixture (Proton) ; correctif `geo` (les lieux multi-sites citant la Suisse et un
+  pays étranger étaient écartés : 3 offres Proton sur 7 perdues) ; boards Richemont et PMI
+  corrigés ; première vraie collecte : 24 offres (Logitech 12, Proton 7, Medtronic 4, Edwards 1,
+  Caterpillar 0) ; découverte du blocage SmartRecruiters par robots.txt.
 - **2026-10-30** : revue et fusion du travail M1/M2 ; première note (venv) ; contrôles qualité
   (alerte d'expiration, commande `quality`, bronze par collecte) ; timer systemd pour le VPS ;
   création de ce fichier ; notes migrées vers Notion ; PR #1 fusionnée.

@@ -1,6 +1,6 @@
 company,sector,canton,careers_url,ats,board
 Rolex,Horlogerie,GE,https://www.rolex.com/rolex-careers,,
-Richemont,Luxe,GE,https://www.careers.richemont.com,workday,https://richemont.wd3.myworkdayjobs.com/Richemont_Careers
+Richemont,Luxe,GE,https://www.careers.richemont.com,workday,
 Patek Philippe,Horlogerie,GE,https://www.patek.com/en/company/careers,,
 dsm-firmenich,Arômes & parfums,GE,https://www.dsm-firmenich.com/en/careers.html,,
 Givaudan,Arômes & parfums,GE,https://www.givaudan.com/careers,successfactors,
@@ -36,7 +36,7 @@ CICR,Organisation internationale,GE,https://careers.icrc.org,,
 Forum économique mondial,Organisation internationale,GE,https://www.weforum.org/careers,,
 Organisation mondiale de la santé,Organisation internationale,GE,https://www.who.int/careers,,
 Nestlé,Agroalimentaire,VD,https://www.nestle.com/jobs,successfactors,
-Philip Morris International,Tabac,VD,https://www.pmi.com/careers,workday,https://pmi.wd3.myworkdayjobs.com/PMI
+Philip Morris International,Tabac,VD,https://www.pmi.com/careers,phenom,
 Logitech,Électronique,VD,https://www.logitech.com/careers,workday,https://logitech.wd5.myworkdayjobs.com/Logitech
 Medtronic,Dispositifs médicaux,VD,https://www.medtronic.com/careers,workday,https://medtronic.wd1.myworkdayjobs.com/MedtronicCareers
 Edwards Lifesciences,Dispositifs médicaux,VD,https://www.edwards.com/careers,workday,https://edwards.wd5.myworkdayjobs.com/EdwardsCareers

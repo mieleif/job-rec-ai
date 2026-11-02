@@ -41,6 +41,9 @@ _FOREIGN = re.compile(
     r"united states|\busa\b|illinois|new york|\b(il|ny|oh|al|wa)\b|ohio|alabama|"
     r"florida|france|italy|italia|united kingdom"
 )
+# Une offre multi-sites (« Geneva, Switzerland, Paris, France ») cite un pays étranger sans
+# être à l'étranger : la Suisse nommée explicitement lève le veto des homonymes.
+_SWISS = re.compile(r"switzerland|suisse|schweiz|svizzera")
 
 
 def canton_of(location: str | None) -> str | None:
@@ -48,7 +51,7 @@ def canton_of(location: str | None) -> str | None:
     if not location:
         return None
     norm = normalize(location)
-    if _FOREIGN.search(norm):
+    if _FOREIGN.search(norm) and not _SWISS.search(norm):
         return None
     canton, _ = first_match(_PATTERNS, norm)
     if canton:
