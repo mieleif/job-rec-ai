@@ -3,14 +3,14 @@
 Le carnet de bord du projet : où on en est, ce qu'on a décidé et pourquoi, la suite.
 Les tâches cochables restent dans [ROADMAP.md](ROADMAP.md) ; ce fichier ne les recopie pas.
 
-_Dernière mise à jour : 2026-11-02_
+_Dernière mise à jour : 2026-11-03_
 
 ## Où on en est
 
 | Étape | Checkpoint | Ce qui reste |
 |---|---|---|
 | M0 · Setup | 9/9 (avec une note locale, voir « Contraintes ») | règles perso dans `CLAUDE.md`, Milestones GitHub, questions de contrôle |
-| M1 · Collecte | 7/8 : fixtures réelles Workday + Greenhouse OK, SmartRecruiters impossible (robots.txt, voir « Décisions ») | **24 offres réelles sur 1 000** : couvrir plus d'employeurs (43 sans ATS identifié), note HTTP, questions de contrôle |
+| M1 · Collecte | 7/8 : fixtures réelles Workday + Greenhouse OK, SmartRecruiters impossible (robots.txt, voir « Décisions ») | **94 offres réelles sur 1 000** : SmartRecruiters (~120 offres GE/VD bloquées), connecteur SuccessFactors (11 employeurs), note HTTP, questions de contrôle |
 | M2 · Pipeline | 7/7 | installer le timer sur le VPS, note ETL/ELT, questions de contrôle |
 | M3 → M8 | pas commencé | |
 
@@ -19,10 +19,13 @@ Tests du projet : 75 réussis.
 ## Décisions
 
 - **2026-11-02 · SmartRecruiters : à décider.** Son `robots.txt` interdit l'API à tous les robots
-  sauf LinkedIn (`User-agent: * / Disallow: /`) : le `PoliteClient` refuse donc toute requête,
-  et CERN finit en erreur à chaque collecte. Aucune fixture réelle ne peut être créée
-  légitimement, d'où le checkpoint M1 à 7/8. Options : retirer le connecteur du `REGISTRY`
-  (et adapter les tests du pipeline, qui s'en servent comme ATS générique), ou le garder en sommeil.
+  sauf LinkedIn (`User-agent: * / Disallow: /`) : le `PoliteClient` refuse donc toute requête.
+  Aucune fixture réelle ne peut être créée légitimement, d'où le checkpoint M1 à 7/8.
+  Enjeu mesuré le 2026-11-03 (un relevé ponctuel, à la demande de Leif, robots.txt ignoré :
+  une requête par employeur, rien de stocké) : 7 employeurs, 586 offres dont **au moins 121 en
+  GE/VD** (HUG 47, CERN 33, Swissquote 28, Vitol 8, Nexthink 5 ; LDC 0 sur les 100 premières de
+  365). Piste légitime : le site public `careers.smartrecruiters.com/<entreprise>` est, lui,
+  autorisé par son robots.txt (HTML à parser au lieu de JSON).
 - **2026-11-02 · Connecteur Greenhouse** (Proton) : une seule requête rapporte tout le board,
   descriptions comprises, et la langue déclarée de l'annonce.
 - **2026-10-30 · La base vit sur le VPS de Leif, la collecte nocturne aussi** (timer systemd,
@@ -42,6 +45,12 @@ Tests du projet : 75 réussis.
 
 ## Contraintes à connaître
 
+- **Carte des ATS (2026-11-03, `uv run job-rec-ai boards`)** : Workday 13, SuccessFactors 11,
+  SmartRecruiters 7, Oracle 3, Phenom 2, et un employeur chacun pour Cornerstone, iCIMS, Workable
+  et Softgarden ; 15 employeurs sans ATS identifié (sites maison : État et Ville de Genève, CHUV ;
+  protégés : JTI derrière un contrôle anti-robot, Rolex ; Mercuria ne publie que sur LinkedIn).
+  Les sites SuccessFactors des employeurs (`jobs.sicpa.com/search/`, `careers.epfl.ch`…)
+  autorisent les robots ; les domaines `career*.successfactors.eu`, non.
 - **Les URL de board ne sont fiables qu'après une collecte réelle.** Le 2026-11-02, Richemont
   (`wd3`, 404) et PMI (passé chez Phenom) étaient faux ; Caterpillar, Logitech, Medtronic et
   Edwards répondent. `uv run job-rec-ai boards` marque d'un « ? » les boards jamais vérifiés.
@@ -54,18 +63,23 @@ Tests du projet : 75 réussis.
 
 ## Prochaines étapes
 
-1. Décider du sort de SmartRecruiters (voir « Décisions »), pour fermer le checkpoint M1.
-2. Augmenter la couverture : 24 offres pour un objectif de 1 000. Retrouver les boards de
-   Richemont, Cargill, Bunge, Haleon (Workday) ; un connecteur SuccessFactors couvrirait
-   Nestlé et Givaudan ; identifier l'ATS des 43 employeurs restants.
-3. Sur le VPS : installer la collecte nocturne ([deploy/README.md](deploy/README.md)).
-4. Interpréter ensemble la première sortie de `uv run job-rec-ai quality`.
-5. M3 : similarité cosinus (intuition géométrique, exemple 2D), puis TF-IDF from scratch et
+1. Décider du sort de SmartRecruiters (voir « Décisions ») : c'est le plus gros gisement genevois
+   (HUG, CERN), et la clé du checkpoint M1.
+2. Connecteur SuccessFactors (11 employeurs : Pictet, CICR, Nestlé, EPFL, SICPA…). EPFL : 78
+   offres, SICPA : 62 (dont une partie hors de Suisse).
+3. Retrouver les boards Workday manquants : Richemont, Cargill, Bunge, Haleon.
+4. Sur le VPS : installer la collecte nocturne ([deploy/README.md](deploy/README.md)).
+5. Interpréter ensemble la première sortie de `uv run job-rec-ai quality`.
+6. M3 : similarité cosinus (intuition géométrique, exemple 2D), puis TF-IDF from scratch et
    les métriques d'évaluation (precision@k, MRR, nDCG).
-6. Finir M0 : règles perso dans `CLAUDE.md`, Milestones GitHub.
+7. Finir M0 : règles perso dans `CLAUDE.md`, Milestones GitHub.
 
 ## Journal des sessions
 
+- **2026-11-03** (en local) : visite des pages carrière des 43 employeurs sans ATS (client HTTP
+  puis navigateur) : 28 ATS identifiés, `companies.csv` complété ; 5 nouveaux boards Workday
+  (Lombard Odier, Trafigura, Gunvor, Temenos, WEF) ; collecte réelle : 94 offres (Lombard Odier
+  47) ; relevé ponctuel du volume SmartRecruiters.
 - **2026-11-02** (en local, réseau ouvert) : fixture Workday réelle (Logitech) ; connecteur
   Greenhouse + fixture (Proton) ; correctif `geo` (les lieux multi-sites citant la Suisse et un
   pays étranger étaient écartés : 3 offres Proton sur 7 perdues) ; boards Richemont et PMI

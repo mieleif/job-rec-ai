@@ -5,36 +5,36 @@ Patek Philippe,Horlogerie,GE,https://www.patek.com/en/company/careers,,
 dsm-firmenich,Arômes & parfums,GE,https://www.dsm-firmenich.com/en/careers.html,,
 Givaudan,Arômes & parfums,GE,https://www.givaudan.com/careers,successfactors,
 SGS,Inspection & certification,GE,https://www.sgs.com/en/careers,,
-Pictet,Banque,GE,https://www.group.pictet/careers,,
-Lombard Odier,Banque,GE,https://www.lombardodier.com/careers,,
-Union Bancaire Privée,Banque,GE,https://www.ubp.com/en/careers,,
-Mirabaud,Banque,GE,https://www.mirabaud.com/en/careers,,
-Edmond de Rothschild,Banque,GE,https://www.edmond-de-rothschild.com/en/careers,,
+Pictet,Banque,GE,https://www.group.pictet/careers,successfactors,
+Lombard Odier,Banque,GE,https://www.lombardodier.com/careers,workday,https://lombardodier.wd3.myworkdayjobs.com/Lombard_Odier_Careers
+Union Bancaire Privée,Banque,GE,https://www.ubp.com/en/careers,oracle,https://iaadtu.fa.ocs.oraclecloud.eu/hcmUI/CandidateExperience/en/sites/CX_1
+Mirabaud,Banque,GE,https://www.mirabaud.com/en/careers,smartrecruiters,
+Edmond de Rothschild,Banque,GE,https://www.edmond-de-rothschild.com/en/careers,oracle,https://evht.fa.ocs.oraclecloud.eu/hcmUI/CandidateExperience/en/sites/CX_2001
 Banque Cantonale de Genève,Banque,GE,https://www.bcge.ch,,
-MSC,Transport & logistique,GE,https://www.msc.com/en/careers,,
-Vitol,Négoce,GE,https://www.vitol.com/careers,,
-Trafigura,Négoce,GE,https://www.trafigura.com/careers,,
-Gunvor,Négoce,GE,https://gunvorgroup.com/careers,,
+MSC,Transport & logistique,GE,https://www.msc.com/en/careers,cornerstone,https://msc.csod.com/ux/ats/careersite/4/home
+Vitol,Négoce,GE,https://www.vitol.com/careers,smartrecruiters,Vitol
+Trafigura,Négoce,GE,https://www.trafigura.com/careers,workday,https://trafigura.wd3.myworkdayjobs.com/TrafiguraCareerSite
+Gunvor,Négoce,GE,https://gunvorgroup.com/careers,workday,https://gunvor.wd3.myworkdayjobs.com/Gunvor_Careers
 Mercuria,Négoce,GE,https://mercuria.com/careers,,
 Cargill,Négoce,GE,https://careers.cargill.com,workday,
 Bunge,Négoce,GE,https://jobs.bunge.com,workday,
-Louis Dreyfus Company,Négoce,GE,https://www.ldc.com/careers,,
-Procter & Gamble,Biens de consommation,GE,https://www.pgcareers.com,,
+Louis Dreyfus Company,Négoce,GE,https://www.ldc.com/careers,smartrecruiters,LouisDreyfusCompany
+Procter & Gamble,Biens de consommation,GE,https://www.pgcareers.com,phenom,
 JTI,Tabac,GE,https://www.jti.com/careers,,
 Caterpillar,Industrie,GE,https://careers.caterpillar.com,workday,https://cat.wd5.myworkdayjobs.com/CaterpillarCareers
-SITA,Technologies de l'information,GE,https://www.sita.aero/careers,,
-Temenos,Logiciel,GE,https://www.temenos.com/careers,,
+SITA,Technologies de l'information,GE,https://www.sita.aero/careers,icims,
+Temenos,Logiciel,GE,https://www.temenos.com/careers,workday,https://temenos.wd103.myworkdayjobs.com/Temenoscareers
 Proton,Logiciel,GE,https://proton.me/careers,greenhouse,proton
 CERN,Recherche,GE,https://careers.cern,smartrecruiters,CERN
-Hôpitaux Universitaires de Genève,Santé,GE,https://www.hug.ch,,
+Hôpitaux Universitaires de Genève,Santé,GE,https://www.hug.ch,smartrecruiters,HUG
 État de Genève,Administration publique,GE,https://www.ge.ch/offres-emploi-etat-geneve,,
 Ville de Genève,Administration publique,GE,https://www.geneve.ch,,
-Services Industriels de Genève,Énergie,GE,https://www.sig-ge.ch,,
+Services Industriels de Genève,Énergie,GE,https://www.sig-ge.ch,successfactors,https://jobs.sig-ge.ch
 Transports publics genevois,Transport & logistique,GE,https://www.tpg.ch,,
-Genève Aéroport,Transport & logistique,GE,https://www.gva.ch,,
-CICR,Organisation internationale,GE,https://careers.icrc.org,,
-Forum économique mondial,Organisation internationale,GE,https://www.weforum.org/careers,,
-Organisation mondiale de la santé,Organisation internationale,GE,https://www.who.int/careers,,
+Genève Aéroport,Transport & logistique,GE,https://www.gva.ch,successfactors,https://emplois.geneve-aeroport.ch
+CICR,Organisation internationale,GE,https://careers.icrc.org,successfactors,
+Forum économique mondial,Organisation internationale,GE,https://www.weforum.org/careers,workday,https://weforum.wd3.myworkdayjobs.com/Forum_Careers
+Organisation mondiale de la santé,Organisation internationale,GE,https://www.who.int/careers,oracle,https://estm.fa.em2.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_10001
 Nestlé,Agroalimentaire,VD,https://www.nestle.com/jobs,successfactors,
 Philip Morris International,Tabac,VD,https://www.pmi.com/careers,phenom,
 Logitech,Électronique,VD,https://www.logitech.com/careers,workday,https://logitech.wd5.myworkdayjobs.com/Logitech
@@ -42,16 +42,16 @@ Medtronic,Dispositifs médicaux,VD,https://www.medtronic.com/careers,workday,htt
 Edwards Lifesciences,Dispositifs médicaux,VD,https://www.edwards.com/careers,workday,https://edwards.wd5.myworkdayjobs.com/EdwardsCareers
 Haleon,Santé grand public,VD,https://careers.haleon.com,workday,
 Ferring Pharmaceuticals,Pharma,VD,https://www.ferring.com/careers,,
-Debiopharm,Pharma,VD,https://www.debiopharm.com/careers,,
+Debiopharm,Pharma,VD,https://www.debiopharm.com/careers,workable,debiopharm
 Audemars Piguet,Horlogerie,VD,https://www.audemarspiguet.com/careers,,
 Bobst,Industrie,VD,https://www.bobst.com/careers,,
-Tetra Pak,Industrie,VD,https://www.tetrapak.com/careers,,
-SICPA,Industrie,VD,https://www.sicpa.com/careers,,
+Tetra Pak,Industrie,VD,https://www.tetrapak.com/careers,successfactors,https://jobs.tetrapak.com
+SICPA,Industrie,VD,https://www.sicpa.com/careers,successfactors,https://jobs.sicpa.com
 Kudelski,Logiciel,VD,https://www.nagra.com/careers,,
-Nexthink,Logiciel,VD,https://nexthink.com/careers,,
-Swissquote,Banque,VD,https://www.swissquote.com/careers,,
-Banque Cantonale Vaudoise,Banque,VD,https://www.bcv.ch,,
-Vaudoise Assurances,Assurance,VD,https://www.vaudoise.ch,,
+Nexthink,Logiciel,VD,https://nexthink.com/careers,smartrecruiters,Nexthink
+Swissquote,Banque,VD,https://www.swissquote.com/careers,smartrecruiters,Swissquote
+Banque Cantonale Vaudoise,Banque,VD,https://www.bcv.ch,successfactors,https://jobs.bcv.ch
+Vaudoise Assurances,Assurance,VD,https://www.vaudoise.ch,softgarden,https://vaudoise.softgarden.io
 CHUV,Santé,VD,https://www.chuv.ch,,
-EPFL,Recherche,VD,https://www.epfl.ch/about/working,,
-Université de Lausanne,Recherche,VD,https://www.unil.ch,,
+EPFL,Recherche,VD,https://www.epfl.ch/about/working,successfactors,https://careers.epfl.ch
+Université de Lausanne,Recherche,VD,https://www.unil.ch,successfactors,
