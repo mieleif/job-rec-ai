@@ -41,7 +41,9 @@ def test_smartrecruiters_fetch_et_parse(client):
     # Les deux pages de la liste lues ; l'annonce de Zurich n'est pas téléchargée, celle de
     # Lausanne l'est bien que son lieu ne figure que dans l'en-tête de son groupe
     assert [p["id"] for p in payload["postings"]] == ["1", "3"]
-    assert "gabarit" not in payload["postings"][0]["html"]  # seul <main> est archivé
+    archive = payload["postings"][0]["html"]
+    assert "gabarit" not in archive  # seul <main> est archivé
+    assert "st-videos" not in archive  # sans vidéos ni carte (clé Google Maps embarquée)
     jobs = connector.parse(payload)
     job = jobs[0]
     assert job.title == "Ingénieur de données" and job.source_id == "1"

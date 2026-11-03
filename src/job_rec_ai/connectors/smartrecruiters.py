@@ -24,7 +24,9 @@ CAREERS = "https://careers.smartrecruiters.com"
 MAX_PAGES = 50  # garde-fou
 _PAGES = re.compile(r'data-groups-pages="(\d+)"')
 _JOB_URL = re.compile(r"^https://jobs\.smartrecruiters\.com/[^/]+/(\d+)")
-# Sections de l'annonce sans texte utile (vidéos, carte)
+# Sections de l'annonce sans texte utile (vidéos, carte). Retirées dès l'archivage : la carte
+# embarque la clé Google Maps (publique) de SmartRecruiters, que les scanners de secrets
+# de GitHub signalent.
 _NOISE = ("st-videos", "st-embed-map")
 
 
@@ -46,10 +48,15 @@ def openings(html: str) -> list[tuple[str, str]]:
     return found
 
 
-def _main(html: str) -> str:
-    """On n'archive que <main> : l'annonce sans le gabarit de page (10 fois plus léger)."""
+def archived(html: str) -> str:
+    """On n'archive que <main>, sans vidéos ni carte : l'annonce sans le gabarit de page."""
     start, end = html.find("<main"), html.find("</main>")
-    return html[start:end + len("</main>")] if start >= 0 and end > start else html
+    if start >= 0 and end > start:
+        html = html[start:end + len("</main>")]
+    soup = BeautifulSoup(html, "html.parser")
+    for section in soup.find_all("section", id=_NOISE):
+        section.decompose()
+    return str(soup)
 
 
 class SmartRecruitersConnector:
@@ -71,7 +78,7 @@ class SmartRecruitersConnector:
         for url, where in dict(listing).items():  # dict : une offre listée deux fois
             if keep(where):
                 postings.append({"id": _JOB_URL.match(url).group(1), "url": url,
-                                 "html": _main(client.get_html(url))})
+                                 "html": archived(client.get_html(url))})
         return envelope(self.name, company, board, postings)
 
     def parse(self, payload: dict) -> list[Job]:
@@ -85,9 +92,6 @@ class SmartRecruitersConnector:
                 return tag.get("content") or tag.get_text(" ", strip=True) or None
 
             description = soup.find(attrs={"itemprop": "description"})
-            if description is not None:
-                for section in description.find_all("section", id=_NOISE):
-                    section.decompose()
             place = (prop("addressLocality"), prop("addressRegion"), prop("addressCountry"))
             return {
                 "title": prop("title"),
