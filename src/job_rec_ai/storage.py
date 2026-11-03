@@ -58,8 +58,11 @@ CREATE TABLE IF NOT EXISTS crawl_runs (
     error      VARCHAR
 );
 
+-- Canton : celui du lieu de l'offre, à défaut celui de l'employeur (un site maison comme celui
+-- de l'État de Genève donne des adresses sans ville : « Place du Bourg-de-Four 1 »).
+-- La table jobs garde le canton déduit du lieu seul : l'information manquante y reste visible.
 CREATE OR REPLACE VIEW jobs_view AS
-SELECT j.*, c.sector
+SELECT j.* REPLACE (coalesce(j.canton, c.canton) AS canton), c.sector
 FROM jobs j LEFT JOIN companies c USING (company);
 """
 

@@ -3,8 +3,9 @@
 - user-agent identifiable (qui collecte, et où nous contacter) ;
 - respect de robots.txt, lu une fois par hôte ;
 - pause minimale entre deux requêtes vers le même hôte ;
-- 429 (trop de requêtes) et 5xx : on attend (Retry-After si fourni, sinon backoff
-  exponentiel 2 s, 4 s, 8 s…) puis on réessaie, un nombre limité de fois.
+- 429 (trop de requêtes), 5xx et pannes réseau passagères (connexion qui n'aboutit pas) :
+  on attend (Retry-After si fourni, sinon backoff exponentiel 2 s, 4 s, 8 s…) puis on
+  réessaie, un nombre limité de fois.
 
 httpx plutôt que requests : même API, mais timeouts par défaut, HTTP/2, et un
 MockTransport qui permet de tester tout ça sans réseau.
@@ -18,6 +19,8 @@ import httpx
 
 USER_AGENT = "job-rec-ai/0.1 (+https://github.com/mieleif/job-rec-ai)"
 RETRY_STATUSES = {429, 500, 502, 503, 504}
+# Le serveur n'a pas pu être joint ou n'a pas répondu à temps : souvent passager (ge.ch)
+RETRY_ERRORS = (httpx.ConnectError, httpx.ConnectTimeout, httpx.ReadTimeout)
 
 
 class DisallowedByRobots(Exception):
@@ -76,7 +79,13 @@ class PoliteClient:
         host = urlsplit(url).netloc
         for attempt in range(self.max_retries + 1):
             self._wait_turn(host)
-            response = self._client.request(method, url, **kwargs)
+            try:
+                response = self._client.request(method, url, **kwargs)
+            except RETRY_ERRORS:
+                if attempt == self.max_retries:
+                    raise
+                self._sleep(2 ** (attempt + 1))
+                continue
             if response.status_code not in RETRY_STATUSES or attempt == self.max_retries:
                 return response
             self._sleep(_retry_after(response) or 2 ** (attempt + 1))

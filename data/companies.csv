@@ -1,6 +1,6 @@
 company,sector,canton,careers_url,ats,board
 Rolex,Horlogerie,GE,https://www.rolex.com/rolex-careers,,
-Richemont,Luxe,GE,https://www.careers.richemont.com,workday,
+Richemont,Luxe,GE,https://careers.richemont.com/en/jobs/,workday,https://richemont.wd3.myworkdayjobs.com/richemont
 Patek Philippe,Horlogerie,GE,https://www.patek.com/en/company/careers,,
 dsm-firmenich,Arômes & parfums,GE,https://www.dsm-firmenich.com/en/careers.html,,
 Givaudan,Arômes & parfums,GE,https://www.givaudan.com/careers,phenom,
@@ -16,8 +16,8 @@ Vitol,Négoce,GE,https://www.vitol.com/careers,smartrecruiters,Vitol
 Trafigura,Négoce,GE,https://www.trafigura.com/careers,workday,https://trafigura.wd3.myworkdayjobs.com/TrafiguraCareerSite
 Gunvor,Négoce,GE,https://gunvorgroup.com/careers,workday,https://gunvor.wd3.myworkdayjobs.com/Gunvor_Careers
 Mercuria,Négoce,GE,https://mercuria.com/careers,,
-Cargill,Négoce,GE,https://careers.cargill.com,workday,
-Bunge,Négoce,GE,https://jobs.bunge.com,workday,
+Cargill,Négoce,GE,https://careers.cargill.com,radancy,
+Bunge,Négoce,GE,https://jobs.bunge.com,successfactors,
 Louis Dreyfus Company,Négoce,GE,https://www.ldc.com/careers,smartrecruiters,LouisDreyfusCompany
 Procter & Gamble,Biens de consommation,GE,https://www.pgcareers.com,phenom,
 JTI,Tabac,GE,https://www.jti.com/careers,,
@@ -27,7 +27,7 @@ Temenos,Logiciel,GE,https://www.temenos.com/careers,workday,https://temenos.wd10
 Proton,Logiciel,GE,https://proton.me/careers,greenhouse,proton
 CERN,Recherche,GE,https://careers.cern,maison,https://careers.cern/jobs/
 Hôpitaux Universitaires de Genève,Santé,GE,https://www.hug.ch,smartrecruiters,HUG
-État de Genève,Administration publique,GE,https://www.ge.ch/offres-emploi-etat-geneve,,
+État de Genève,Administration publique,GE,https://www.ge.ch/offres-emploi-etat-geneve,jsonld,https://www.ge.ch/offres-emploi-etat-geneve/liste-offres
 Ville de Genève,Administration publique,GE,https://www.geneve.ch,,
 Services Industriels de Genève,Énergie,GE,https://www.sig-ge.ch,successfactors,https://jobs.sig-ge.ch
 Transports publics genevois,Transport & logistique,GE,https://www.tpg.ch,,
@@ -40,7 +40,7 @@ Philip Morris International,Tabac,VD,https://www.pmi.com/careers,phenom,
 Logitech,Électronique,VD,https://www.logitech.com/careers,workday,https://logitech.wd5.myworkdayjobs.com/Logitech
 Medtronic,Dispositifs médicaux,VD,https://www.medtronic.com/careers,workday,https://medtronic.wd1.myworkdayjobs.com/MedtronicCareers
 Edwards Lifesciences,Dispositifs médicaux,VD,https://www.edwards.com/careers,workday,https://edwards.wd5.myworkdayjobs.com/EdwardsCareers
-Haleon,Santé grand public,VD,https://careers.haleon.com,workday,
+Haleon,Santé grand public,VD,https://careers.haleon.com,eightfold,
 Ferring Pharmaceuticals,Pharma,VD,https://www.ferring.com/careers,,
 Debiopharm,Pharma,VD,https://www.debiopharm.com/careers,workable,debiopharm
 Audemars Piguet,Horlogerie,VD,https://www.audemarspiguet.com/careers,,
@@ -55,3 +55,5 @@ Vaudoise Assurances,Assurance,VD,https://www.vaudoise.ch,softgarden,https://vaud
 CHUV,Santé,VD,https://www.chuv.ch,,
 EPFL,Recherche,VD,https://www.epfl.ch/about/working,successfactors,https://careers.epfl.ch
 Université de Lausanne,Recherche,VD,https://www.unil.ch,successfactors,
+Alcon,Dispositifs médicaux,GE,https://careers.alcon.com,workday,https://alcon.wd5.myworkdayjobs.com/careers_alcon
+Julius Baer,Banque,GE,https://www.juliusbaer.com/careers,workday,https://juliusbaer.wd3.myworkdayjobs.com/External

@@ -1,0 +1,158 @@
+{
+ "ats": "jsonld",
+ "company": "État de Genève",
+ "board": "https://www.ge.ch/offres-emploi-etat-geneve/liste-offres",
+ "fetched_at": "2026-11-03T14:57:32+00:00",
+ "postings": [
+  {
+   "url": "https://www.ge.ch/offres-emploi-etat-geneve/liste-offres/2341",
+   "ld": {
+    "@context": "https://schema.org/",
+    "@type": "JobPosting",
+    "title": "Urbaniste-aménagiste cheffe ou chef de projet",
+    "description": "Vous piloterez et contribuerez à la mise en œuvre des projets urbains prioritaires de l&#039;État de Genève, en participant activement à l&#039;aménagement et à l&#039;évolution du territoire cantonal.Dans ce cadre, vous serez amenée ou amené à conduire et élaborer des études d&#039;aménagement, à organiser et participer à des mises en concurrence (concours, mandats d&#039;études parallèles, études-tests), à piloter les procédures de plans d&#039;affectation et à accompagner la réalisation de projets de développement urbain et d&#039;espaces publics, en cohérence avec le plan directeur cantonal.Vous exercerez ces missions au sein de directions de projet transversales, que vous présiderez, intégrant notamment les enjeux de mobilité et d&#039;environnement. Vous veillerez également à mettre en place des démarches de concertation favorisant la participation active des habitants, des usagers et des milieux concernés.Vous accompagnerez par ailleurs les communes dans l&#039;élaboration et l&#039;adoption de leurs planifications, tout en veillant à leur cohérence avec les planifications directrices cantonales.",
+    "experienceRequirements": "Formation requise et années d&#039;expérienceVous êtes titulaire d&#039;un master en architecture ou en sciences humaines, complété par une formation postgrade dans le domaine de l&#039;urbanisme, ou d&#039;une formation jugée équivalente.Vous bénéficiez d&#039;une expérience de 3 à 5 ans dans la conduite de projets d&#039;aménagement du territoire et la gestion d&#039;équipes de mandataires.En cas d’engagement, il sera nécessaire de fournir une preuve d’équivalence pour les diplômes étrangers.Connaissances spécifiquesVous disposez d&#039;une solide culture générale et de connaissances approfondies en urbanisme et en aménagement du territoire. Sensible à la qualité urbaine, vous portez une attention particulière aux solutions contribuant à la transition écologique.Vous possédez également une bonne connaissance du territoire genevois et de son agglomération, ainsi que de leur contexte institutionnel et légal.Compétences particulières caractérisant le poste Dotée ou doté d&#039;un bon esprit de synthèse, vous vous distinguez par vos capacités de communication, tant à l&#039;écrit qu&#039;à l&#039;oral.Vos compétences relationnelles vous permettent de fédérer les acteurs, d&#039;animer des équipes de projet et de faire avancer les démarches en partenariat avec les autres services et collectivités. Vous faites preuve d&#039;un sens aigu de la négociation et savez instaurer des relations de confiance avec vos différents interlocuteurs.Autonome et force de proposition, vous prenez des initiatives et veillez à faire remonter régulièrement les points nécessitant l&#039;attention de votre hiérarchie.Compétences bureautiquesVous maîtrisez les outils bureautiques et de représentation graphique. La connaissance d&#039;Archicad constitue un atout.",
+    "jobBenefits": "​Vous intégrerez une administration publique dont les valeurs essentielles sont le respect, l&#039;intégrité, l&#039;égalité, l&#039;impartialité et la disponibilité.Vous profiterez de prestations sociales de qualités, développerez des compétences grâce à une offre en formations continues importante et variée, et bénéficierez de possibilités d&#039;évolution tout au long de votre parcours au sein du &amp;quot;DT&amp;quot;.",
+    "datePosted": "2026-11-03",
+    "validThrough": "2026-11-10",
+    "jobStartDate": "2026-12-01",
+    "employmentType": "CDI",
+    "employmentUnit": {
+     "@type": "Organization",
+     "name": "",
+     "url": "https://www.ge.ch/organisation/departement-du-territoire-dt"
+    },
+    "hiringOrganization": {
+     "@type": "Organization",
+     "name": "Etat de Genève",
+     "sameAs": "https://www.ge.ch",
+     "logo": "https://www.ge.ch/themes/custom/gech_front/templates/svg/gech_logo.svg"
+    },
+    "jobLocation": {
+     "@type": "Place",
+     "address": "Rue David-Dufour 5 – 1205 Genève​​"
+    }
+   }
+  },
+  {
+   "url": "https://www.ge.ch/offres-emploi-etat-geneve/liste-offres/2276",
+   "ld": {
+    "@context": "https://schema.org/",
+    "@type": "JobPosting",
+    "title": "3 Avocates-stagiaires ou Avocats-stagiaires 6 mois",
+    "description": "Sous la supervision d&#039;un ou de deux magistrats - maîtres de stage - votre activité principale consiste à étudier des dossiers et à rédiger des projets de jugement après avoir, si nécessaire, effectué les recherches de jurisprudence et de doctrine requises. Vous aurez la possibilité d&#039;assister à des audiences dans les domaines de compétence du Tribunal civil ainsi que dans d&#039;autres juridictions.Une formation exigeante, passionnante et variée vous attend.",
+    "experienceRequirements": "Vous êtes en possession du bachelor, d&#039;un master en droit suisse et du diplôme de l&#039;ECAV. Outre ces compétences universitaires, certaines aptitudes personnelles, professionnelles et techniques sont nécessaires&amp;#58;- &amp;#160; &amp;#160; &amp;#160; capacité d&#039;analyse et de synthèse- &amp;#160; &amp;#160; &amp;#160; maîtrise de la grammaire, de la syntaxe et de l&#039;orthographe- &amp;#160; &amp;#160; &amp;#160; bon niveau de rédaction - &amp;#160; &amp;#160; &amp;#160; bonnes connaissances des outils informatiques de l&#039;environnement Windows. &amp;#160;",
+    "jobBenefits": "​-",
+    "datePosted": "2026-11-03",
+    "validThrough": "2026-11-08",
+    "jobStartDate": "2027-03-01",
+    "employmentType": "CDD",
+    "employmentUnit": {
+     "@type": "Organization",
+     "name": "",
+     "url": "https://justice.ge.ch/fr"
+    },
+    "hiringOrganization": {
+     "@type": "Organization",
+     "name": "Etat de Genève",
+     "sameAs": "https://www.ge.ch",
+     "logo": "https://www.ge.ch/themes/custom/gech_front/templates/svg/gech_logo.svg"
+    },
+    "jobLocation": {
+     "@type": "Place",
+     "address": "​Tribunal civilRue de l&#039;Athénée 6/8​"
+    }
+   }
+  },
+  {
+   "url": "https://www.ge.ch/offres-emploi-etat-geneve/liste-offres/2250",
+   "ld": {
+    "@context": "https://schema.org/",
+    "@type": "JobPosting",
+    "title": "Architecte LCI",
+    "description": "L&#039;office des autorisations de construire, en charge de la coordination des différentes politiques publiques en lien avec la délivrance des autorisations de construire au sein du département du territoire, met au concours le poste d&#039;Architecte LCI. Vos principales tâches consisteront à travailler au sein d&#039;une équipe en charge de l&#039;analyse et l&#039;instruction des requêtes en autorisations de construire et du contrôle de la conformité des dossiers dont vous aurez la charge et le suivi. Le poste consistera notamment à traiter et gérer les dossiers de demande en autorisation de construire ainsi qu&#039;établir les préavis. Son activité s&#039;inscrit dans le cadre des projets des domaines de l&#039;architecture, du génie civil et de l&#039;urbanisme issus tant du secteur privé que du secteur public. La ou le titulaire sera appelée ou appelé à assurer ainsi la cohérence des décisions d&#039;autorisation de construire et de travaux. En sa qualité d&#039;architecte, la ou le titulaire pourra également être amenée ou amené à effectuer des activités de contrôle de la conformité des constructions et installations ainsi que de l&#039;établissement des constats d&#039;infractions à la LCI. Dans ce cadre, elle ou il sera donc amenée ou amené à instruire les plaintes et les infractions constatées, procéder aux inspections, établir des rapports d&#039;enquêtes, statuer sur la légalité des affectations, des constructions et des installations situées sur les parcelles en zone agricole.Elle ou il sera également amenée ou amené à informer le public et les professionnels.",
+    "experienceRequirements": "Formation requise et années d&#039;expérienceBachelor HES-UNI ​En cas d’engagement, il sera nécessaire de fournir une preuve d’équivalence pour les diplômes étrangers.Expérience jugée équivalente dans le domaine de l&#039;architecture et du bâtiment accompagné de 5 à 10 ans d&#039;expérience dans le domaine.​Connaissances spécifiquesLa future candidate ou le futur candidat devra avoir la capacité d&#039;analyse et de synthèse, de l&#039;aisance rédactionnelle et une bonne expression orale.Elle ou il devra aussi avoir le sens des responsabilités, de la communication, de la négociation, de l&#039;organisation et savoir gérer les priorités.Compétences bureautiques Bonne maîtrise des outils informatiques courants (notamment Word et Excel).Bonnes connaissance et gestion graphique du dessin (BIM, autocad et archicad et bluebeam review un atout). ​",
+    "jobBenefits": "​Vous intégrerez une administration publique dont les valeurs essentielles sont le respect, l&#039;intégrité, l&#039;égalité, l&#039;impartialité et la disponibilité.Vous profiterez de prestations sociales de qualités, développerez des compétences grâce à une offre en formations continues importante et variée, et bénéficierez de possibilités d&#039;évolution tout au long de votre parcours au sein du &amp;quot;DT&amp;quot;.",
+    "datePosted": "2026-11-03",
+    "validThrough": "2026-11-13",
+    "jobStartDate": "2026-11-03",
+    "employmentType": "CDI",
+    "employmentUnit": {
+     "@type": "Organization",
+     "name": "",
+     "url": "https://www.ge.ch/organisation/departement-du-territoire-dt"
+    },
+    "hiringOrganization": {
+     "@type": "Organization",
+     "name": "Etat de Genève",
+     "sameAs": "https://www.ge.ch",
+     "logo": "https://www.ge.ch/themes/custom/gech_front/templates/svg/gech_logo.svg"
+    },
+    "jobLocation": {
+     "@type": "Place",
+     "address": "Rue David-Dufour 5 - 1205 Genève​​"
+    }
+   }
+  },
+  {
+   "url": "https://www.ge.ch/offres-emploi-etat-geneve/liste-offres/1765",
+   "ld": {
+    "@context": "https://schema.org/",
+    "@type": "JobPosting",
+    "title": "Assistant-e socio-éducatif-tive, appartement Jalouvre, 85%, ",
+    "description": "​Les Etablissements publics pour l’intégration (EPI) ont pour mission de contribuer au bien-être et à l’intégration sociale et/ou professionnelle de personnes en situation de handicap ou en difficulté d’insertion professionnelle et/ou sociale.",
+    "experienceRequirements": "​Pour plus de détails, n&#039;hésitez pas à consulter nos différentes annonces sur notre site internet &amp;#58; www.epi.ge.ch",
+    "jobBenefits": "Les EPI offrent &amp;#58;Une fonction variée comportant des responsabilités au sein d’un Etablissement à but social poursuivant des objectifs ambitieux et novateurs.Un cadre de travail motivant et dynamique permettant la prise d’initiative et le perfectionnement professionnel.Un processus de formation continue diversifiéLes conditions de travail de la fonction publique.",
+    "datePosted": "2026-11-03",
+    "validThrough": "2026-11-16",
+    "jobStartDate": "2026-11-03",
+    "employmentType": "CDD",
+    "employmentUnit": {
+     "@type": "Organization",
+     "name": "",
+     "url": ""
+    },
+    "hiringOrganization": {
+     "@type": "Organization",
+     "name": "Etat de Genève",
+     "sameAs": "https://www.ge.ch",
+     "logo": "https://www.ge.ch/themes/custom/gech_front/templates/svg/gech_logo.svg"
+    },
+    "jobLocation": {
+     "@type": "Place",
+     "address": ""
+    }
+   }
+  },
+  {
+   "url": "https://www.ge.ch/offres-emploi-etat-geneve/liste-offres/2238",
+   "ld": {
+    "@context": "https://schema.org/",
+    "@type": "JobPosting",
+    "title": "Thérapeute de la psychomotricité",
+    "description": "​L&#039;office médico-pédagogique (OMP), prend soin du développement et des apprentissages des enfants et des jeunes du canton à besoins éducatifs particuliers, en situation de handicap ou en vulnérabilités en offrant des prestations de soutiens, de soins et d&#039;enseignement spécialisé.L&#039;OMP accomplit ses missions en faveur des enfants et des jeunes présentant des troubles de développement notamment des apprentissages, des troubles psychologiques, des défauts de langage, des affections nerveuses, sensorielles ou motrices. L&#039;office offre également une aide dans les cas de polyhandicap, de troubles sensoriels comme la cécité, ou de troubles complexes comme l&#039;autisme. Il met tout en œuvre pour poursuivre ses missions de la manière la plus différenciée et personnalisée possible, et contribue à l&#039;éducation, l&#039;instruction et la formation préprofessionnelle des mineurs du canton dont il a la charge.L&#039;OMP compte environ 1&#039;790 collaborateurs et collaboratrices, tous statuts confondus.​Dans le contexte de remplacements de titulaires, la direction médico-ps​ychologique de l&#039;OMP recherche des thérapeutes de la psychomotricité afin d&#039;assumer différentes missions en consultation de secteur et/ou dans un cadre institutionnel au sein des structures de l&#039;enseignement spécialisé ou de l&#039;enseignement régulier. Les tâches principales sont les suivantes &amp;#58; En consultation &amp;#58; &amp;#160;examiner, évaluer et traiter les enfants et adolescents souffrant de troubles psychomoteurs ou moteursEffectuer le bilan psychomoteur de l&#039;enfant et poser un diagnostic psychomoteur;Définir et construire un projet thérapeutique; &amp;#160;Prévenir ou atténuer les répercussions des troubles tant sur le plan personnel que sur le plan social, familial et scolaire.En milieu scolaire &amp;#58; offrir une prestation de conseil et soutien dans le domaine de la psychomotricité aux enfants et aux jeunes ainsi qu&#039;à leur entourage Apporter son expertise de thérapeute en psychomotricité au sein d&#039;une équipe pluridisciplinaire;Faire le lien entre les traitements de psychomotricité dispensés et la structure scolaire;Effectuer des tâches administratives liées aux prestations de psychomotricité (rapports, statistiques, notes cliniques etc).",
+    "experienceRequirements": "Exigences &amp;#58; Bachelor ou Master en psychomotricité, ou titre jugé équivalent; ​Permis de travail et droit de pratique valables dans le canton de Genève. Compétences particulières caractérisant le poste &amp;#58; Volonté de travailler dans le domaine du handicap mental, des troubles envahissants du développement et avec des enfants ayant, de manière générale, d&#039;importantes difficultés d&#039;apprentissage;Compétences avérées pour le travail interdisciplinaire et en équipe;La connaissance du milieu scolaire ordinaire et spécialisé à Genève constitue un avantage.​",
+    "jobBenefits": "Le DIP a pour mission, notamment, de donner à chaque élève le moyen d&#039;acquérir les meilleures connaissances et compétences en vue de ses activités futures, et de chercher à susciter chez lui le désir d&#039;apprendre et de se former, ceci en l&#039;aidant à développer ses aptitudes et affermir son sens des responsabilités. En outre, le DIP veille au bien-être, à la protection, à la santé et à la sécurité des enfants et adolescents. En rejoignant l&#039;un de nos offices ou établissements, vous contribuez directement à la réalisation de ces missions au sein du plus grand département de l&#039;État de Genève, qui compte plus de 11&#039;000 collaboratrices et collaborateurs et offre un environnement riche, diversifié et porteur de sens. Vous bénéficierez en outre de prestations sociales attractives et de conditions favorables à votre développement professionnel.",
+    "datePosted": "2026-11-03",
+    "validThrough": "2026-11-15",
+    "jobStartDate": "2026-11-03",
+    "employmentType": "CDD",
+    "employmentUnit": {
+     "@type": "Organization",
+     "name": "",
+     "url": "https://www.ge.ch/organisation/departement-instruction-publique-formation-jeunesse-dip"
+    },
+    "hiringOrganization": {
+     "@type": "Organization",
+     "name": "Etat de Genève",
+     "sameAs": "https://www.ge.ch",
+     "logo": "https://www.ge.ch/themes/custom/gech_front/templates/svg/gech_logo.svg"
+    },
+    "jobLocation": {
+     "@type": "Place",
+     "address": "​Canton de Genève"
+    }
+   }
+  }
+ ]
+}

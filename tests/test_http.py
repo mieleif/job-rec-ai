@@ -54,6 +54,30 @@ def test_5xx_persistant_finit_par_echouer(sleeps):
     assert [s for s in sleeps if s >= 2] == [2, 4, 8, 16]  # backoff exponentiel
 
 
+def test_panne_reseau_passagere_reessaie(sleeps):
+    calls = []
+
+    def handler(request):
+        if request.url.path == "/robots.txt":
+            return httpx.Response(404)
+        calls.append(1)
+        if len(calls) < 3:  # deux connexions qui n'aboutissent pas, puis le serveur répond
+            raise httpx.ConnectTimeout("le serveur ne répond pas", request=request)
+        return httpx.Response(200, json={"ok": True})
+
+    with make_client(handler, sleeps) as client:
+        assert client.get_json("https://x.example/jobs") == {"ok": True}
+    assert len(calls) == 3 and [s for s in sleeps if s >= 2] == [2, 4]
+
+
+def test_panne_reseau_persistante_finit_par_echouer(sleeps):
+    def handler(request):
+        raise httpx.ConnectError("hôte injoignable", request=request)
+
+    with make_client(handler, sleeps) as client, pytest.raises(httpx.ConnectError):
+        client.get_json("https://x.example/jobs", check_robots=False)
+
+
 def test_user_agent_identifiable():
     seen = []
 
