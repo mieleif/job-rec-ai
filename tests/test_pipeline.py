@@ -48,7 +48,7 @@ def test_crawl_idempotent(con, client, tmp_path):
 
 def test_enrichissement(con, client, tmp_path):
     pipeline.crawl(con, [dict(c) for c in COMPANIES[:2]], client, raw_dir=tmp_path)
-    row = storage.search(con, company="acme recherche")[0]
+    row = storage.search(con, company="acme recherche", text="données")[0]
     assert row["canton"] == "GE" and row["language"] == "fr"
     assert row["family"] == "Data & IA" and row["sector"] == "Recherche"
     compta = storage.search(con, text="comptable")[0]
