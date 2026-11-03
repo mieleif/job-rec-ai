@@ -33,7 +33,7 @@ def test_crawl_isole_les_pannes(con, client, tmp_path):
     assert [name for name, *_ in report.ok] == ["Acme", "Acme Recherche"]
     assert [name for name, _ in report.errors] == ["Panne SA"]
     assert report.skipped == [("Inconnue SA", "pas de connecteur « successfactors »")]
-    assert _count(con) == 3
+    assert _count(con) == 4
     assert len(list(tmp_path.glob("*/*.json.gz"))) == 2  # bronze archivé
 
 
@@ -90,8 +90,8 @@ def test_search_facettes_et_tri(con):
 def test_replay_reconstruit_la_base(con, client, tmp_path):
     pipeline.crawl(con, [dict(c) for c in COMPANIES[:2]], client, raw_dir=tmp_path)
     fresh = storage.connect(":memory:")
-    assert pipeline.replay(fresh, raw_dir=tmp_path) == 3
-    assert _count(fresh) == 3
+    assert pipeline.replay(fresh, raw_dir=tmp_path) == 4
+    assert _count(fresh) == 4
 
 
 def test_rederive(con):
@@ -102,11 +102,17 @@ def test_rederive(con):
     assert storage.counts(con, "canton") == [("GE", 1)]
 
 
+def _posting(i):
+    """Une offre brute minimale, au format Greenhouse (le plus simple des ATS couverts)."""
+    return {"id": i, "title": f"Analyste {i}", "location": {"name": "Genève"},
+            "absolute_url": f"https://job-boards.greenhouse.io/acme/jobs/{i}"}
+
+
 def test_replay_rejoue_aussi_les_expirations(con, tmp_path):
     def payload(day, ids):
-        return {"ats": "smartrecruiters", "company": "Acme", "board": "ACME",
+        return {"ats": "greenhouse", "company": "Acme", "board": "ACME",
                 "fetched_at": f"2026-10-0{day}T06:00:00+00:00",
-                "postings": [{"id": i, "name": f"Analyste {i}", "location": {"city": "Genève"}}
+                "postings": [_posting(i)
                              for i in ids]}
 
     pipeline.save_raw(payload(1, ["1", "2"]), tmp_path)
@@ -121,8 +127,8 @@ def test_boards_verifies_par_les_collectes(con, client, tmp_path):
 
 
 def _payload(ids, at="2026-10-02T06:00:00+00:00"):
-    return {"ats": "smartrecruiters", "company": "Acme", "board": "ACME", "fetched_at": at,
-            "postings": [{"id": i, "name": f"Analyste {i}", "location": {"city": "Genève"}}
+    return {"ats": "greenhouse", "company": "Acme", "board": "ACME", "fetched_at": at,
+            "postings": [_posting(i)
                          for i in ids]}
 
 
@@ -159,19 +165,19 @@ def test_bronze_une_archive_par_collecte(tmp_path):
     pipeline.save_raw(_payload(["1"], at="2026-10-02T06:00:00+00:00"), tmp_path)
     pipeline.save_raw(_payload(["1"], at="2026-10-02T18:30:05+00:00"), tmp_path)
     names = sorted(p.name for p in tmp_path.glob("*/*.json.gz"))
-    assert names == ["smartrecruiters__acme__060000.json.gz",
-                     "smartrecruiters__acme__183005.json.gz"]
+    assert names == ["greenhouse__acme__060000.json.gz",
+                     "greenhouse__acme__183005.json.gz"]
 
 
 def test_crawl_signale_les_suspects(con, client, tmp_path, monkeypatch):
     # Deux collectes à heures fixes (le vrai fetch horodate à la seconde : trop serré ici)
     payloads = iter([_payload(["1", "2"], at="2026-10-01T06:00:00+00:00"), _payload([])])
     monkeypatch.setattr(pipeline, "fetch_company", lambda company, client: next(payloads))
-    companies = [{**COMPANIES[1], "company": "Acme"}]
+    companies = [{**COMPANIES[1], "company": "Acme", "ats": "greenhouse"}]
     assert pipeline.crawl(con, companies, client, raw_dir=tmp_path).suspect == []
     assert pipeline.crawl(con, companies, client, raw_dir=tmp_path).suspect == [("Acme", 2)]
     assert storage.failing_companies(con) == [
-        ("Acme", "smartrecruiters", "suspect", "2 offres disparues d'un coup")]
+        ("Acme", "greenhouse", "suspect", "2 offres disparues d'un coup")]
 
 
 def test_quality(con):

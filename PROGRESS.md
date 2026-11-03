@@ -10,15 +10,22 @@ _Dernière mise à jour : 2026-11-03_
 | Étape | Checkpoint | Ce qui reste |
 |---|---|---|
 | M0 · Setup | 9/9 (avec une note locale, voir « Contraintes ») | règles perso dans `CLAUDE.md`, Milestones GitHub, questions de contrôle |
-| M1 · Collecte | 7/8 : fixtures réelles Workday + Greenhouse OK, SmartRecruiters impossible (robots.txt, voir « Décisions ») | **94 offres réelles sur 1 000** : SmartRecruiters (~120 offres GE/VD bloquées), connecteur SuccessFactors (11 employeurs), note HTTP, questions de contrôle |
+| M1 · Collecte | **8/8** (fixtures réelles Workday, Greenhouse, SmartRecruiters) | **181 offres réelles sur 1 000** (repère : jobup.ch affiche ~2 000 offres pour Genève) : connecteur SuccessFactors (11 employeurs), CERN (site maison), note HTTP, questions de contrôle |
 | M2 · Pipeline | 7/7 | installer le timer sur le VPS, note ETL/ELT, questions de contrôle |
 | M3 → M8 | pas commencé | |
 
-Tests du projet : 75 réussis.
+Tests du projet : 76 réussis.
 
 ## Décisions
 
-- **2026-11-02 · SmartRecruiters : à décider.** Son `robots.txt` interdit l'API à tous les robots
+- **2026-11-03 · SmartRecruiters : le site public, pas l'API.** Le connecteur lit
+  `careers.smartrecruiters.com/<id>` (liste HTML paginée par `api/groups?page=N`) puis
+  `jobs.smartrecruiters.com/<id>/<offre>` (annonce balisée en schema.org JobPosting, parsée avec
+  BeautifulSoup). Ces hôtes ne publient pas de robots.txt (404) : tout y est permis par
+  convention (RFC 9309). Seul `<main>` est archivé en bronze. Piège rencontré : chaque
+  employeur groupe sa liste par service (HUG, lieu sur l'offre) ou par lieu (Vitol, lieu dans
+  l'en-tête du groupe) ; on lit les deux. CERN redirige vers son propre site : marqué `maison`.
+- **2026-11-02 · SmartRecruiters : contexte.** Son `robots.txt` interdit l'API à tous les robots
   sauf LinkedIn (`User-agent: * / Disallow: /`) : le `PoliteClient` refuse donc toute requête.
   Aucune fixture réelle ne peut être créée légitimement, d'où le checkpoint M1 à 7/8.
   Enjeu mesuré le 2026-11-03 (un relevé ponctuel, à la demande de Leif, robots.txt ignoré :
@@ -63,11 +70,12 @@ Tests du projet : 75 réussis.
 
 ## Prochaines étapes
 
-1. Décider du sort de SmartRecruiters (voir « Décisions ») : c'est le plus gros gisement genevois
-   (HUG, CERN), et la clé du checkpoint M1.
-2. Connecteur SuccessFactors (11 employeurs : Pictet, CICR, Nestlé, EPFL, SICPA…). EPFL : 78
+1. Connecteur SuccessFactors (11 employeurs : Pictet, CICR, Nestlé, EPFL, SICPA…). EPFL : 78
    offres, SICPA : 62 (dont une partie hors de Suisse).
-3. Retrouver les boards Workday manquants : Richemont, Cargill, Bunge, Haleon.
+2. Retrouver les boards Workday manquants : Richemont, Cargill, Bunge, Haleon.
+3. Élargir la liste au-delà des 56 employeurs (absents : Université de Genève, ONU et agences,
+   grandes banques, maisons Richemont, Big Four…) et mesurer la couverture par employeur
+   contre un agrégateur.
 4. Sur le VPS : installer la collecte nocturne ([deploy/README.md](deploy/README.md)).
 5. Interpréter ensemble la première sortie de `uv run job-rec-ai quality`.
 6. M3 : similarité cosinus (intuition géométrique, exemple 2D), puis TF-IDF from scratch et
@@ -76,6 +84,10 @@ Tests du projet : 75 réussis.
 
 ## Journal des sessions
 
+- **2026-11-03** (suite) : connecteur SmartRecruiters réécrit sur le site public ; checkpoint
+  M1 à 8/8 ; collecte réelle : 181 offres actives (HUG 47, Lombard Odier 47, Swissquote 28,
+  WEF 12, Logitech 10, Trafigura 8, Vitol 8, Proton 7, Nexthink 5…) ; LDC vérifié : 331 offres,
+  aucune en Suisse.
 - **2026-11-03** (en local) : visite des pages carrière des 43 employeurs sans ATS (client HTTP
   puis navigateur) : 28 ATS identifiés, `companies.csv` complété ; 5 nouveaux boards Workday
   (Lombard Odier, Trafigura, Gunvor, Temenos, WEF) ; collecte réelle : 94 offres (Lombard Odier

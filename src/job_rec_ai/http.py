@@ -87,6 +87,11 @@ class PoliteClient:
         response.raise_for_status()
         return response.json()
 
+    def get_html(self, url: str, **kwargs) -> str:
+        response = self._send("GET", url, headers={"Accept": "text/html"}, **kwargs)
+        response.raise_for_status()
+        return response.text
+
     def post_json(self, url: str, payload: dict, **kwargs):
         response = self._send("POST", url, json=payload, **kwargs)
         response.raise_for_status()
