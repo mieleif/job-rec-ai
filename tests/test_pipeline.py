@@ -13,7 +13,7 @@ COMPANIES = [
     {"company": "Panne SA", "sector": "Banque", "canton": "GE", "careers_url": None,
      "ats": "workday", "board": "https://panne.wd1.myworkdayjobs.com/Careers"},
     {"company": "Inconnue SA", "sector": "Banque", "canton": "GE", "careers_url": None,
-     "ats": "successfactors", "board": None},
+     "ats": "taleo", "board": None},
 ]
 
 
@@ -32,7 +32,7 @@ def test_crawl_isole_les_pannes(con, client, tmp_path):
     report = pipeline.crawl(con, [dict(c) for c in COMPANIES], client, raw_dir=tmp_path)
     assert [name for name, *_ in report.ok] == ["Acme", "Acme Recherche"]
     assert [name for name, _ in report.errors] == ["Panne SA"]
-    assert report.skipped == [("Inconnue SA", "pas de connecteur « successfactors »")]
+    assert report.skipped == [("Inconnue SA", "pas de connecteur « taleo »")]
     assert _count(con) == 4
     assert len(list(tmp_path.glob("*/*.json.gz"))) == 2  # bronze archivé
 

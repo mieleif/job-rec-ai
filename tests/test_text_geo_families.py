@@ -26,6 +26,8 @@ def test_detect_language_allemand_est_other():
     # multi-sites réels (Proton, Logitech) : la Suisse citée l'emporte sur le pays étranger
     ("Geneva, Switzerland, Paris, France", "GE"),
     ("Lausanne, Switzerland / London, United Kingdom / Cork, Ireland", "VD"),
+    # tirets et espaces équivalents (URL SuccessFactors : « Le-Grand-Saconnex-Stagiaire… »)
+    ("Le Grand Saconnex", "GE"), ("Le Grand-Saconnex", "GE"), ("Plan les Ouates", "GE"),
 ])
 def test_canton_of(location, canton):
     assert canton_of(location) == canton

@@ -10,14 +10,22 @@ _Dernière mise à jour : 2026-11-03_
 | Étape | Checkpoint | Ce qui reste |
 |---|---|---|
 | M0 · Setup | 9/9 (avec une note locale, voir « Contraintes ») | règles perso dans `CLAUDE.md`, Milestones GitHub, questions de contrôle |
-| M1 · Collecte | **8/8** (fixtures réelles Workday, Greenhouse, SmartRecruiters) | **181 offres réelles sur 1 000** (repère : jobup.ch affiche ~2 000 offres pour Genève) : connecteur SuccessFactors (11 employeurs), CERN (site maison), note HTTP, questions de contrôle |
+| M1 · Collecte | **8/8** (fixtures réelles Workday, Greenhouse, SmartRecruiters) | **364 offres réelles sur 1 000** (repère : jobup.ch affiche ~2 000 offres pour Genève) : CERN (site maison), Oracle (UBP, Edmond de Rothschild, OMS), note HTTP, questions de contrôle |
 | M2 · Pipeline | 7/7 | installer le timer sur le VPS, note ETL/ELT, questions de contrôle |
 | M3 → M8 | pas commencé | |
 
-Tests du projet : 76 réussis.
+Tests du projet : 86 réussis.
 
 ## Décisions
 
+- **2026-11-03 · SuccessFactors : le sitemap, puis les microdonnées.** Chaque employeur a son
+  site (jobs.sicpa.com, careers.epfl.ch…), d'une génération ancienne (HTML) ou récente
+  (JavaScript nourri par `/services/`, interdit par robots.txt). Point commun autorisé :
+  `sitemap.xml` liste toutes les annonces, et chaque annonce porte des microdonnées schema.org
+  (module partagé `schema_org.py`, aussi utilisé par SmartRecruiters). Génération récente : le
+  lieu se lit dans l'URL (`/job/<Lieu>-<Titre>/<id>/`, ce qui précède le titre), la date dans
+  `<lastmod>`. Au-delà de 300 annonces (Nestlé : 2 100), pré-filtre sur l'URL avant de
+  télécharger. On n'archive que les balises de microdonnées (fixture : 162 Ko → 19 Ko).
 - **2026-11-03 · SmartRecruiters : le site public, pas l'API.** Le connecteur lit
   `careers.smartrecruiters.com/<id>` (liste HTML paginée par `api/groups?page=N`) puis
   `jobs.smartrecruiters.com/<id>/<offre>` (annonce balisée en schema.org JobPosting, parsée avec
@@ -52,6 +60,12 @@ Tests du projet : 76 réussis.
 
 ## Contraintes à connaître
 
+- **Scan de secrets GitHub** : le HTML archivé peut embarquer des clés publiques de tiers (la
+  carte Google Maps des annonces SmartRecruiters a déclenché une alerte le 2026-11-03, sans
+  risque : ce n'est pas notre clé). On n'archive que le contenu utile de l'annonce.
+- **SuccessFactors, cas non couverts** : SIG (ni lieu dans l'URL ni dans les microdonnées :
+  0 offre), Tetra Pak (`sitemap.xml` est un flux RSS), Pictet, CICR-ancien et UNIL (sur
+  `career*.successfactors.eu`, interdit par robots.txt). Givaudan est en réalité sur Phenom.
 - **Carte des ATS (2026-11-03, `uv run job-rec-ai boards`)** : Workday 13, SuccessFactors 11,
   SmartRecruiters 7, Oracle 3, Phenom 2, et un employeur chacun pour Cornerstone, iCIMS, Workable
   et Softgarden ; 15 employeurs sans ATS identifié (sites maison : État et Ville de Genève, CHUV ;
@@ -70,8 +84,8 @@ Tests du projet : 76 réussis.
 
 ## Prochaines étapes
 
-1. Connecteur SuccessFactors (11 employeurs : Pictet, CICR, Nestlé, EPFL, SICPA…). EPFL : 78
-   offres, SICPA : 62 (dont une partie hors de Suisse).
+1. Familles de métiers : 119 offres sur 364 tombent dans « Autre » (un tiers) : enrichir les
+   règles de `families.py` ou attendre l'extraction par LLM (M5).
 2. Retrouver les boards Workday manquants : Richemont, Cargill, Bunge, Haleon.
 3. Élargir la liste au-delà des 56 employeurs (absents : Université de Genève, ONU et agences,
    grandes banques, maisons Richemont, Big Four…) et mesurer la couverture par employeur
@@ -84,6 +98,10 @@ Tests du projet : 76 réussis.
 
 ## Journal des sessions
 
+- **2026-11-03** (suite) : connecteur SuccessFactors (EPFL 67, Nestlé 60, BCV 31, CICR 17,
+  SICPA 7, Genève Aéroport 1) : 364 offres actives ; correctif `geo` (tirets ≡ espaces,
+  coquille Grand-Saconnex) ; alerte de secret GitHub traitée (clé Maps publique de
+  SmartRecruiters retirée des archives) ; test d'enrichissement rendu déterministe.
 - **2026-11-03** (suite) : connecteur SmartRecruiters réécrit sur le site public ; checkpoint
   M1 à 8/8 ; collecte réelle : 181 offres actives (HUG 47, Lombard Odier 47, Swissquote 28,
   WEF 12, Logitech 10, Trafigura 8, Vitol 8, Proton 7, Nexthink 5…) ; LDC vérifié : 331 offres,

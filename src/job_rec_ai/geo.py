@@ -16,7 +16,7 @@ _PLACES = {
     "GE": [
         "geneve", "geneva", "genf", "ginevra", "carouge", "meyrin", "vernier", "lancy",
         "plan-les-ouates", "satigny", "thonex", "onex", "chene-bourg", "chene-bougeries",
-        "cointrin", "grand-saconnay", "versoix", "collonge-bellerive",
+        "cointrin", "grand-saconnex", "versoix", "collonge-bellerive",
         "cologny", "veyrier", "bernex", "confignon", "le lignon", "acacias", "petit-lancy",
         "grand-lancy", "pregny-chambesy", "chambesy", "aire-la-ville", "avully",
         "perly", "bardonnex", "troinex", "puplinge", "puits-godet",
@@ -33,7 +33,10 @@ _PLACES = {
     ],
 }
 
-_PATTERNS = compile_keywords(_PLACES.items())
+# Tirets et espaces équivalents : les URL écrivent « Chene-Bourg » ou « Chene Bourg »,
+# les annonces « Plan-les-Ouates » ou « Plan les Ouates »
+_PATTERNS = compile_keywords(
+    (canton, [p.replace("-", " ") for p in places]) for canton, places in _PLACES.items())
 # Abréviations de canton en majuscules : « Lausanne, VD » ou « Meyrin (GE) »
 _ABBREV = re.compile(rf"\b({'|'.join(_PLACES)})\b")
 # Homonymes à l'étranger : Geneva (Illinois, New York), Bellevue (Washington)…
@@ -50,7 +53,7 @@ def canton_of(location: str | None) -> str | None:
     """Renvoie « GE », « VD » ou None si le lieu n'est pas dans l'arc lémanique."""
     if not location:
         return None
-    norm = normalize(location)
+    norm = normalize(location).replace("-", " ")
     if _FOREIGN.search(norm) and not _SWISS.search(norm):
         return None
     canton, _ = first_match(_PATTERNS, norm)

@@ -16,6 +16,7 @@ import re
 from bs4 import BeautifulSoup
 
 from job_rec_ai.connectors.base import LocationFilter, build_jobs, envelope, parse_date
+from job_rec_ai.connectors.schema_org import JobPostingPage
 from job_rec_ai.http import PoliteClient
 from job_rec_ai.models import Job
 from job_rec_ai.text import clean_html
@@ -83,24 +84,18 @@ class SmartRecruitersConnector:
 
     def parse(self, payload: dict) -> list[Job]:
         def to_fields(posting: dict) -> dict:
-            soup = BeautifulSoup(posting["html"], "html.parser")
-
-            def prop(name: str) -> str | None:
-                tag = soup.find(attrs={"itemprop": name})
-                if tag is None:
-                    return None
-                return tag.get("content") or tag.get_text(" ", strip=True) or None
-
-            description = soup.find(attrs={"itemprop": "description"})
-            place = (prop("addressLocality"), prop("addressRegion"), prop("addressCountry"))
+            page = JobPostingPage(posting["html"])
+            description = page.tag("description")
+            place = (page.prop("addressLocality"), page.prop("addressRegion"),
+                     page.prop("addressCountry"))
             return {
-                "title": prop("title"),
+                "title": page.prop("title"),
                 "url": posting["url"],
                 "location": ", ".join(p for p in place if p),
                 "description": clean_html(str(description) if description else None),
-                "posted_at": parse_date(prop("datePosted")),
+                "posted_at": parse_date(page.prop("datePosted")),
                 "source_id": posting["id"],
-                "employment_type": prop("employmentType"),
+                "employment_type": page.prop("employmentType"),
             }
 
         return build_jobs(payload, to_fields)
