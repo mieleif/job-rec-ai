@@ -96,7 +96,9 @@ SR_PAGES = {
     "/ACME": '<div data-groups-pages="2">' + sr_group(
         "Data", sr_link("1", "Ingénieur de données", "Meyrin, GE", "Full-time")) + "</div>",
     "/ACME/api/groups": sr_group("Zürich, Switzerland", sr_link("2", "Sales Manager", "Full-time"))
-    + sr_group("Lausanne, Switzerland", sr_link("3", "Contrôleur de gestion", "Full-time")),
+    + sr_group("Lausanne, Switzerland", sr_link("3", "Contrôleur de gestion", "Full-time"))
+    # La même offre listée sous deux lieux : Lausanne d'abord, puis Londres (dernier vu)
+    + sr_group("London, United Kingdom", sr_link("3", "Contrôleur de gestion", "Full-time")),
     "/AUTRE": "<html><body>Le site carrière maison d'Autre SA</body></html>",
 }
 SR_ADS = {"/ACME/1-x": sr_ad("Ingénieur de données", "Meyrin", "Geneva"),
