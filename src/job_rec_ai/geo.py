@@ -80,5 +80,16 @@ def _segment_canton(location: str) -> str | None:
     return match.group(1) if match else None
 
 
+def mentions_target_place(text: str | None) -> bool:
+    """Un nom de lieu de l'arc lémanique apparaît-il dans le texte ?
+
+    Pré-filtre grossier pour un texte qui mêle lieu et autre chose (une URL « Lieu-Titre ») :
+    pas de veto des homonymes étrangers, qui se déclencherait sur les mots du titre
+    (« Vevey-Country-Manager-France »). Le verdict définitif vient de canton_of.
+    """
+    canton, _ = first_match(_PATTERNS, normalize(text or "").replace("-", " "))
+    return canton in TARGET_CANTONS
+
+
 def is_target(location: str | None) -> bool:
     return canton_of(location) in TARGET_CANTONS
