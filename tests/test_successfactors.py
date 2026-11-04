@@ -127,3 +127,22 @@ def test_successfactors_parse_vraie_fixture():
     jobs = REGISTRY["successfactors"].parse(payload)
     assert len(jobs) == len(payload["postings"])  # aucune offre réelle rejetée
     assert all(is_target(j.location) and len(j.description) > 1000 for j in jobs)
+
+
+def test_titre_hors_microdonnees(sleeps):
+    """L'UIT n'a pas d'itemprop="title" : le titre vient de og:title, gardé à part."""
+    page = ('<html><head><meta property="og:title" content="Roster - Interprète"></head><body>'
+            '<span itemprop="description"><p>Interprétation</p></span></body></html>')
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        if request.url.path == "/sitemap.xml":
+            return httpx.Response(200, text=f"<url><loc>{SITE}/job/Geneva-Roster-Interprete/7/"
+                                            "</loc></url>")
+        return httpx.Response(200, text=page) if "/job/" in request.url.path else (
+            httpx.Response(404))
+
+    connector = REGISTRY["successfactors"]
+    with PoliteClient(transport=httpx.MockTransport(handler), sleep=sleeps.append) as client:
+        payload = connector.fetch(SITE, "UIT", client, keep=is_target)
+    (job,) = connector.parse(payload)
+    assert (job.title, job.location) == ("Roster - Interprète", "Geneva")
