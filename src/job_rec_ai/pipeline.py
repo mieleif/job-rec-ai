@@ -129,10 +129,10 @@ def crawl(con, companies: list[dict], client: PoliteClient, raw_dir: Path = RAW_
     wanted = {normalize(n) for n in only} if only else None
     storage.upsert_companies(con, companies)
     report = CrawlReport()
-    for company in companies:
+    planned = [c for c in companies if not wanted or normalize(c["company"]) in wanted]
+    storage.start_crawl(con, started, [c["company"] for c in planned])
+    for company in planned:
         name, ats = company["company"], company["ats"]
-        if wanted and normalize(name) not in wanted:
-            continue
         reason = skip_reason(company)
         if reason:
             report.skipped.append((name, reason))
@@ -159,6 +159,7 @@ def crawl(con, companies: list[dict], client: PoliteClient, raw_dir: Path = RAW_
                         fetched=len(payload["postings"]), loaded=result.loaded,
                         error=f"{result.expired} offres disparues d'un coup"
                         if result.suspect else None)
+    storage.finish_crawl(con, started)  # pas dans un finally : un arrêt doit rester visible
     return report
 
 

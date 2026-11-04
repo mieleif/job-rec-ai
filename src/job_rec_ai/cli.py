@@ -70,6 +70,14 @@ def _cmd_quality(args, con):
     for row in storage.quality(con):
         print(f"{row['source']:<16} {row['active']:>7}"
               + "".join(f" {row[key]:>12.0%}" for key, _ in columns))
+    if stopped := storage.interrupted_crawl(con):
+        total = len(stopped.done) + len(stopped.missing)
+        print(f"\nALERTE : la dernière collecte ({stopped.started_at:%d.%m.%Y %H:%M}) s'est "
+              f"arrêtée en route, {len(stopped.done)}/{total} entreprises traitées.")
+        if stopped.missing:
+            print(f"  en cours au moment de l'arrêt : {stopped.missing[0]}")
+            print(f"  jamais atteintes : {', '.join(stopped.missing[1:]) or '(aucune autre)'}")
+        print("  leurs offres datent de la collecte précédente : relancer `crawl`")
     failing = storage.failing_companies(con)
     print(f"\n{len(failing)} entreprise(s) en échec ou suspecte(s) à la dernière collecte")
     for company, ats, status, error in failing:

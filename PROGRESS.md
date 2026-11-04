@@ -18,6 +18,15 @@ Tests du projet : 128 réussis.
 
 ## Décisions
 
+- **2026-11-04 · Une collecte interrompue est signalée par `quality`.** Table `crawls` : une
+  ligne par collecte, avec la liste des entreprises prévues ; `finished_at` n'est écrit qu'à la
+  fin (pas dans un `finally`, sinon un Ctrl-C passerait pour une collecte complète). Expérience
+  du crash à 60 % : pas de doublon ni de fausse expiration (expiration par entreprise, après sa
+  collecte), mais les 40 % restants gardaient des offres périmées sans aucune trace. Pas de
+  reprise (« checkpoint ») : la collecte est idempotente, tout relancer est juste, et une
+  reprise ne ferait gagner que du temps. Pas de réordonnancement automatique de l'entreprise
+  « poison » : les erreurs Python sont déjà isolées par entreprise ; à reconsidérer si un même
+  employeur fait tomber le processus deux fois.
 - **2026-11-04 · Filtrer côté serveur sur le pays quand l'ATS le permet.** Workday (facette
   `locationCountry`, à défaut `locations` avec les villes que reconnaît `geo`), Oracle
   (`location=Switzerland`) et Phenom (`qcountry`) restreignent la recherche à la Suisse ; le
@@ -133,6 +142,8 @@ Tests du projet : 128 réussis.
 
 ## Journal des sessions
 
+- **2026-11-04** (soir) : version HTML du notebook (`docs/marche-emploi.html`) ; expérience du
+  crash à 60 % ; alerte « collecte interrompue » dans `quality` (table `crawls`).
 - **2026-11-04** (fin) : livrables M1 et M2 : notebook `notebooks/marche-emploi.ipynb`
   (top 20 des employeurs, langues, familles, secteurs, âge des offres ; images dans
   `docs/img/`, deux dans le README). Lecture : 53 % d'offres en anglais, 43 % en « Autre »
