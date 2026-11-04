@@ -11,6 +11,8 @@ from job_rec_ai.text import compile_keywords, first_match, normalize
 
 # Périmètre retenu pour la première base : l'arc lémanique (décision du 22.10.2026)
 TARGET_CANTONS = {"GE", "VD"}
+# Le pays des cantons cibles, tel que l'écrivent les ATS dans leurs filtres de recherche
+TARGET_COUNTRY = "Switzerland"
 
 _PLACES = {
     "GE": [
@@ -20,6 +22,10 @@ _PLACES = {
         "cologny", "veyrier", "bernex", "confignon", "le lignon", "acacias", "petit-lancy",
         "grand-lancy", "pregny-chambesy", "chambesy", "aire-la-ville", "avully",
         "perly", "bardonnex", "troinex", "puplinge", "puits-godet",
+        # quartiers de la ville et communes de la rive gauche / rive droite
+        "plainpalais", "eaux-vives", "paquis", "champel", "servette", "petit-saconnex",
+        "jonction", "fusterie", "vesenaz", "anieres", "hermance", "vandoeuvres", "genthod",
+        "collex-bossy", "dardagny", "cartigny", "meinier", "celigny",
     ],
     "VD": [
         "vaud", "waadt", "lausanne", "vevey", "nyon", "gland", "morges", "renens",
@@ -30,6 +36,9 @@ _PLACES = {
         "etoy", "allaman", "tolochenaz", "romanel", "pully", "lutry", "cheseaux",
         "aigle", "bex", "moudon", "vallorbe", "penthalaz", "begnins",
         "chavannes-de-bogis", "prangins", "bioley-orjulaz",
+        "aclens", "vufflens-la-ville", "echallens", "oron-la-ville", "les diablerets",
+        "villars-sur-ollon", "leysin", "rennaz", "ollon", "avenches", "cossonay", "lucens",
+        "chexbres", "cully", "sainte-croix", "chateau-d'oex",
     ],
 }
 

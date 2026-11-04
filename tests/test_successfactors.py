@@ -127,3 +127,51 @@ def test_successfactors_parse_vraie_fixture():
     jobs = REGISTRY["successfactors"].parse(payload)
     assert len(jobs) == len(payload["postings"])  # aucune offre réelle rejetée
     assert all(is_target(j.location) and len(j.description) > 1000 for j in jobs)
+
+
+def test_titre_hors_microdonnees(sleeps):
+    """L'UIT n'a pas d'itemprop="title" : le titre vient de og:title, gardé à part."""
+    page = ('<html><head><meta property="og:title" content="Roster - Interprète"></head><body>'
+            '<span itemprop="description"><p>Interprétation</p></span></body></html>')
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        if request.url.path == "/sitemap.xml":
+            return httpx.Response(200, text=f"<url><loc>{SITE}/job/Geneva-Roster-Interprete/7/"
+                                            "</loc></url>")
+        return httpx.Response(200, text=page) if "/job/" in request.url.path else (
+            httpx.Response(404))
+
+    connector = REGISTRY["successfactors"]
+    with PoliteClient(transport=httpx.MockTransport(handler), sleep=sleeps.append) as client:
+        payload = connector.fetch(SITE, "UIT", client, keep=is_target)
+    (job,) = connector.parse(payload)
+    assert (job.title, job.location) == ("Roster - Interprète", "Geneva")
+
+
+def test_lieu_commune_et_canton_en_microdonnees(sleeps):
+    """Coop : la commune (inconnue de geo) et le canton à part ; le titre ne se retrouve
+    pas dans l'URL (« Collaboratrice/Collaborateur » y devient un seul mot)."""
+    page = ('<span itemprop="addressLocality">Aclens</span>'
+            '<span itemprop="addressRegion">Vaud</span>'
+            '<span itemprop="title">Collaboratrice/Collaborateur Vente</span>'
+            '<span itemprop="description"><p>Vente</p></span>')
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        if request.url.path == "/sitemap.xml":
+            return httpx.Response(200, text=f"<url><loc>{SITE}/job/Aclens-CollaboratriceCollab"
+                                            "orateur-Vente-Vaud/8/</loc></url>")
+        return httpx.Response(200, text=page) if "/job/" in request.url.path else (
+            httpx.Response(404))
+
+    connector = REGISTRY["successfactors"]
+    with PoliteClient(transport=httpx.MockTransport(handler), sleep=sleeps.append) as client:
+        payload = connector.fetch(SITE, "Coop", client, keep=is_target)
+    (job,) = connector.parse(payload)
+    assert job.location == "Aclens, Vaud"
+
+
+def test_canton_seul_en_microdonnees_l_url_d_abord():
+    from job_rec_ai.connectors.schema_org import JobPostingPage
+    from job_rec_ai.connectors.successfactors import location_of
+    page = JobPostingPage('<span itemprop="addressRegion">CH</span>')
+    assert location_of(page, f"{SITE}/job/Lausanne-Analyste/9/", "Analyste") == "Lausanne"

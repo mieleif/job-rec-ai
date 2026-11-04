@@ -47,6 +47,18 @@ def job_links(html: str, page_url: str, board: str) -> tuple[list[str], str | No
     return links, urljoin(page_url, following["href"]) if following else None
 
 
+def listed_links(client: PoliteClient, board: str) -> list[str]:
+    """Toutes les annonces listées sous le board, en suivant les pages rel="next"."""
+    links, page_url = [], board
+    for _ in range(MAX_PAGES):
+        found, following = job_links(client.get_html(page_url), page_url, board)
+        links += [url for url in found if url not in links]
+        if not following or following == page_url:
+            break
+        page_url = following
+    return links
+
+
 def _clean(text: str) -> str:
     """Entités parfois échappées deux fois (« &amp;#160; »), espaces invisibles (U+200B)."""
     text = html.unescape(html.unescape(text)).replace("\u200b", " ")
@@ -81,16 +93,8 @@ class JsonLdConnector:
         # employeur, choisi parce qu'il est dans l'arc lémanique. Ses lieux sont d'ailleurs
         # souvent des adresses sans ville (« Place du Bourg-de-Four 1 ») : le canton viendra
         # de l'employeur (vue jobs_view).
-        links, page_url = [], board
-        for _ in range(MAX_PAGES):
-            found, following = job_links(client.get_html(page_url), page_url, board)
-            links += [url for url in found if url not in links]
-            if not following or following == page_url:
-                break
-            page_url = following
-
         postings = []
-        for url in links:
+        for url in listed_links(client, board):
             page = get_html_or_skip(client, url)  # retirée entre la liste et l'annonce : None
             job = json_ld_job_posting(page) if page else None
             if job is not None:  # sinon : page liée mais qui n'est pas une annonce

@@ -79,12 +79,22 @@ def location_from_url(url: str, title: str) -> str:
     return ""
 
 
-def location_of(page: JobPostingPage, url: str) -> str:
+def title_of(page: JobPostingPage) -> str | None:
+    """Le titre : microdonnées, à défaut la balise og:title (l'UIT n'a pas d'itemprop="title")."""
+    return page.prop("title") or page.meta("og:title")
+
+
+def location_of(page: JobPostingPage, url: str, title: str | None) -> str:
     """Le lieu de l'annonce : microdonnées si elles disent plus qu'un code pays, sinon l'URL."""
     address = page.prop("streetAddress") or ""
     if "," in address:  # « Fribourg, CH » ; « CH » seul ne situe rien
         return address
-    return location_from_url(url, page.prop("title") or "") or address
+    # Coop : commune et canton à part (« Aclens », « Vaud ») ; la commune seule est
+    # souvent inconnue de geo, le canton la situe. Un seul des deux (« CH ») : l'URL d'abord
+    place = ", ".join(p for p in (page.prop("addressLocality"), page.prop("addressRegion")) if p)
+    if "," in place:
+        return place
+    return location_from_url(url, title or "") or place or address
 
 
 def posted_on(value: str | None) -> date | None:
@@ -117,18 +127,21 @@ class SuccessFactorsConnector:
             if raw is None:
                 continue
             page = JobPostingPage(raw)
-            if keep(location_of(page, url)):
-                postings.append({"url": url, "lastmod": lastmod, "html": page.markup()})
+            title = title_of(page)  # hors microdonnées s'il vient d'og:title : on le garde à part
+            if keep(location_of(page, url, title)):
+                postings.append({"url": url, "lastmod": lastmod, "title": title,
+                                 "html": page.markup()})
         return envelope(self.name, company, board, postings)
 
     def parse(self, payload: dict) -> list[Job]:
         def to_fields(posting: dict) -> dict:
             page = JobPostingPage(posting["html"])
             job_id = _JOB_ID.search(posting["url"])
+            title = posting.get("title") or page.prop("title")  # archives d'avant « title »
             return {
-                "title": page.prop("title"),
+                "title": title,
                 "url": posting["url"],
-                "location": location_of(page, posting["url"]),
+                "location": location_of(page, posting["url"], title),
                 "description": " ".join(clean_html(str(t)) for t in page.tags("description")),
                 "posted_at": posted_on(page.prop("datePosted")) or parse_date(posting["lastmod"]),
                 "source_id": job_id.group(1) if job_id else None,

@@ -3,7 +3,7 @@ Rolex,Horlogerie,GE,https://www.rolex.com/rolex-careers,,
 Richemont,Luxe,GE,https://careers.richemont.com/en/jobs/,workday,https://richemont.wd3.myworkdayjobs.com/richemont
 Patek Philippe,Horlogerie,GE,https://www.patek.com/en/company/careers,,
 dsm-firmenich,Arômes & parfums,GE,https://www.dsm-firmenich.com/en/careers.html,,
-Givaudan,Arômes & parfums,GE,https://www.givaudan.com/careers,phenom,
+Givaudan,Arômes & parfums,GE,https://www.givaudan.com/careers,phenom,https://careers.givaudan.com/global/en
 SGS,Inspection & certification,GE,https://www.sgs.com/en/careers,,
 Pictet,Banque,GE,https://www.group.pictet/careers,successfactors,
 Lombard Odier,Banque,GE,https://www.lombardodier.com/careers,workday,https://lombardodier.wd3.myworkdayjobs.com/Lombard_Odier_Careers
@@ -19,13 +19,13 @@ Mercuria,Négoce,GE,https://mercuria.com/careers,,
 Cargill,Négoce,GE,https://careers.cargill.com,radancy,
 Bunge,Négoce,GE,https://jobs.bunge.com,successfactors,
 Louis Dreyfus Company,Négoce,GE,https://www.ldc.com/careers,smartrecruiters,LouisDreyfusCompany
-Procter & Gamble,Biens de consommation,GE,https://www.pgcareers.com,phenom,
+Procter & Gamble,Biens de consommation,GE,https://www.pgcareers.com,phenom,https://www.pgcareers.com/global/en
 JTI,Tabac,GE,https://www.jti.com/careers,,
 Caterpillar,Industrie,GE,https://careers.caterpillar.com,workday,https://cat.wd5.myworkdayjobs.com/CaterpillarCareers
 SITA,Technologies de l'information,GE,https://www.sita.aero/careers,icims,
 Temenos,Logiciel,GE,https://www.temenos.com/careers,workday,https://temenos.wd103.myworkdayjobs.com/Temenoscareers
 Proton,Logiciel,GE,https://proton.me/careers,greenhouse,proton
-CERN,Recherche,GE,https://careers.cern,maison,https://careers.cern/jobs/
+CERN,Recherche,GE,https://careers.cern,cern,https://careers.cern/jobs/
 Hôpitaux Universitaires de Genève,Santé,GE,https://www.hug.ch,smartrecruiters,HUG
 État de Genève,Administration publique,GE,https://www.ge.ch/offres-emploi-etat-geneve,jsonld,https://www.ge.ch/offres-emploi-etat-geneve/liste-offres
 Ville de Genève,Administration publique,GE,https://www.geneve.ch,,
@@ -34,14 +34,14 @@ Transports publics genevois,Transport & logistique,GE,https://www.tpg.ch,,
 Genève Aéroport,Transport & logistique,GE,https://www.gva.ch,successfactors,https://emplois.geneve-aeroport.ch
 CICR,Organisation internationale,GE,https://careers.icrc.org,successfactors,https://careers.icrc.org
 Forum économique mondial,Organisation internationale,GE,https://www.weforum.org/careers,workday,https://weforum.wd3.myworkdayjobs.com/Forum_Careers
-Organisation mondiale de la santé,Organisation internationale,GE,https://www.who.int/careers,oracle,https://estm.fa.em2.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_10001
+Organisation mondiale de la santé,Organisation internationale,GE,https://www.who.int/careers,taleo,https://careers.who.int/careersection/ex/jobsearch.ftl
 Nestlé,Agroalimentaire,VD,https://www.nestle.com/jobs,successfactors,https://jobdetails.nestle.com
-Philip Morris International,Tabac,VD,https://www.pmi.com/careers,phenom,
+Philip Morris International,Tabac,VD,https://join.pmicareers.com,phenom,https://join.pmicareers.com/gb/en
 Logitech,Électronique,VD,https://www.logitech.com/careers,workday,https://logitech.wd5.myworkdayjobs.com/Logitech
 Medtronic,Dispositifs médicaux,VD,https://www.medtronic.com/careers,workday,https://medtronic.wd1.myworkdayjobs.com/MedtronicCareers
 Edwards Lifesciences,Dispositifs médicaux,VD,https://www.edwards.com/careers,workday,https://edwards.wd5.myworkdayjobs.com/EdwardsCareers
 Haleon,Santé grand public,VD,https://careers.haleon.com,eightfold,
-Ferring Pharmaceuticals,Pharma,VD,https://www.ferring.com/careers,,
+Ferring Pharmaceuticals,Pharma,VD,https://www.ferring.com/careers,workday,https://ferring.wd3.myworkdayjobs.com/Ferring
 Debiopharm,Pharma,VD,https://www.debiopharm.com/careers,workable,debiopharm
 Audemars Piguet,Horlogerie,VD,https://www.audemarspiguet.com/careers,,
 Bobst,Industrie,VD,https://www.bobst.com/careers,,
@@ -57,3 +57,18 @@ EPFL,Recherche,VD,https://www.epfl.ch/about/working,successfactors,https://caree
 Université de Lausanne,Recherche,VD,https://www.unil.ch,successfactors,
 Alcon,Dispositifs médicaux,GE,https://careers.alcon.com,workday,https://alcon.wd5.myworkdayjobs.com/careers_alcon
 Julius Baer,Banque,GE,https://www.juliusbaer.com/careers,workday,https://juliusbaer.wd3.myworkdayjobs.com/External
+Nations Unies (Secrétariat),Organisation internationale,GE,https://careers.un.org,uncareers,https://careers.un.org
+Fonds mondial,Organisation internationale,GE,https://www.theglobalfund.org/en/careers/,workday,https://theglobalfund.wd1.myworkdayjobs.com/External
+Union internationale des télécommunications,Organisation internationale,GE,https://www.itu.int/en/careers,successfactors,https://jobs.itu.int
+Organisation internationale du travail,Organisation internationale,GE,https://www.ilo.org/careers,successfactors,https://jobs.ilo.org
+Organisation internationale pour les migrations,Organisation internationale,GE,https://www.iom.int/careers,oracle,https://fa-evlj-saasfaprod1.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1001
+Organisation mondiale de la propriété intellectuelle,Organisation internationale,GE,https://www.wipo.int/jobs/en/,taleo,https://wipo.taleo.net/careersection/wp_2/jobsearch.ftl
+Université de Genève,Recherche,GE,https://www.unige.ch/dirh/travailler,,
+Coop,Commerce de détail,BS,https://jobs.coop.ch,successfactors,https://jobs.coop.ch
+EY,Audit & conseil,ZH,https://careers.ey.com,successfactors,https://careers.ey.com
+IMAD,Santé,GE,https://www.imad-ge.ch/emploi,smartrecruiters,imad
+PwC,Audit & conseil,ZH,https://www.pwc.ch/en/careers.html,workday,https://pwc.wd3.myworkdayjobs.com/Global_Experienced_Careers
+Hospice général,Action sociale,GE,https://www.hospicegeneral.ch,smartrecruiters,HospiceGeneral
+Fondation Clair Bois,Action sociale,GE,https://www.clairbois.ch,smartrecruiters,FondationClairBois
+Securitas,Sécurité,BE,https://www.securitas.ch,smartrecruiters,Securitas
+JPMorgan Chase,Banque,GE,https://careers.jpmorgan.com,oracle,https://jpmc.fa.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1001

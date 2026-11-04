@@ -5,6 +5,11 @@ applications JavaScript qui appellent une API JSON interne, non documentée mais
     POST /wday/cxs/<tenant>/<site>/jobs           liste paginée (20 offres max par page)
     GET  /wday/cxs/<tenant>/<site>/job/<chemin>   détail d'une offre (avec la description)
 La liste ne contient ni description ni lieux complets : il faut une requête par offre.
+
+Les grands boards (PwC : 3 800 offres dans le monde, une dizaine en Suisse romande) se
+filtrent côté serveur par les facettes de recherche que renvoie l'API : le pays si le board
+le propose, sinon les villes que reconnaît notre filtre de lieu. Le filtre de lieu reste
+appliqué ensuite, offre par offre.
 """
 
 import re
@@ -17,6 +22,7 @@ from job_rec_ai.connectors.base import (
     paginate,
     parse_date,
 )
+from job_rec_ai.geo import TARGET_COUNTRY
 from job_rec_ai.http import PoliteClient
 from job_rec_ai.models import Job
 from job_rec_ai.text import clean_html
@@ -42,6 +48,35 @@ def api_base(board: str) -> str:
     return f"{parts.scheme}://{parts.netloc}/wday/cxs/{tenant}/{segments[0]}"
 
 
+def _facet_values(facets: list[dict]) -> dict[str, list[dict]]:
+    """Les facettes à plat : {"locationCountry": [{"id", "descriptor", "count"}…], …}.
+    Workday les imbrique dans des groupes (« locationMainGroup » → « locations »)."""
+    flat = {}
+    for facet in facets:
+        values = facet.get("values", [])
+        flat.update(_facet_values([v for v in values if "values" in v]))
+        leaves = [v for v in values if "id" in v]
+        if leaves:
+            flat[facet.get("facetParameter", "")] = leaves
+    return flat
+
+
+def target_facets(facets: list[dict], keep: LocationFilter) -> dict[str, list[str]] | None:
+    """La facette qui restreint la recherche à nos lieux : le pays, sinon les villes.
+
+    None : parcours complet. C'est aussi le cas d'une facette sans aucune valeur reconnue :
+    elle ne prouve pas l'absence d'offre chez nous (pays traduit « Suisse », sites codés
+    « CH-GVA-01 »), et conclure « rien ici » expirerait toutes les offres de l'employeur.
+    """
+    flat = _facet_values(facets)
+    for name, matches in (("locationCountry", lambda d: d == TARGET_COUNTRY),
+                          ("locations", keep)):
+        ids = [v["id"] for v in flat.get(name, []) if matches(v.get("descriptor"))]
+        if ids:
+            return {name: ids}
+    return None
+
+
 def _locations(info: dict) -> list[str]:
     return [loc for loc in [info.get("location"), *info.get("additionalLocations", [])] if loc]
 
@@ -53,10 +88,17 @@ class WorkdayConnector:
               keep: LocationFilter) -> dict:
         api = api_base(board)
 
-        def page(offset: int) -> tuple[list, int]:
-            data = client.post_json(f"{api}/jobs", {
-                "appliedFacets": {}, "limit": PAGE_SIZE, "offset": offset, "searchText": "",
+        def search(offset: int, facets: dict) -> dict:
+            return client.post_json(f"{api}/jobs", {
+                "appliedFacets": facets, "limit": PAGE_SIZE, "offset": offset, "searchText": "",
             })
+
+        first = search(0, {})
+        facets = target_facets(first.get("facets", []), keep)
+
+        def page(offset: int) -> tuple[list, int]:
+            # sans facette, la première page déjà reçue sert telle quelle
+            data = first if offset == 0 and facets is None else search(offset, facets or {})
             return data.get("jobPostings", []), data.get("total", 0)
 
         postings = []

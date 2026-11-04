@@ -51,6 +51,11 @@ class JobPostingPage:
             return None
         return tag.get("content") or tag.get_text(" ", strip=True) or None
 
+    def meta(self, prop: str) -> str | None:
+        """Une balise <meta property="…"> d'en-tête (Open Graph : og:title…)."""
+        tag = self.soup.find("meta", attrs={"property": prop})
+        return tag.get("content") or None if tag else None
+
     def markup(self) -> str:
         """Seulement les balises de microdonnées (sans le gabarit de page autour) : tout ce
         que lisent prop() et tags(), dix fois plus léger à archiver que la page entière."""

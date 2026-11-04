@@ -39,14 +39,14 @@ Lancer un checkpoint : `uv run pytest checkpoints/test_m1_collecte.py -v`
 🎯 Plus de 1 000 vraies offres genevoises dans une table propre.
 
 - [ ] Note : HTTP, codes de statut, JSON, `robots.txt`, rate limiting
-- [ ] Lister 50+ employeurs genevois dans `data/companies.csv` (nom, secteur, URL carrière)
+- [x] Lister 50+ employeurs genevois dans `data/companies.csv` (nom, secteur, URL carrière)
 - [ ] Identifier l'ATS de chacun (Greenhouse, Lever, SmartRecruiters, Workday, Personio…)
 - [x] Modèle `Job` avec pydantic
 - [x] ⚡ Sauvegarder une vraie réponse JSON d'ATS dans `tests/fixtures/`
 - [x] Premier connecteur ATS : `fetch()` + `parse()` → `list[Job]`
 - [x] Deuxième connecteur + `REGISTRY`
 - [x] Dédoublonnage des offres
-- [ ] Stockage en base (DuckDB pour démarrer) et cap des 1 000 offres
+- [x] Stockage en base (DuckDB pour démarrer) et cap des 1 000 offres
 
 🖼️ Graphique « Top 20 des employeurs qui recrutent à Genève » + répartition des langues.
 
