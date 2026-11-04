@@ -7,6 +7,7 @@ commandes, et rien de magique à comprendre.
 import argparse
 import json
 import logging
+import sys
 from datetime import date
 from pathlib import Path
 
@@ -179,6 +180,10 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main(argv: list[str] | None = None) -> None:
+    # La console Windows écrit par défaut en cp1252 : « ✓ », « → » feraient planter print
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, "reconfigure"):
+            stream.reconfigure(encoding="utf-8", errors="replace")
     args = build_parser().parse_args(argv)
     logging.basicConfig(level=logging.INFO if args.verbose else logging.WARNING,
                         format="%(levelname)s %(name)s: %(message)s")

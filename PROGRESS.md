@@ -11,7 +11,7 @@ _Dernière mise à jour : 2026-11-04_
 |---|---|---|
 | M0 · Setup | 9/9 (avec une note locale, voir « Contraintes ») | règles perso dans `CLAUDE.md`, Milestones GitHub, questions de contrôle |
 | M1 · Collecte | **8/8** (fixtures réelles pour les 10 connecteurs) | **1 002 offres réelles** (608 GE, 394 VD, 42 employeurs ; repère : jobup.ch ~2 000 pour Genève). Restent : note HTTP, questions de contrôle |
-| M2 · Pipeline | 7/7 | installer le timer sur le VPS, note ETL/ELT, questions de contrôle |
+| M2 · Pipeline | 7/7 (livrable : [notebook « 5 graphiques »](notebooks/marche-emploi.ipynb)) | installer le timer sur le VPS, note ETL/ELT, questions de contrôle |
 | M3 → M8 | pas commencé | |
 
 Tests du projet : 128 réussis.
@@ -133,6 +133,11 @@ Tests du projet : 128 réussis.
 
 ## Journal des sessions
 
+- **2026-11-04** (fin) : livrables M1 et M2 : notebook `notebooks/marche-emploi.ipynb`
+  (top 20 des employeurs, langues, familles, secteurs, âge des offres ; images dans
+  `docs/img/`, deux dans le README). Lecture : 53 % d'offres en anglais, 43 % en « Autre »
+  (dont 173 Coop), âge médian 15 jours, 26 offres de plus de 6 mois. CLI : sortie forcée en
+  UTF-8 (`boards` plantait dans la console Windows sur « ✓ »).
 - **2026-11-04** (suite) : objectif 1 000 atteint : **1 002 offres actives**, 42 employeurs,
   0 erreur. Connecteurs Oracle (UBP 50, JPMorgan 11, OIM 8), Taleo (OMPI 10, OMS 2), Phenom
   (Givaudan 14, PMI 5, P&G 2), careers.un.org (ONU 48), CERN (31) ; nouveaux employeurs sur

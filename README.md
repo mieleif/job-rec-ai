@@ -15,14 +15,24 @@ Où on en est, et les décisions prises : **[PROGRESS.md](PROGRESS.md)**.
 | Étape | Statut |
 |---|---|
 | M0 · Setup | 🚧 en cours |
-| M1 · Collecte | 🚧 en cours |
-| M2 · Pipeline | 🚧 en cours |
+| M1 · Collecte | 🚧 1 001 offres réelles ; notes et questions de contrôle restantes |
+| M2 · Pipeline | 🚧 collecte nocturne sur le VPS à installer |
 | M3 · Baseline et évaluation | ⏳ |
 | M4 · Embeddings et recherche sémantique | ⏳ |
 | M5 · Enrichissement par LLM | ⏳ |
 | M6 · Re-ranking | ⏳ |
 | M7 · Feedback et swipe | ⏳ |
 | M8 · Production | ⏳ |
+
+## Le marché genevois en images
+
+1 001 offres actives collectées directement chez 42 employeurs de Genève et Vaud
+(4 novembre 2026). Les cinq graphiques et leur lecture :
+[`notebooks/marche-emploi.ipynb`](notebooks/marche-emploi.ipynb).
+
+![Top 20 des employeurs](docs/img/top-employeurs.png)
+
+![Langue des offres](docs/img/langues.png)
 
 ## Utilisation
 
