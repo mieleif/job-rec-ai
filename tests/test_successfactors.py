@@ -146,3 +146,25 @@ def test_titre_hors_microdonnees(sleeps):
         payload = connector.fetch(SITE, "UIT", client, keep=is_target)
     (job,) = connector.parse(payload)
     assert (job.title, job.location) == ("Roster - Interprète", "Geneva")
+
+
+def test_lieu_commune_et_canton_en_microdonnees(sleeps):
+    """Coop : la commune (inconnue de geo) et le canton à part ; le titre ne se retrouve
+    pas dans l'URL (« Collaboratrice/Collaborateur » y devient un seul mot)."""
+    page = ('<span itemprop="addressLocality">Aclens</span>'
+            '<span itemprop="addressRegion">Vaud</span>'
+            '<span itemprop="title">Collaboratrice/Collaborateur Vente</span>'
+            '<span itemprop="description"><p>Vente</p></span>')
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        if request.url.path == "/sitemap.xml":
+            return httpx.Response(200, text=f"<url><loc>{SITE}/job/Aclens-CollaboratriceCollab"
+                                            "orateur-Vente-Vaud/8/</loc></url>")
+        return httpx.Response(200, text=page) if "/job/" in request.url.path else (
+            httpx.Response(404))
+
+    connector = REGISTRY["successfactors"]
+    with PoliteClient(transport=httpx.MockTransport(handler), sleep=sleeps.append) as client:
+        payload = connector.fetch(SITE, "Coop", client, keep=is_target)
+    (job,) = connector.parse(payload)
+    assert job.location == "Aclens, Vaud"

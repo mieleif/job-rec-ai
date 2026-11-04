@@ -25,7 +25,7 @@ Caterpillar,Industrie,GE,https://careers.caterpillar.com,workday,https://cat.wd5
 SITA,Technologies de l'information,GE,https://www.sita.aero/careers,icims,
 Temenos,Logiciel,GE,https://www.temenos.com/careers,workday,https://temenos.wd103.myworkdayjobs.com/Temenoscareers
 Proton,Logiciel,GE,https://proton.me/careers,greenhouse,proton
-CERN,Recherche,GE,https://careers.cern,maison,https://careers.cern/jobs/
+CERN,Recherche,GE,https://careers.cern,cern,https://careers.cern/jobs/
 Hôpitaux Universitaires de Genève,Santé,GE,https://www.hug.ch,smartrecruiters,HUG
 État de Genève,Administration publique,GE,https://www.ge.ch/offres-emploi-etat-geneve,jsonld,https://www.ge.ch/offres-emploi-etat-geneve/liste-offres
 Ville de Genève,Administration publique,GE,https://www.geneve.ch,,
@@ -41,7 +41,7 @@ Logitech,Électronique,VD,https://www.logitech.com/careers,workday,https://logit
 Medtronic,Dispositifs médicaux,VD,https://www.medtronic.com/careers,workday,https://medtronic.wd1.myworkdayjobs.com/MedtronicCareers
 Edwards Lifesciences,Dispositifs médicaux,VD,https://www.edwards.com/careers,workday,https://edwards.wd5.myworkdayjobs.com/EdwardsCareers
 Haleon,Santé grand public,VD,https://careers.haleon.com,eightfold,
-Ferring Pharmaceuticals,Pharma,VD,https://www.ferring.com/careers,,
+Ferring Pharmaceuticals,Pharma,VD,https://www.ferring.com/careers,workday,https://ferring.wd3.myworkdayjobs.com/Ferring
 Debiopharm,Pharma,VD,https://www.debiopharm.com/careers,workable,debiopharm
 Audemars Piguet,Horlogerie,VD,https://www.audemarspiguet.com/careers,,
 Bobst,Industrie,VD,https://www.bobst.com/careers,,
@@ -66,3 +66,9 @@ Organisation mondiale de la propriété intellectuelle,Organisation internationa
 Université de Genève,Recherche,GE,https://www.unige.ch/dirh/travailler,,
 Coop,Commerce de détail,BS,https://jobs.coop.ch,successfactors,https://jobs.coop.ch
 EY,Audit & conseil,ZH,https://careers.ey.com,successfactors,https://careers.ey.com
+IMAD,Santé,GE,https://www.imad-ge.ch/emploi,smartrecruiters,imad
+PwC,Audit & conseil,ZH,https://www.pwc.ch/en/careers.html,workday,https://pwc.wd3.myworkdayjobs.com/Global_Experienced_Careers
+Hospice général,Action sociale,GE,https://www.hospicegeneral.ch,smartrecruiters,HospiceGeneral
+Fondation Clair Bois,Action sociale,GE,https://www.clairbois.ch,smartrecruiters,FondationClairBois
+Securitas,Sécurité,BE,https://www.securitas.ch,smartrecruiters,Securitas
+JPMorgan Chase,Banque,GE,https://careers.jpmorgan.com,oracle,https://jpmc.fa.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1001

@@ -21,13 +21,13 @@ from job_rec_ai.connectors.base import (
     paginate,
     parse_date,
 )
+from job_rec_ai.geo import TARGET_COUNTRY
 from job_rec_ai.http import PoliteClient
 from job_rec_ai.models import Job
 from job_rec_ai.text import clean_html
 
 PAGE_SIZE = 10  # imposé par Phenom
 MAX_PAGES = 50
-COUNTRY = "Switzerland"
 _DDO = re.compile(r"phApp\.ddo\s*=\s*(\{.*?\});\s*phApp\.", re.S)
 _KEPT = ("jobId", "reqId", "title", "description", "location", "multi_location", "city",
          "country", "postedDate", "type")
@@ -54,7 +54,7 @@ class PhenomConnector:
 
         def page(offset: int) -> tuple[list, int]:
             html = client.get_html(f"{site}/search-results",
-                                   params={"qcountry": COUNTRY, "from": offset, "s": 1})
+                                   params={"qcountry": TARGET_COUNTRY, "from": offset, "s": 1})
             search = ddo(html).get("eagerLoadRefineSearch")
             if search is None:
                 raise ValueError(f"pas de résultats Phenom dans {site}/search-results")

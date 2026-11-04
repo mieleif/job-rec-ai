@@ -55,7 +55,7 @@ def oracle_client(sleeps, requested, monkeypatch):
         finder = request.url.params["finder"]
         requested.append(finder)
         if request.url.path.endswith("/recruitingCEJobRequisitions"):
-            assert "siteNumber=CX_1" in finder
+            assert "siteNumber=CX_1" in finder and "location=Switzerland" in finder
             offset = int(finder.split("offset=")[1].split(",")[0])
             return httpx.Response(200, json={"items": [{
                 "TotalJobsCount": len(LIST), "requisitionList": LIST[offset:offset + 2]}]})

@@ -90,7 +90,10 @@ def location_of(page: JobPostingPage, url: str, title: str | None) -> str:
     address = page.prop("streetAddress") or ""
     if "," in address:  # « Fribourg, CH » ; « CH » seul ne situe rien
         return address
-    return location_from_url(url, title or "") or address
+    # Coop : commune et canton à part (« Aclens », « Vaud ») ; la commune seule est
+    # souvent inconnue de geo, le canton la situe
+    place = ", ".join(p for p in (page.prop("addressLocality"), page.prop("addressRegion")) if p)
+    return place or location_from_url(url, title or "") or address
 
 
 def posted_on(value: str | None) -> date | None:

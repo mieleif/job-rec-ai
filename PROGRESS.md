@@ -10,14 +10,27 @@ _Dernière mise à jour : 2026-11-04_
 | Étape | Checkpoint | Ce qui reste |
 |---|---|---|
 | M0 · Setup | 9/9 (avec une note locale, voir « Contraintes ») | règles perso dans `CLAUDE.md`, Milestones GitHub, questions de contrôle |
-| M1 · Collecte | **8/8** (fixtures réelles Workday, Greenhouse, SmartRecruiters) | **523 offres réelles** (repère : jobup.ch affiche ~2 000 offres pour Genève) : CERN (site maison sans JSON-LD), Phenom (P&G, PMI, Givaudan), Oracle (UBP, Edmond de Rothschild, OMS), note HTTP, questions de contrôle |
+| M1 · Collecte | **8/8** (fixtures réelles pour les 10 connecteurs) | **1 002 offres réelles** (608 GE, 394 VD, 42 employeurs ; repère : jobup.ch ~2 000 pour Genève). Restent : note HTTP, questions de contrôle |
 | M2 · Pipeline | 7/7 | installer le timer sur le VPS, note ETL/ELT, questions de contrôle |
 | M3 → M8 | pas commencé | |
 
-Tests du projet : 107 réussis.
+Tests du projet : 128 réussis.
 
 ## Décisions
 
+- **2026-11-04 · Filtrer côté serveur sur le pays quand l'ATS le permet.** Workday (facette
+  `locationCountry`, à défaut `locations` avec les villes que reconnaît `geo`), Oracle
+  (`location=Switzerland`) et Phenom (`qcountry`) restreignent la recherche à la Suisse ; le
+  filtre de lieu GE/VD reste appliqué offre par offre. PwC : 3 800 offres dans le monde pour
+  9 chez nous, JPMorgan : 7 100 pour 11. Vérifié : mêmes chiffres qu'avec le parcours complet.
+- **2026-11-04 · Quatre ATS de plus, et un site maison.** Oracle Recruiting Cloud (UBP, OIM,
+  JPMorgan), Taleo (OMS, OMPI), Phenom (PMI, P&G, Givaudan), careers.un.org (Secrétariat de
+  l'ONU). Le CERN a son propre connecteur (`cern`) : exception à « un connecteur par ATS »,
+  justifiée par son volume ; les classes CSS d'un thème WordPress sont fragiles, d'où une
+  erreur explicite si plus aucun article n'est lisible.
+- **2026-11-04 · SuccessFactors : commune et canton en microdonnées avant l'URL.** Coop sépare
+  `addressLocality` (« Aclens », inconnue de `geo`) et `addressRegion` (« Vaud ») : 127 → 209
+  offres. Titre de repli `og:title` (l'UIT n'a pas d'`itemprop="title"`).
 - **2026-11-03 · Sites maison : un connecteur JSON-LD générique** plutôt qu'un scraper par site.
   L'État de Genève publie ses offres sur ge.ch, chaque annonce balisée en JSON-LD JobPosting :
   le connecteur `jsonld` lit la page de liste (liens un niveau sous le board, `rel="next"`),
@@ -70,6 +83,12 @@ Tests du projet : 107 réussis.
 
 ## Contraintes à connaître
 
+- **Coop : des annonces sans description** (titre, taux, référence seulement : c'est ce que
+  publie Coop). 209 offres sur 1 002, presque toutes classées « Autre » et en langue « other »
+  (texte trop court pour la détection). À pondérer, voire à écarter, pour la recommandation.
+- **Sans connecteur possible pour l'instant** : UNIGE (contrôle anti-robot « Vérification de
+  sécurité »), TPG (403), Edmond de Rothschild (offres suisses sans ville), OMC (lieu « CWR »),
+  Ferring (pas d'offre suisse sur son board Workday), API WordPress du CERN (authentification).
 - **DuckDB : un seul processus écrivain à la fois.** Deux `crawl` en parallèle : le second échoue
   (fichier verrouillé). Collecter séquentiellement.
 - **Phenom (P&G, PMI, Givaudan)** : sitemaps par pays, mais URL sans lieu ; il faudrait
@@ -98,12 +117,11 @@ Tests du projet : 107 réussis.
 
 ## Prochaines étapes
 
-1. Familles de métiers : 119 offres sur 364 tombent dans « Autre » (un tiers) : enrichir les
-   règles de `families.py` ou attendre l'extraction par LLM (M5).
-2. Retrouver les boards Workday manquants : Richemont, Cargill, Bunge, Haleon.
-3. Élargir la liste au-delà des 56 employeurs (absents : Université de Genève, ONU et agences,
-   grandes banques, maisons Richemont, Big Four…) et mesurer la couverture par employeur
-   contre un agrégateur.
+1. Familles de métiers : 431 offres sur 1 002 dans « Autre » (dont presque toutes les Coop) :
+   enrichir `families.py` ou attendre l'extraction par LLM (M5).
+2. Décider du sort des annonces sans description (Coop) pour la recommandation.
+3. Mesurer la couverture par employeur contre un agrégateur (expérience reportée par Leif) ;
+   pistes restantes : État de Vaud, CHUV, Ville de Genève, Migros Genève/Vaud, HCR.
 4. Sur le VPS : installer la collecte nocturne ([deploy/README.md](deploy/README.md)).
 5. Interpréter ensemble la première sortie de `uv run job-rec-ai quality`.
 6. M3 : similarité cosinus (intuition géométrique, exemple 2D), puis TF-IDF from scratch et
@@ -112,6 +130,12 @@ Tests du projet : 107 réussis.
 
 ## Journal des sessions
 
+- **2026-11-04** (suite) : objectif 1 000 atteint : **1 002 offres actives**, 42 employeurs,
+  0 erreur. Connecteurs Oracle (UBP 50, JPMorgan 11, OIM 8), Taleo (OMPI 10, OMS 2), Phenom
+  (Givaudan 14, PMI 5, P&G 2), careers.un.org (ONU 48), CERN (31) ; nouveaux employeurs sur
+  les ATS existants : Coop 209, EY 36, UIT 18, Fonds mondial 12, PwC 9, IMAD 9, Hospice
+  général 5, Clair Bois 3, Securitas 3, OIT 2 ; filtrage par pays côté serveur ; quartiers
+  genevois et communes vaudoises ajoutés à `geo`.
 - **2026-11-04** : revue des PR #3 à #5 (un sous-agent par PR), 10 constats corrigés :
   redirections soumises au robots.txt de leur cible, annonce retirée qui ne fait plus
   échouer l'employeur, veto géo lieu par lieu, pré-filtre Nestlé, dates Java CET, JSON-LD

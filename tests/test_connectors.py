@@ -68,3 +68,51 @@ def test_parse_ignore_les_offres_invalides():
     ]}  # titre vide → rejetée, sans faire échouer le lot
     jobs = REGISTRY["greenhouse"].parse(payload)
     assert [j.title for j in jobs] == ["Analyste"]
+
+
+def _facets(*leaves, parameter="locationCountry"):
+    """Comme Workday : les facettes de lieu imbriquées dans un groupe."""
+    return [{"facetParameter": "timeType", "values": [{"id": "ft", "descriptor": "Full time"}]},
+            {"facetParameter": "locationMainGroup", "values": [{
+                "facetParameter": parameter,
+                "values": [{"id": i, "descriptor": d, "count": 1} for i, d in leaves]}]}]
+
+
+@pytest.mark.parametrize("facets, expected", [
+    (_facets(("ch", "Switzerland"), ("fr", "France")), {"locationCountry": ["ch"]}),
+    (_facets(("fr", "France")), {"locationCountry": []}),  # facette, mais rien chez nous
+    (_facets(("ge", "Genève"), ("zh", "Zürich"), ("nyon", "Nyon, Vaud"), parameter="locations"),
+     {"locations": ["ge", "nyon"]}),
+    ([], None),  # pas de facette de lieu : on parcourt tout
+])
+def test_workday_facettes_de_lieu(facets, expected):
+    from job_rec_ai.connectors.workday import target_facets
+    assert target_facets(facets, is_target) == expected
+
+
+def test_workday_filtre_cote_serveur(sleeps):
+    import json
+
+    import httpx
+
+    from job_rec_ai.http import PoliteClient
+
+    bodies = []
+
+    def handler(request):
+        if request.url.path == "/robots.txt":
+            return httpx.Response(404)
+        body = json.loads(request.content)
+        bodies.append(body["appliedFacets"])
+        swiss = body["appliedFacets"] == {"locationCountry": ["ch"]}
+        jobs = [{"title": "Analyste", "externalPath": "/job/x", "locationsText": "Genève"}]
+        return httpx.Response(200, json={"total": 1 if swiss else 0,
+                                         "jobPostings": jobs if swiss else [],
+                                         "facets": _facets(("ch", "Switzerland"))})
+
+    with PoliteClient(transport=httpx.MockTransport(handler), sleep=sleeps.append) as client:
+        client.get_json = lambda url: {"jobPostingInfo": {"location": "Genève"}}  # détail
+        payload = REGISTRY["workday"].fetch("https://acme.wd3.myworkdayjobs.com/Acme",
+                                            "Acme", client, keep=is_target)
+    assert bodies == [{}, {"locationCountry": ["ch"]}]  # sonde, puis recherche filtrée
+    assert len(payload["postings"]) == 1

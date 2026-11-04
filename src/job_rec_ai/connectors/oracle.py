@@ -6,7 +6,9 @@ sites/<site>, application JavaScript nourrie par l'API REST publique d'Oracle HC
         ?finder=findReqs;siteNumber=<site>,limit=25,offset=N    liste paginée, sans description
     GET /hcmRestApi/resources/latest/recruitingCEJobRequisitionDetails
         ?finder=ById;Id="<id>",siteNumber=<site>               détail, avec la description
-Comme pour Workday, une requête par offre retenue. Ces hôtes ne publient pas de robots.txt.
+Comme pour Workday, une requête par offre retenue. La recherche est restreinte au pays cible
+côté serveur (location=Switzerland : JPMorgan publie 7 000 offres, dont 16 en Suisse). Ces
+hôtes ne publient pas de robots.txt.
 """
 
 import re
@@ -18,6 +20,7 @@ from job_rec_ai.connectors.base import (
     paginate,
     parse_date,
 )
+from job_rec_ai.geo import TARGET_COUNTRY
 from job_rec_ai.http import PoliteClient
 from job_rec_ai.models import Job
 from job_rec_ai.text import clean_html
@@ -61,8 +64,8 @@ class OracleConnector:
             data = client.get_json(
                 f"{host}{REST}/recruitingCEJobRequisitions",
                 params={"onlyData": "true", "expand": "requisitionList.secondaryLocations",
-                        "finder": f"findReqs;siteNumber={site},limit={PAGE_SIZE},"
-                                  f"offset={offset},sortBy=POSTING_DATES_DESC"})
+                        "finder": f"findReqs;siteNumber={site},location={TARGET_COUNTRY},"
+                                  f"limit={PAGE_SIZE},offset={offset},sortBy=POSTING_DATES_DESC"})
             result = (data.get("items") or [{}])[0]
             return result.get("requisitionList", []), result.get("TotalJobsCount", 0)
 
