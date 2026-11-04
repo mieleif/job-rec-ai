@@ -18,6 +18,20 @@ Tests du projet : 128 réussis.
 
 ## Décisions
 
+- **2026-11-04 · Le classement déclaré par l'ATS, quand il existe, complète le titre.**
+  Colonnes `category` et `level` (texte brut de l'ATS, aujourd'hui SuccessFactors seulement ;
+  SmartRecruiters publie aussi `function` et `experienceLevel` : à brancher). La famille vient
+  du titre, à défaut de la catégorie ; la séniorité du titre, puis du niveau, puis des années
+  d'expérience. Mots-clés ajoutés pour le commerce de détail et les métiers de bouche.
+  « Autre » : 431 → 317 offres (Coop 173 → 60). Les « Gestionnaire du commerce de détail
+  CFC » de Coop sont sans doute des places d'apprentissage, mais le titre ne le dit pas :
+  laissées « Non précisé » (cohérent avec « Électricien CFC »).
+- **2026-11-04 · Élargir à toute la Romandie : mesuré, pas fait.** Mêmes 48 employeurs, filtre
+  FR / NE / VS / JU / Jura bernois : **≈ +270 offres (+27 %), dont ~190 annonces Coop**
+  sans description ; hors Coop ≈ +75 (Richemont 35, EPFL 11, PMI 8, Nestlé 7, Alcon 4…).
+  Élargir le filtre ne multiplie pas la base : les employeurs ont été choisis pour GE/VD.
+  Ce qui la multiplierait, ce sont les employeurs locaux (cantons, hôpitaux, Groupe E, CSEM,
+  Swatch…). Décision de périmètre laissée à Leif ; scripts de mesure hors dépôt.
 - **2026-11-04 · Séniorité : le titre, sinon les années d'expérience de la description.**
   Le défaut s'appelle désormais « Non précisé » (il valait « Confirmé·e », ce qui affirmait
   un niveau sans indice : 56 % des offres). Ajout de postdoc / PhD / graduate → Junior. Une
@@ -105,10 +119,10 @@ Tests du projet : 128 réussis.
   publie Coop). 209 offres sur 1 002, presque toutes classées « Autre » et en langue « other »
   (texte trop court pour la détection). À pondérer, voire à écarter, pour la recommandation.
   Vérifié le 04.11 sur la page elle-même : le bloc « description » ne contient que le titre.
-  En revanche la page a des champs structurés que le connecteur ne garde pas encore
-  (`data-careersite-propertyid` : « Poste » = Collaborateur…, « Spécialisation
-  professionnelle » = Vente Food…, « Taux d'occupation ») : de quoi classer famille et
-  séniorité sans description.
+  La page a en revanche des champs « libellé : valeur » (`data-careersite-propertyid`),
+  archivés depuis le 04.11 (`details` dans le bronze) : « Spécialisation professionnelle »
+  → colonne `category`, « Poste » → `level`. Coop ne les remplit que sur ~60 annonces sur
+  204 (pas sur les apprentissages ni les stages d'orientation).
 - **Sans connecteur possible pour l'instant** : UNIGE (contrôle anti-robot « Vérification de
   sécurité »), TPG (403), Edmond de Rothschild (offres suisses sans ville), OMC (lieu « CWR »),
   Ferring (pas d'offre suisse sur son board Workday), API WordPress du CERN (authentification).
@@ -155,8 +169,8 @@ Tests du projet : 128 réussis.
 
 - **2026-11-04** (soir) : version HTML du notebook (`docs/marche-emploi.html`) ; expérience du
   crash à 60 % ; alerte « collecte interrompue » dans `quality` (table `crawls`) ; séniorité
-  par les années d'expérience + graphique ; pourquoi Coop n'a pas de description ; mesure de
-  l'élargissement à la Romandie.
+  par les années d'expérience + graphique ; pourquoi Coop n'a pas de description (il n'en
+  écrit pas) et lecture de ses champs structurés ; mesure de l'élargissement à la Romandie.
 - **2026-11-04** (fin) : livrables M1 et M2 : notebook `notebooks/marche-emploi.ipynb`
   (top 20 des employeurs, langues, familles, secteurs, âge des offres ; images dans
   `docs/img/`, deux dans le README). Lecture : 53 % d'offres en anglais, 43 % en « Autre »

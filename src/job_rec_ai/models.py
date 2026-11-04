@@ -28,6 +28,10 @@ class Job(BaseModel):
     source_id: str | None = None
     # Texte brut de l'ATS (« Full time », « Temps partiel »…), interprété plus tard
     employment_type: str | None = None
+    # Le classement de l'ATS lui-même, quand il en publie un (Coop : « Vente Food »,
+    # « Collaborateur ») : en texte brut, interprété par families.py
+    category: str | None = None
+    level: str | None = None
 
     @field_validator("title", "company")
     @classmethod

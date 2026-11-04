@@ -75,13 +75,15 @@ FAMILY_RULES: list[tuple[str, list[str]]] = [
         "business development", "key account", "commercial", "commerciale",
         "customer service", "service client", "customer success", "client advisor",
         "conseiller de vente", "conseillere de vente", "boutique", "store manager",
-        "retail", "call center", "telesales",
+        "retail", "call center", "telesales", "commerce de detail", "detailhandel",
+        "verkauf", "verkaufsberater",
     ]),
     ("Supply chain & Achats", [
         "supply chain", "logistics", "logistique", "logisticien", "logisticienne",
         "procurement", "purchasing", "achats", "acheteur", "acheteuse", "buyer",
         "warehouse", "entrepot", "planner", "planificateur", "planificatrice", "demand",
-        "inventory", "stock", "shipping", "freight", "chartering", "operations analyst",
+        "inventory", "inventaire", "inventaires", "stock", "shipping", "freight",
+        "chartering", "operations analyst",
     ]),
     ("Ingénierie & Production", [
         "engineer", "ingenieur", "ingenieure", "mechanical", "mecanique", "mecanicien",
@@ -106,7 +108,10 @@ FAMILY_RULES: list[tuple[str, list[str]]] = [
     ("Hôtellerie & Services", [
         "cuisinier", "cuisiniere", "chef de cuisine", "serveur", "serveuse", "barista",
         "hotel", "hotellerie", "concierge", "nettoyage", "cleaning", "agent de securite",
-        "security guard", "chauffeur", "driver", "housekeeping",
+        "security guard", "chauffeur", "driver", "housekeeping", "conducteur de vehicules",
+        # métiers de bouche (Coop) : boucherie, boulangerie, restauration
+        "restauration", "boucher", "bouchere", "boucherie", "poissonnier", "boulanger",
+        "boulangere", "patissier", "confiseur",
     ]),
 ]
 
@@ -122,7 +127,7 @@ SENIORITY_RULES: list[tuple[str, list[str]]] = [
     ]),
     ("Senior / Lead", [
         "senior", "sr", "lead", "principal", "expert", "experte", "manager",
-        "responsable", "chef",
+        "responsable", "chef", "cadre", "kader", "fuhrungskrafte",
     ]),
     ("Junior", [
         "junior", "jr", "entry level", "debutant", "debutante", "graduate", "postdoc",
@@ -184,21 +189,26 @@ def years_of_experience(description: str | None) -> float | None:
     return years if years <= 30 else None  # « 150 years of experience » : l'histoire de la maison
 
 
-def seniority_of(title: str, description: str | None = None) -> str:
-    """Le titre d'abord (il est explicite) ; sinon les années d'expérience demandées."""
-    level, _ = first_match(_SENIORITY, normalize(title), default=None)
-    if level:
-        return level
+def seniority_of(title: str, description: str | None = None, level: str | None = None) -> str:
+    """Le titre d'abord (il est explicite), puis le niveau déclaré par l'ATS, puis les années
+    d'expérience demandées dans la description."""
+    for text in (title, level):
+        found, _ = first_match(_SENIORITY, normalize(text or ""), default=None)
+        if found:
+            return found
     years = years_of_experience(description)
     if years is None:
         return UNKNOWN_SENIORITY
     return "Junior" if years <= 2 else MID_LEVEL if years <= 5 else "Senior / Lead"
 
 
-def classify(title: str, description: str | None = None) -> Classification:
-    norm = normalize(title)
-    family, keyword = first_match(_FAMILIES, norm, default=OTHER)
-    seniority = seniority_of(title, description)
+def classify(title: str, description: str | None = None, category: str | None = None,
+             level: str | None = None) -> Classification:
+    """Le titre d'abord ; à défaut, la catégorie de l'ATS (Coop : « Vente Food »)."""
+    family, keyword = first_match(_FAMILIES, normalize(title), default=OTHER)
+    if family == OTHER and category:
+        family, keyword = first_match(_FAMILIES, normalize(category), default=OTHER)
+    seniority = seniority_of(title, description, level)
     low, high = workload(title)
     return Classification(family=family, family_keyword=keyword, seniority=seniority,
                           workload_min=low, workload_max=high)

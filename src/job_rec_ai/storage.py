@@ -48,6 +48,10 @@ CREATE TABLE IF NOT EXISTS jobs (
     last_seen       TIMESTAMP NOT NULL,    -- dernière collecte où elle était encore en ligne
     active          BOOLEAN NOT NULL
 );
+-- Colonnes ajoutées après coup : ALTER pour les bases existantes (CREATE IF NOT EXISTS ne
+-- touche pas une table déjà là). Le classement déclaré par l'ATS, en texte brut.
+ALTER TABLE jobs ADD COLUMN IF NOT EXISTS category VARCHAR;
+ALTER TABLE jobs ADD COLUMN IF NOT EXISTS level VARCHAR;
 
 CREATE TABLE IF NOT EXISTS crawl_runs (
     started_at TIMESTAMP,
@@ -263,8 +267,9 @@ def counts(con, facet: str, limit: int | None = 20) -> list[tuple[str, int]]:
     ).fetchall()
 
 
-def jobs_for_derivation(con) -> list[tuple[str, str, str, str]]:
-    return con.execute("SELECT url, title, location, description FROM jobs").fetchall()
+def jobs_for_derivation(con) -> list[tuple]:
+    return con.execute(
+        "SELECT url, title, location, description, category, level FROM jobs").fetchall()
 
 
 # --- contrôles qualité ----------------------------------------------------------------------
