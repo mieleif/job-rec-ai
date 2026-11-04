@@ -15,7 +15,13 @@ from urllib.parse import urljoin, urlsplit
 
 from bs4 import BeautifulSoup
 
-from job_rec_ai.connectors.base import LocationFilter, build_jobs, envelope, parse_date
+from job_rec_ai.connectors.base import (
+    LocationFilter,
+    build_jobs,
+    envelope,
+    get_html_or_skip,
+    parse_date,
+)
 from job_rec_ai.connectors.schema_org import json_ld_job_posting
 from job_rec_ai.http import PoliteClient
 from job_rec_ai.models import Job
@@ -52,14 +58,17 @@ def location_text(job: dict) -> str:
     places = job.get("jobLocation") or []
     texts = []
     for place in places if isinstance(places, list) else [places]:
-        address = place.get("address", {}) if isinstance(place, dict) else {}
-        if isinstance(address, str):
-            texts.append(_clean(address))
-            continue
-        parts = (address.get("addressLocality"), address.get("addressRegion"),
-                 address.get("addressCountry"))
-        parts = [_clean(p.get("name", "") if isinstance(p, dict) else p or "") for p in parts]
-        texts.append(", ".join(p for p in parts if p))
+        addresses = place.get("address", {}) if isinstance(place, dict) else {}
+        # schema.org autorise une adresse texte, un objet, ou une liste des deux
+        for address in addresses if isinstance(addresses, list) else [addresses]:
+            if isinstance(address, str):
+                texts.append(_clean(address))
+            elif isinstance(address, dict):
+                parts = (address.get("addressLocality"), address.get("addressRegion"),
+                         address.get("addressCountry"))
+                parts = [_clean(p.get("name", "") if isinstance(p, dict) else p or "")
+                         for p in parts]
+                texts.append(", ".join(p for p in parts if p))
     return " / ".join(t for t in texts if t)
 
 
@@ -82,7 +91,8 @@ class JsonLdConnector:
 
         postings = []
         for url in links:
-            job = json_ld_job_posting(client.get_html(url))
+            page = get_html_or_skip(client, url)  # retirée entre la liste et l'annonce : None
+            job = json_ld_job_posting(page) if page else None
             if job is not None:  # sinon : page liée mais qui n'est pas une annonce
                 postings.append({"url": url, "ld": job})
         return envelope(self.name, company, board, postings)
@@ -95,11 +105,12 @@ class JsonLdConnector:
             if isinstance(identifier, dict):
                 identifier = identifier.get("value")
             return {
-                "title": job["title"],
+                "title": _clean(job["title"]),
                 "url": posting["url"],
                 "location": location_text(job),
-                "description": " ".join(clean_html(job[f]) for f in _TEXT_FIELDS
-                                        if isinstance(job.get(f), str)),
+                # clean_html décode une fois ; _clean rattrape les entités échappées deux fois
+                "description": _clean(" ".join(clean_html(job[f]) for f in _TEXT_FIELDS
+                                               if isinstance(job.get(f), str))),
                 "posted_at": parse_date(job.get("datePosted")),
                 "source_id": str(identifier or urlsplit(posting["url"]).path.rstrip("/")
                                  .rsplit("/", 1)[-1]),

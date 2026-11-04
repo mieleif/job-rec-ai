@@ -118,6 +118,7 @@ def _cmd_benchmark(args, con):
 
 
 def _cmd_replay(args, con):
+    storage.upsert_companies(con, load_companies(args.companies))  # secteur, canton de repli
     print(f"{pipeline.replay(con)} offres rechargées depuis data/raw/")
 
 

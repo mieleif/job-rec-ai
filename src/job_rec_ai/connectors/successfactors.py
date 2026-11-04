@@ -12,17 +12,20 @@ modification : une approximation de la date de publication).
 """
 
 import html
-import logging
 import re
 from datetime import date
 from urllib.parse import unquote, urlsplit
 
-import httpx
-
-from job_rec_ai.connectors.base import LocationFilter, build_jobs, envelope, parse_date
+from job_rec_ai.connectors.base import (
+    LocationFilter,
+    build_jobs,
+    envelope,
+    get_html_or_skip,
+    parse_date,
+)
 from job_rec_ai.connectors.schema_org import JobPostingPage
 from job_rec_ai.geo import mentions_target_place
-from job_rec_ai.http import DisallowedByRobots, PoliteClient
+from job_rec_ai.http import PoliteClient
 from job_rec_ai.models import Job
 from job_rec_ai.text import clean_html, normalize
 
@@ -36,8 +39,6 @@ _JOB_ID = re.compile(r"/(\d+)/?$")
 _JAVA_DATE = re.compile(r"^\w{3} (\w{3}) (\d{1,2}) \d{2}:\d{2}:\d{2} \S+ (\d{4})$")
 _MONTHS = {m: i for i, m in enumerate(
     "Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec".split(), start=1)}
-
-log = logging.getLogger(__name__)
 
 
 def sitemap_entries(xml: str) -> list[tuple[str, str | None]]:
@@ -112,15 +113,10 @@ class SuccessFactorsConnector:
         for url, lastmod in entries:
             if prefilter and not mentions_target_place(_slug(url)):
                 continue
-            try:
-                page = JobPostingPage(client.get_html(url))
-            except (httpx.HTTPStatusError, DisallowedByRobots) as exc:
-                # Une annonce retirée mais encore dans le sitemap (404) ne doit pas faire perdre
-                # toutes les autres ; une panne du site (réseau, 5xx persistants) remonte.
-                if isinstance(exc, httpx.HTTPStatusError) and exc.response.status_code >= 500:
-                    raise
-                log.warning("annonce ignorée %s : %s", url, exc)
+            raw = get_html_or_skip(client, url)  # retirée mais encore dans le sitemap : None
+            if raw is None:
                 continue
+            page = JobPostingPage(raw)
             if keep(location_of(page, url)):
                 postings.append({"url": url, "lastmod": lastmod, "html": page.markup()})
         return envelope(self.name, company, board, postings)

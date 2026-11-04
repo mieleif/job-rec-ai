@@ -58,11 +58,13 @@ CREATE TABLE IF NOT EXISTS crawl_runs (
     error      VARCHAR
 );
 
--- Canton : celui du lieu de l'offre, à défaut celui de l'employeur (un site maison comme celui
--- de l'État de Genève donne des adresses sans ville : « Place du Bourg-de-Four 1 »).
--- La table jobs garde le canton déduit du lieu seul : l'information manquante y reste visible.
+-- Canton : celui du lieu de l'offre ; pour un site maison seulement (source jsonld : l'État de
+-- Genève, dont les adresses n'ont pas de ville, « Place du Bourg-de-Four 1 »), à défaut celui
+-- de l'employeur. Pas pour un ATS : une multinationale publie aussi hors de son canton.
+-- La table jobs garde le canton déduit du lieu seul.
 CREATE OR REPLACE VIEW jobs_view AS
-SELECT j.* REPLACE (coalesce(j.canton, c.canton) AS canton), c.sector
+SELECT j.* REPLACE (CASE WHEN j.source = 'jsonld' THEN coalesce(j.canton, c.canton)
+                         ELSE j.canton END AS canton), c.sector
 FROM jobs j LEFT JOIN companies c USING (company);
 """
 
@@ -245,7 +247,7 @@ def quality(con) -> list[dict]:
                   avg((posted_at IS NULL)::INT)                          AS no_date,
                   avg((canton IS NULL)::INT)                             AS no_canton,
                   avg((coalesce(language, 'other') = 'other')::INT)      AS other_language
-           FROM jobs WHERE active GROUP BY source ORDER BY source""",
+           FROM jobs_view WHERE active GROUP BY source ORDER BY source""",  # comme stats
         [SHORT_DESCRIPTION],
     )
     names = [d[0] for d in cursor.description]

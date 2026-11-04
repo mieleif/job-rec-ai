@@ -2,6 +2,7 @@
 
 import json
 from datetime import date
+from pathlib import Path
 
 import httpx
 import pytest
@@ -11,6 +12,7 @@ from job_rec_ai.connectors.schema_org import json_ld_job_posting
 from job_rec_ai.geo import is_target
 from job_rec_ai.http import PoliteClient
 
+FIXTURE = Path(__file__).parent / "fixtures" / "jsonld.json"
 SITE = "https://www.etat.example"
 BOARD = f"{SITE}/emplois/offres"
 
@@ -32,7 +34,8 @@ PAGES = {
                        'Juriste</a><a href="/autre/page">Hors sujet</a>'
                        '<a rel="next" href="/emplois/offres?page=2">Suivant</a>',
     "/emplois/offres?page=2": '<a href="/emplois/offres/3">Zurich</a>'
-                              '<a href="/emplois/offres/4">Pas une annonce</a>',
+                              '<a href="/emplois/offres/4">Pas une annonce</a>'
+                              '<a href="/emplois/offres/5">Retirée</a>',  # 404 : ignorée
     "/emplois/offres/1": ad("Analyste de données", "Genève"),
     "/emplois/offres/2": ad("Juriste"),  # sans lieu : gardée
     "/emplois/offres/3": ad("Huissier", "Place du  Bourg-de-Four 1​&amp;#160;"),
@@ -73,6 +76,8 @@ def test_jsonld_fetch_et_parse(site_client):
     '{"@type": "JobPosting", "title": "A"}]}</script>',
     # retour à la ligne brut dans une chaîne : JSON invalide au sens strict, toléré
     '<script type="application/ld+json">{"@type": "JobPosting", "title": "A\nB"}</script>',
+    # guillemets simples, @type en liste
+    "<script type='application/ld+json'>{\"@type\": [\"JobPosting\"], \"title\": \"A\"}</script>",
 ])
 def test_json_ld_formes(html):
     assert json_ld_job_posting(html)["title"].startswith("A")
@@ -81,3 +86,19 @@ def test_json_ld_formes(html):
 def test_json_ld_absent_ou_casse():
     assert json_ld_job_posting("<script type='text/javascript'>{}</script>") is None
     assert json_ld_job_posting('<script type="application/ld+json">{oops</script>') is None
+    assert json_ld_job_posting('<script type="application/ld+json">"x"</script>') is None
+
+
+def test_adresse_en_liste():
+    from job_rec_ai.connectors.jsonld import location_text
+    job = {"jobLocation": {"address": [{"addressLocality": "Genève"}, "Rue du Stand 46"]}}
+    assert location_text(job) == "Genève / Rue du Stand 46"
+
+
+def test_vraie_fixture_texte_propre():
+    payload = json.loads(FIXTURE.read_text(encoding="utf-8"))
+    jobs = REGISTRY["jsonld"].parse(payload)
+    assert len(jobs) == len(payload["postings"])
+    for job in jobs:
+        for text in (job.title, job.description, job.location):
+            assert "&#" not in text and "&quot;" not in text and "\u200b" not in text

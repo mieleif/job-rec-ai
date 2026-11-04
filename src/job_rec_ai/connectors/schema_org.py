@@ -10,7 +10,8 @@ import re
 
 from bs4 import BeautifulSoup, Tag
 
-_JSON_LD = re.compile(r'<script[^>]*type="application/ld\+json"[^>]*>(.*?)</script>', re.S | re.I)
+_JSON_LD = re.compile(r"<script[^>]*type=[\"']application/ld\+json[\"'][^>]*>(.*?)</script>",
+                      re.S | re.I)
 
 
 def json_ld_job_posting(html: str) -> dict | None:
@@ -22,9 +23,11 @@ def json_ld_job_posting(html: str) -> dict | None:
             data = json.loads(block, strict=False)  # strict=False : retours à la ligne bruts
         except json.JSONDecodeError:
             continue
-        nodes = data if isinstance(data, list) else data.get("@graph", [data])
-        for node in nodes:
-            if isinstance(node, dict) and node.get("@type") == "JobPosting":
+        if isinstance(data, dict):
+            data = data.get("@graph", [data])
+        for node in data if isinstance(data, list) else []:
+            kind = node.get("@type") if isinstance(node, dict) else None
+            if kind == "JobPosting" or (isinstance(kind, list) and "JobPosting" in kind):
                 return node
     return None
 
