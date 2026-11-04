@@ -1,4 +1,5 @@
-"""Classement par règles : famille de métier, séniorité et taux d'activité, à partir du titre.
+"""Classement par règles : famille de métier, séniorité et taux d'activité, à partir du titre
+(et, pour la séniorité, des années d'expérience demandées dans la description).
 
 Pourquoi des règles plutôt qu'un modèle ? Elles sont gratuites, instantanées, et surtout
 explicables : chaque décision renvoie le mot-clé qui l'a déclenchée. Leur défaut, c'est
@@ -123,8 +124,25 @@ SENIORITY_RULES: list[tuple[str, list[str]]] = [
         "senior", "sr", "lead", "principal", "expert", "experte", "manager",
         "responsable", "chef",
     ]),
-    ("Junior", ["junior", "jr", "entry level", "debutant", "debutante"]),
+    ("Junior", [
+        "junior", "jr", "entry level", "debutant", "debutante", "graduate", "postdoc",
+        "post-doc", "postdoctoral", "phd", "doctorant", "doctorante", "doctoral",
+    ]),
 ]
+UNKNOWN_SENIORITY = "Non précisé"
+MID_LEVEL = "Confirmé·e"
+
+# « 5+ years of experience », « 3-5 years' experience », « 3 ans d'expérience », « five years
+# of relevant experience », « 5 Jahre Berufserfahrung ». Sur la description normalisée (sans
+# accents). Une fourchette compte pour son milieu : « 2 to 5 years », c'est un profil
+# confirmé, pas junior (« 2-5 » → 3,5).
+_NUMBERS = {w: i for i, w in enumerate(
+    "zero one two three four five six seven eight nine ten".split())}
+_NUMBERS |= {w: i for i, w in enumerate(
+    "zero un deux trois quatre cinq six sept huit neuf dix".split()) if i}
+_YEARS = re.compile(
+    rf"\b(\d{{1,2}}|{'|'.join(_NUMBERS)})\s*\+?\s*(?:(?:-|–|a|to)\s*(\d{{1,2}})\s*)?"
+    r"(?:years?|yrs|ans|annees|jahre?n?)\b[^.;]{0,40}?(?:experience|erfahrung)")
 
 
 _FAMILIES = compile_keywords(FAMILY_RULES)
@@ -155,10 +173,32 @@ def workload(title: str) -> tuple[int | None, int | None]:
     return min(values), max(values)
 
 
-def classify(title: str) -> Classification:
+def years_of_experience(description: str | None) -> float | None:
+    """Le nombre d'années d'expérience demandé (la première mention), None s'il n'y en a pas."""
+    match = _YEARS.search(normalize(description or ""))
+    if not match:
+        return None
+    low, high = match.group(1), match.group(2)
+    low = int(low) if low.isdigit() else _NUMBERS[low]
+    years = (low + int(high)) / 2 if high and int(high) > low else low
+    return years if years <= 30 else None  # « 150 years of experience » : l'histoire de la maison
+
+
+def seniority_of(title: str, description: str | None = None) -> str:
+    """Le titre d'abord (il est explicite) ; sinon les années d'expérience demandées."""
+    level, _ = first_match(_SENIORITY, normalize(title), default=None)
+    if level:
+        return level
+    years = years_of_experience(description)
+    if years is None:
+        return UNKNOWN_SENIORITY
+    return "Junior" if years <= 2 else MID_LEVEL if years <= 5 else "Senior / Lead"
+
+
+def classify(title: str, description: str | None = None) -> Classification:
     norm = normalize(title)
     family, keyword = first_match(_FAMILIES, norm, default=OTHER)
-    seniority, _ = first_match(_SENIORITY, norm, default="Confirmé·e")
+    seniority = seniority_of(title, description)
     low, high = workload(title)
     return Classification(family=family, family_keyword=keyword, seniority=seniority,
                           workload_min=low, workload_max=high)

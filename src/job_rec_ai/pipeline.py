@@ -40,7 +40,7 @@ def derive(title: str, location: str, description: str) -> dict:
     return {
         "language": detect_language(description),
         "canton": canton_of(location),
-        **asdict(classify(title)),
+        **asdict(classify(title, description)),
     }
 
 
