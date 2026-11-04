@@ -3,6 +3,8 @@
 - user-agent identifiable (qui collecte, et où nous contacter) ;
 - respect de robots.txt, lu une fois par hôte ;
 - pause minimale entre deux requêtes vers le même hôte ;
+- redirections suivies une à une, chaque saut soumis aux mêmes règles (un site peut
+  rediriger vers un autre hôte, qui a son propre robots.txt) ;
 - 429 (trop de requêtes), 5xx et pannes réseau passagères (connexion qui n'aboutit pas) :
   on attend (Retry-After si fourni, sinon backoff exponentiel 2 s, 4 s, 8 s…) puis on
   réessaie, un nombre limité de fois.
@@ -19,6 +21,7 @@ import httpx
 
 USER_AGENT = "job-rec-ai/0.1 (+https://github.com/mieleif/job-rec-ai)"
 RETRY_STATUSES = {429, 500, 502, 503, 504}
+MAX_REDIRECTS = 5
 # Le serveur n'a pas pu être joint ou n'a pas répondu à temps : souvent passager (ge.ch)
 RETRY_ERRORS = (httpx.ConnectError, httpx.ConnectTimeout, httpx.ReadTimeout)
 
@@ -37,7 +40,7 @@ class PoliteClient:
         self._last_request: dict[str, float] = {}
         self._client = httpx.Client(
             headers={"User-Agent": USER_AGENT, "Accept": "application/json"},
-            timeout=30, follow_redirects=True, transport=transport,
+            timeout=30, transport=transport,
         )
 
     def __enter__(self):
@@ -74,13 +77,25 @@ class PoliteClient:
     # --- requêtes ------------------------------------------------------------------------
 
     def _send(self, method: str, url: str, check_robots: bool = True, **kwargs) -> httpx.Response:
+        for _ in range(MAX_REDIRECTS + 1):
+            response = self._send_once(method, url, check_robots, **kwargs)
+            if not response.is_redirect:
+                return response
+            following = response.next_request  # httpx calcule la cible (et GET après un 303)
+            method, url = following.method, str(following.url)
+            kwargs.pop("params", None)  # la cible est une URL complète
+            if method == "GET":
+                kwargs.pop("json", None)
+        raise httpx.TooManyRedirects(f"plus de {MAX_REDIRECTS} redirections : {url}")
+
+    def _send_once(self, method: str, url: str, check_robots: bool, **kwargs) -> httpx.Response:
         if check_robots and not self.allowed(url):
             raise DisallowedByRobots(url)
         host = urlsplit(url).netloc
         for attempt in range(self.max_retries + 1):
             self._wait_turn(host)
             try:
-                response = self._client.request(method, url, **kwargs)
+                response = self._client.request(method, url, follow_redirects=False, **kwargs)
             except RETRY_ERRORS:
                 if attempt == self.max_retries:
                     raise

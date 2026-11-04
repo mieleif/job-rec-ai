@@ -49,8 +49,25 @@ _FOREIGN = re.compile(
 _SWISS = re.compile(r"switzerland|suisse|schweiz|svizzera")
 
 
+# Séparateurs des lieux multiples : « Zürich / Lausanne », « Genève; Paris », « Genève · CDI »
+_SEGMENTS = re.compile(r"\s*[/;·|]\s*")
+
+
 def canton_of(location: str | None) -> str | None:
-    """Renvoie « GE », « VD » ou None si le lieu n'est pas dans l'arc lémanique."""
+    """Renvoie « GE », « VD » ou None si le lieu n'est pas dans l'arc lémanique.
+
+    Chaque lieu d'une offre multi-sites est jugé séparément : le veto « homonyme étranger »
+    d'un segment (« Geneva, IL, United States ») ne doit ni contaminer ni être levé par un
+    autre (« … / Zurich, Switzerland »).
+    """
+    for segment in _SEGMENTS.split(location or ""):
+        canton = _segment_canton(segment)
+        if canton:
+            return canton
+    return None
+
+
+def _segment_canton(location: str) -> str | None:
     if not location:
         return None
     norm = normalize(location).replace("-", " ")
@@ -61,6 +78,17 @@ def canton_of(location: str | None) -> str | None:
         return canton
     match = _ABBREV.search(location)
     return match.group(1) if match else None
+
+
+def mentions_target_place(text: str | None) -> bool:
+    """Un nom de lieu de l'arc lémanique apparaît-il dans le texte ?
+
+    Pré-filtre grossier pour un texte qui mêle lieu et autre chose (une URL « Lieu-Titre ») :
+    pas de veto des homonymes étrangers, qui se déclencherait sur les mots du titre
+    (« Vevey-Country-Manager-France »). Le verdict définitif vient de canton_of.
+    """
+    canton, _ = first_match(_PATTERNS, normalize(text or "").replace("-", " "))
+    return canton in TARGET_CANTONS
 
 
 def is_target(location: str | None) -> bool:

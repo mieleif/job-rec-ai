@@ -28,6 +28,9 @@ def test_detect_language_allemand_est_other():
     ("Lausanne, Switzerland / London, United Kingdom / Cork, Ireland", "VD"),
     # tirets et espaces équivalents (URL SuccessFactors : « Le-Grand-Saconnex-Stagiaire… »)
     ("Le Grand Saconnex", "GE"), ("Le Grand-Saconnex", "GE"), ("Plan les Ouates", "GE"),
+    # veto jugé lieu par lieu : la Suisse d'un segment ne blanchit pas l'homonyme d'un autre
+    ("Geneva, IL, United States / Zurich, Switzerland", None),
+    ("Geneva, New York, USA; Lausanne, Switzerland", "VD"),
 ])
 def test_canton_of(location, canton):
     assert canton_of(location) == canton

@@ -76,6 +76,34 @@ def test_panne_reseau_persistante_finit_par_echouer(sleeps):
 
     with make_client(handler, sleeps) as client, pytest.raises(httpx.ConnectError):
         client.get_json("https://x.example/jobs", check_robots=False)
+def test_redirection_vers_un_autre_hote_respecte_son_robots(sleeps):
+    seen = []
+
+    def handler(request):
+        seen.append((request.url.host, request.url.path))
+        if request.url.host == "a.example":
+            if request.url.path == "/robots.txt":
+                return httpx.Response(404)
+            return httpx.Response(302, headers={"Location": "https://b.example/jobs/"})
+        if request.url.path == "/robots.txt":
+            return httpx.Response(200, text="User-agent: *\nDisallow: /\n")
+        return httpx.Response(200, text="interdit")
+
+    with make_client(handler, sleeps) as client, pytest.raises(DisallowedByRobots):
+        client.get_html("https://a.example/careers")
+    assert ("b.example", "/robots.txt") in seen and ("b.example", "/jobs/") not in seen
+
+
+def test_redirection_autorisee_est_suivie():
+    def handler(request):
+        if request.url.path == "/robots.txt":
+            return httpx.Response(404)
+        if request.url.path == "/old":
+            return httpx.Response(301, headers={"Location": "/new"})
+        return httpx.Response(200, json={"path": request.url.path})
+
+    with make_client(handler, []) as client:
+        assert client.get_json("https://x.example/old") == {"path": "/new"}
 
 
 def test_user_agent_identifiable():

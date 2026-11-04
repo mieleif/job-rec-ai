@@ -36,9 +36,13 @@ PAGES = {
     "/job/Meyrin-Ingenieur-de-donnees/101/": CLASSIC,
     "/job/Lausanne-Controleur-de-gestion/102/": RECENT,
     "/job/Paris-Analyste/103/": ABROAD,
+    # Siège à Vevey, titre qui nomme un pays : le pré-filtre ne doit pas l'écarter
+    "/job/Vevey-Country-Manager-France/105/": CLASSIC.replace("Meyrin, CH", "Vevey, CH"),
 }
+# Encore dans le sitemap mais retirée : 404
+GONE = "/job/Lausanne-Poste-pourvu/104/"
 SITEMAP = "<urlset>" + "".join(
-    f"<url><loc>{SITE}{path}</loc><lastmod>2026-10-31</lastmod></url>" for path in PAGES
+    f"<url><loc>{SITE}{path}</loc><lastmod>2026-10-31</lastmod></url>" for path in [*PAGES, GONE]
 ) + "</urlset>"
 
 
@@ -56,7 +60,10 @@ def sf_client(sleeps, requested):
             return httpx.Response(200, text="User-agent: *\nDisallow: /services/\n")
         if path == "/sitemap.xml":
             return httpx.Response(200, text=SITEMAP)
-        return httpx.Response(200, text=PAGES[path]) if path in PAGES else httpx.Response(404)
+        if path not in PAGES:
+            return httpx.Response(404)
+        page = PAGES[path]
+        return httpx.Response(page) if isinstance(page, int) else httpx.Response(200, text=page)
 
     with PoliteClient(transport=httpx.MockTransport(handler), sleep=sleeps.append) as client:
         yield client
@@ -65,10 +72,11 @@ def sf_client(sleeps, requested):
 def test_successfactors_fetch_et_parse(sf_client):
     connector = REGISTRY["successfactors"]
     payload = connector.fetch(SITE, "Acme", sf_client, keep=is_target)
-    assert [p["url"].rsplit("/", 2)[1] for p in payload["postings"]] == ["101", "102"]  # sans Paris
+    # sans Paris (hors cible) ni l'annonce retirée (404), qui ne fait pas échouer les autres
+    assert [p["url"].rsplit("/", 2)[1] for p in payload["postings"]] == ["101", "102", "105"]
     assert "gabarit" not in payload["postings"][0]["html"]  # seules les microdonnées archivées
 
-    classic, recent = connector.parse(payload)
+    classic, recent, _ = connector.parse(payload)
     assert (classic.title, classic.location, classic.posted_at) == (
         "Ingénieur de données", "Meyrin, CH", date(2026, 11, 3))
     assert classic.source_id == "101" and "pipelines" in classic.description
@@ -78,9 +86,27 @@ def test_successfactors_fetch_et_parse(sf_client):
 
 
 def test_gros_sitemap_prefiltre_sur_l_url(sf_client, requested, monkeypatch):
-    monkeypatch.setattr(successfactors, "FULL_SCAN_MAX", 2)  # 3 annonces : « gros » sitemap
-    REGISTRY["successfactors"].fetch(SITE, "Acme", sf_client, keep=is_target)
+    monkeypatch.setattr(successfactors, "FULL_SCAN_MAX", 2)  # 5 annonces : « gros » sitemap
+    payload = REGISTRY["successfactors"].fetch(SITE, "Acme", sf_client, keep=is_target)
     assert "/job/Paris-Analyste/103/" not in requested  # écartée sans être téléchargée
+    assert any(p["url"].endswith("/105/") for p in payload["postings"])  # Vevey…France gardée
+
+
+def test_site_en_panne_fait_echouer_l_employeur(sf_client, monkeypatch):
+    monkeypatch.setitem(PAGES, "/job/Meyrin-Ingenieur-de-donnees/101/", 503)  # 503 persistant
+    with pytest.raises(httpx.HTTPStatusError):  # remonte : pas d'expiration massive sur panne
+        REGISTRY["successfactors"].fetch(SITE, "Acme", sf_client, keep=is_target)
+
+
+@pytest.mark.parametrize(("value", "expected"), [
+    ("Tue Nov 03 02:00:00 UTC 2026", date(2026, 11, 3)),
+    ("Tue Nov 03 02:00:00 CET 2026", date(2026, 11, 3)),
+    ("Sun Mar 29 03:00:00 CEST 2026", date(2026, 3, 29)),
+    ("2026-10-31", date(2026, 10, 31)),
+    (None, None),
+])
+def test_posted_on(value, expected):
+    assert successfactors.posted_on(value) == expected
 
 
 @pytest.mark.parametrize(("path", "title", "location"), [

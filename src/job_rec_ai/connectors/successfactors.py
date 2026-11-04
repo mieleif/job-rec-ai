@@ -12,13 +12,17 @@ modification : une approximation de la date de publication).
 """
 
 import html
+import logging
 import re
-from datetime import date, datetime
+from datetime import date
 from urllib.parse import unquote, urlsplit
+
+import httpx
 
 from job_rec_ai.connectors.base import LocationFilter, build_jobs, envelope, parse_date
 from job_rec_ai.connectors.schema_org import JobPostingPage
-from job_rec_ai.http import PoliteClient
+from job_rec_ai.geo import mentions_target_place
+from job_rec_ai.http import DisallowedByRobots, PoliteClient
 from job_rec_ai.models import Job
 from job_rec_ai.text import clean_html, normalize
 
@@ -28,6 +32,12 @@ from job_rec_ai.text import clean_html, normalize
 FULL_SCAN_MAX = 300
 _ENTRY = re.compile(r"<url>\s*<loc>([^<]+/job/[^<]+)</loc>(?:\s*<lastmod>([^<]+)</lastmod>)?")
 _JOB_ID = re.compile(r"/(\d+)/?$")
+# Date.toString() de Java : « Tue Nov 03 02:00:00 CET 2026 », quel que soit le fuseau
+_JAVA_DATE = re.compile(r"^\w{3} (\w{3}) (\d{1,2}) \d{2}:\d{2}:\d{2} \S+ (\d{4})$")
+_MONTHS = {m: i for i, m in enumerate(
+    "Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec".split(), start=1)}
+
+log = logging.getLogger(__name__)
 
 
 def sitemap_entries(xml: str) -> list[tuple[str, str | None]]:
@@ -77,13 +87,14 @@ def location_of(page: JobPostingPage, url: str) -> str:
 
 
 def posted_on(value: str | None) -> date | None:
-    """« Tue Nov 03 02:00:00 UTC 2026 » (format Java) ou ISO → date."""
+    """« Tue Nov 03 02:00:00 CET 2026 » (format Java, tout fuseau) ou ISO → date."""
     if not value:
         return None
-    try:
-        return datetime.strptime(value, "%a %b %d %H:%M:%S %Z %Y").date()
-    except ValueError:
-        return parse_date(value)
+    java = _JAVA_DATE.match(value.strip())
+    if java and java.group(1) in _MONTHS:
+        month, day, year = java.groups()
+        return date(int(year), _MONTHS[month], int(day))
+    return parse_date(value)
 
 
 class SuccessFactorsConnector:
@@ -99,9 +110,17 @@ class SuccessFactorsConnector:
 
         postings = []
         for url, lastmod in entries:
-            if prefilter and not keep(_slug(url).replace("-", " ")):
+            if prefilter and not mentions_target_place(_slug(url)):
                 continue
-            page = JobPostingPage(client.get_html(url))
+            try:
+                page = JobPostingPage(client.get_html(url))
+            except (httpx.HTTPStatusError, DisallowedByRobots) as exc:
+                # Une annonce retirée mais encore dans le sitemap (404) ne doit pas faire perdre
+                # toutes les autres ; une panne du site (réseau, 5xx persistants) remonte.
+                if isinstance(exc, httpx.HTTPStatusError) and exc.response.status_code >= 500:
+                    raise
+                log.warning("annonce ignorée %s : %s", url, exc)
+                continue
             if keep(location_of(page, url)):
                 postings.append({"url": url, "lastmod": lastmod, "html": page.markup()})
         return envelope(self.name, company, board, postings)
