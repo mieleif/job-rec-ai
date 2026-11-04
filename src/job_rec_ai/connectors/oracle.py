@@ -71,9 +71,10 @@ class OracleConnector:
 
         postings = []
         for item in paginate(page, PAGE_SIZE, MAX_PAGES):
-            # « Switzerland » seul ne situe rien : le détail dira la ville (workLocation)
+            # Un pays seul (« Switzerland », sans virgule) ne situe rien : le détail dira la
+            # ville (workLocation). Une ville hors cible (« Zurich, Switzerland ») : inutile
             if not (any(keep(loc) for loc in _locations(item))
-                    or item.get("PrimaryLocationCountry") == "CH"):
+                    or "," not in (item.get("PrimaryLocation") or "")):
                 continue
             data = client.get_json(
                 f"{host}{REST}/recruitingCEJobRequisitionDetails",

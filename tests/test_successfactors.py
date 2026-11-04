@@ -168,3 +168,10 @@ def test_lieu_commune_et_canton_en_microdonnees(sleeps):
         payload = connector.fetch(SITE, "Coop", client, keep=is_target)
     (job,) = connector.parse(payload)
     assert job.location == "Aclens, Vaud"
+
+
+def test_canton_seul_en_microdonnees_l_url_d_abord():
+    from job_rec_ai.connectors.schema_org import JobPostingPage
+    from job_rec_ai.connectors.successfactors import location_of
+    page = JobPostingPage('<span itemprop="addressRegion">CH</span>')
+    assert location_of(page, f"{SITE}/job/Lausanne-Analyste/9/", "Analyste") == "Lausanne"

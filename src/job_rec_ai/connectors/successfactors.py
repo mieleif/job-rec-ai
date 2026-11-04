@@ -81,8 +81,7 @@ def location_from_url(url: str, title: str) -> str:
 
 def title_of(page: JobPostingPage) -> str | None:
     """Le titre : microdonnées, à défaut la balise og:title (l'UIT n'a pas d'itemprop="title")."""
-    og = page.soup.find("meta", attrs={"property": "og:title"})
-    return page.prop("title") or (og.get("content") if og else None)
+    return page.prop("title") or page.meta("og:title")
 
 
 def location_of(page: JobPostingPage, url: str, title: str | None) -> str:
@@ -91,9 +90,11 @@ def location_of(page: JobPostingPage, url: str, title: str | None) -> str:
     if "," in address:  # « Fribourg, CH » ; « CH » seul ne situe rien
         return address
     # Coop : commune et canton à part (« Aclens », « Vaud ») ; la commune seule est
-    # souvent inconnue de geo, le canton la situe
+    # souvent inconnue de geo, le canton la situe. Un seul des deux (« CH ») : l'URL d'abord
     place = ", ".join(p for p in (page.prop("addressLocality"), page.prop("addressRegion")) if p)
-    return place or location_from_url(url, title or "") or address
+    if "," in place:
+        return place
+    return location_from_url(url, title or "") or place or address
 
 
 def posted_on(value: str | None) -> date | None:

@@ -80,7 +80,9 @@ def _facets(*leaves, parameter="locationCountry"):
 
 @pytest.mark.parametrize("facets, expected", [
     (_facets(("ch", "Switzerland"), ("fr", "France")), {"locationCountry": ["ch"]}),
-    (_facets(("fr", "France")), {"locationCountry": []}),  # facette, mais rien chez nous
+    # pays absent (ou traduit : « Suisse ») : ne prouve rien, parcours complet
+    (_facets(("fr", "France")), None),
+    (_facets(("ch", "Suisse")), None),
     (_facets(("ge", "Genève"), ("zh", "Zürich"), ("nyon", "Nyon, Vaud"), parameter="locations"),
      {"locations": ["ge", "nyon"]}),
     ([], None),  # pas de facette de lieu : on parcourt tout

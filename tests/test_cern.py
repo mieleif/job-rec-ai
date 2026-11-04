@@ -1,6 +1,7 @@
 """CERN : faux site (liste + articles WordPress), puis vraie fixture."""
 
 import json
+from datetime import date
 from pathlib import Path
 
 import httpx
@@ -23,34 +24,47 @@ def _article(title, place):
             "</div></article></main></html>")
 
 
+FEED = ("<rss><channel><item><title>Mechanical Engineer</title>"
+        "<link>https://careers.cern.example/jobs/engineer/</link>"
+        "<pubDate>Tue, 03 Nov 2026 08:25:36 +0000</pubDate></item></channel></rss>")
 PAGES = {
-    "/jobs/": '<a href="/jobs/engineer/">Engineer</a><a href="/jobs/technician/">Technician</a>'
-              '<a href="/jobs/feed/">RSS</a><a href="/about/">À propos</a>',
+    "/jobs/": '<a href="/jobs/engineer/">Engineer</a><a href="/jobs/feed/">RSS</a>'
+              '<a href="/about/">À propos</a><a rel="next" href="/jobs/?pg=2">Suivant</a>',
+    "/jobs/?pg=2": '<a href="/jobs/technician/">Technician</a>',  # deuxième page de liste
     "/jobs/engineer/": _article("Mechanical Engineer", "Geneva, Switzerland"),
     "/jobs/technician/": _article("Technician", "Prévessin, France"),
-    "/jobs/feed/": "<rss></rss>",  # pas un article : ignoré
 }
+FEEDS = {"1": FEED}  # page 2 du flux : 404, fin du flux
 
 
-def _client(sleeps, pages):
+def _client(sleeps, pages, requested=None):
     def handler(request: httpx.Request) -> httpx.Response:
-        if request.url.path == "/robots.txt":
+        path = request.url.path
+        if path == "/robots.txt":
             return httpx.Response(200, text="User-agent: *\nDisallow: /wp-admin/\n")
-        page = pages.get(request.url.path)
+        if requested is not None:
+            requested.append(path)
+        if path == "/jobs/feed/":
+            feed = FEEDS.get(request.url.params["paged"])
+            return httpx.Response(200, text=feed) if feed else httpx.Response(404)
+        query = request.url.query.decode()
+        page = pages.get(path + (f"?{query}" if query else ""))
         return httpx.Response(200, text=page) if page else httpx.Response(404)
 
     return PoliteClient(transport=httpx.MockTransport(handler), sleep=sleeps.append)
 
 
 def test_cern_fetch_et_parse(sleeps):
-    connector = REGISTRY["cern"]
-    with _client(sleeps, PAGES) as client:
+    connector, requested = REGISTRY["cern"], []
+    with _client(sleeps, PAGES, requested) as client:
         payload = connector.fetch(BOARD, "CERN", client, keep=is_target)
-    (job,) = connector.parse(payload)  # Prévessin (France) écarté
+    (job,) = connector.parse(payload)  # Prévessin (France, en page 2 de la liste) écarté
+    assert "/jobs/technician/" in requested  # la page 2 de la liste a été suivie
     assert (job.title, job.location, job.source_id) == (
         "Mechanical Engineer", "Geneva, Switzerland", "EN-2026-250")
     assert job.description == "What you'll do Design magnets."
-    assert "menu" not in payload["postings"][0]["html"]  # seul l'article est archivé
+    assert job.posted_at == date(2026, 11, 3)  # d'après le flux RSS
+    assert "menu" not in payload["postings"][0]["html"]  # seules les parties lues archivées
 
 
 def test_cern_theme_change_erreur_explicite(sleeps):

@@ -1,13 +1,14 @@
 """Taleo : faux serveur (page de recherche, API de liste, annonces), puis vraie fixture (OMPI)."""
 
 import json
+from datetime import date
 from pathlib import Path
 
 import httpx
 import pytest
 
 from job_rec_ai.connectors import REGISTRY
-from job_rec_ai.connectors.taleo import description_fields, locations_of
+from job_rec_ai.connectors.taleo import description_fields, locations_of, posted_on
 from job_rec_ai.geo import is_target
 from job_rec_ai.http import PoliteClient
 
@@ -25,12 +26,14 @@ def _row(no, title, place):
 
 ROWS = [_row("1", "Data Officer", "Switzerland-Geneva"), _row("2", "Driver", "Ukraine-Kyiv"),
         _row("3", "Interpreter", "Switzerland-Geneva")]
+PER_PAGE = 2  # la taille des pages dépend de la career section : pas forcément 25
 
 
 def _detail(text):
     encoded = text.replace("<", "%3C").replace(">", "%3E")
     return ("<html><script>api.fillList('requisitionDescriptionInterface', 'descRequisition', "
-            f"['406785','true','L\\'Organisation','!*!{encoded}']);</script></html>")
+            f"['406785','true','L\\'Organisation','Gen\\u00e8ve','27-Oct-2026',"
+            f"'26-Nov-2026, 11:59:00 PM','!*!{encoded}']);</script></html>")
 
 
 @pytest.fixture
@@ -45,7 +48,7 @@ def taleo_client(sleeps):
             assert request.url.params["portal"] == "1234567"
             assert request.headers["tz"]  # sans ces en-têtes, le vrai serveur répond 500
             page = json.loads(request.content)["pageNo"]
-            rows = ROWS[(page - 1) * 25:page * 25]
+            rows = ROWS[(page - 1) * PER_PAGE:page * PER_PAGE]
             return httpx.Response(200, json={"requisitionList": rows,
                                              "pagingData": {"totalCount": len(ROWS)}})
         job = request.url.params["job"]
@@ -60,15 +63,20 @@ def taleo_client(sleeps):
 def test_taleo_fetch_et_parse(taleo_client):
     connector = REGISTRY["taleo"]
     payload = connector.fetch(BOARD, "Acme", taleo_client, keep=is_target)
-    assert [p["contestNo"] for p in payload["postings"]] == ["C-1"]  # Kyiv écarté, C-3 en 404
+    # page 2 lue (3 offres, 2 par page) ; Kyiv écarté ; C-3 en 404
+    assert [p["contestNo"] for p in payload["postings"]] == ["C-1"]
     (job,) = connector.parse(payload)
     assert (job.title, job.location, job.source_id) == ("Data Officer", "Switzerland-Geneva", "C-1")
     assert job.description == "Analyse de données"  # HTML décodé, marqueur !*! retiré
     assert str(job.url) == f"{HOST}/careersection/ex/jobdetail.ftl?job=C-1&lang=en"
+    assert job.posted_at == date(2026, 10, 27)  # l'ouverture, pas la clôture
 
 
 def test_champs_de_l_annonce():
-    assert description_fields(_detail("x"))[2] == "L'Organisation"  # apostrophe échappée
+    fields = description_fields(_detail("x"))
+    assert fields[2:4] == ["L'Organisation", "Genève"]  # échappements JavaScript décodés
+    assert posted_on(["Nov 4, 2026, 10:56:17 AM", "Nov 18, 2026, 11:59:00 PM"]) == date(2026, 11, 4)
+    assert posted_on(["P3", "Fixed Term"]) is None
     assert description_fields("<html>pas d'annonce</html>") is None
     assert locations_of({"locationsColumns": [1], "column": ["T", "Genève"]}) == ["Genève"]
 

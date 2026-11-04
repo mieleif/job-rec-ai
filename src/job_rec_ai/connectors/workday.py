@@ -62,17 +62,18 @@ def _facet_values(facets: list[dict]) -> dict[str, list[dict]]:
 
 
 def target_facets(facets: list[dict], keep: LocationFilter) -> dict[str, list[str]] | None:
-    """Les facettes qui restreignent la recherche à nos lieux, ou None si le board n'en a pas.
+    """La facette qui restreint la recherche à nos lieux : le pays, sinon les villes.
 
-    Une liste d'identifiants vide veut dire : le board a la facette, mais aucune offre chez
-    nous (et non « pas de filtre », qui est ce que Workday comprendrait).
+    None : parcours complet. C'est aussi le cas d'une facette sans aucune valeur reconnue :
+    elle ne prouve pas l'absence d'offre chez nous (pays traduit « Suisse », sites codés
+    « CH-GVA-01 »), et conclure « rien ici » expirerait toutes les offres de l'employeur.
     """
     flat = _facet_values(facets)
-    if "locationCountry" in flat:
-        return {"locationCountry": [v["id"] for v in flat["locationCountry"]
-                                    if v.get("descriptor") == TARGET_COUNTRY]}
-    if "locations" in flat:
-        return {"locations": [v["id"] for v in flat["locations"] if keep(v.get("descriptor"))]}
+    for name, matches in (("locationCountry", lambda d: d == TARGET_COUNTRY),
+                          ("locations", keep)):
+        ids = [v["id"] for v in flat.get(name, []) if matches(v.get("descriptor"))]
+        if ids:
+            return {name: ids}
     return None
 
 
@@ -94,8 +95,6 @@ class WorkdayConnector:
 
         first = search(0, {})
         facets = target_facets(first.get("facets", []), keep)
-        if facets is not None and not any(facets.values()):
-            return envelope(self.name, company, board, [])  # aucune offre chez nous
 
         def page(offset: int) -> tuple[list, int]:
             # sans facette, la première page déjà reçue sert telle quelle

@@ -22,7 +22,10 @@ Tests du projet : 128 réussis.
   `locationCountry`, à défaut `locations` avec les villes que reconnaît `geo`), Oracle
   (`location=Switzerland`) et Phenom (`qcountry`) restreignent la recherche à la Suisse ; le
   filtre de lieu GE/VD reste appliqué offre par offre. PwC : 3 800 offres dans le monde pour
-  9 chez nous, JPMorgan : 7 100 pour 11. Vérifié : mêmes chiffres qu'avec le parcours complet.
+  9 chez nous, JPMorgan : 7 100 pour 11. Vérifié : mêmes chiffres qu'avec le parcours complet,
+  offres multi-sites comprises (la facette pays couvre tous les lieux d'une offre : Logitech,
+  Alcon). Une facette sans valeur reconnue (pays traduit « Suisse », sites codés) ne prouve
+  pas l'absence d'offre : on retombe alors sur le parcours complet (revue de la PR #6).
 - **2026-11-04 · Quatre ATS de plus, et un site maison.** Oracle Recruiting Cloud (UBP, OIM,
   JPMorgan), Taleo (OMS, OMPI), Phenom (PMI, P&G, Givaudan), careers.un.org (Secrétariat de
   l'ONU). Le CERN a son propre connecteur (`cern`) : exception à « un connecteur par ATS »,
@@ -135,7 +138,10 @@ Tests du projet : 128 réussis.
   (Givaudan 14, PMI 5, P&G 2), careers.un.org (ONU 48), CERN (31) ; nouveaux employeurs sur
   les ATS existants : Coop 209, EY 36, UIT 18, Fonds mondial 12, PwC 9, IMAD 9, Hospice
   général 5, Clair Bois 3, Securitas 3, OIT 2 ; filtrage par pays côté serveur ; quartiers
-  genevois et communes vaudoises ajoutés à `geo`.
+  genevois et communes vaudoises ajoutés à `geo`. Revue de la PR #6 : 10 constats traités
+  (facette Workday sans valeur reconnue → parcours complet, pagination Taleo selon le
+  serveur, échappements JavaScript, dates Taleo et CERN via le flux RSS, pagination de la
+  liste CERN, commune/canton SuccessFactors seulement s'ils sont complets).
 - **2026-11-04** : revue des PR #3 à #5 (un sous-agent par PR), 10 constats corrigés :
   redirections soumises au robots.txt de leur cible, annonce retirée qui ne fait plus
   échouer l'employeur, veto géo lieu par lieu, pré-filtre Nestlé, dates Java CET, JSON-LD
