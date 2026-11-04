@@ -46,8 +46,25 @@ _FOREIGN = re.compile(
 _SWISS = re.compile(r"switzerland|suisse|schweiz|svizzera")
 
 
+# Séparateurs des lieux multiples : « Zürich / Lausanne », « Genève; Paris », « Genève · CDI »
+_SEGMENTS = re.compile(r"\s*[/;·|]\s*")
+
+
 def canton_of(location: str | None) -> str | None:
-    """Renvoie « GE », « VD » ou None si le lieu n'est pas dans l'arc lémanique."""
+    """Renvoie « GE », « VD » ou None si le lieu n'est pas dans l'arc lémanique.
+
+    Chaque lieu d'une offre multi-sites est jugé séparément : le veto « homonyme étranger »
+    d'un segment (« Geneva, IL, United States ») ne doit ni contaminer ni être levé par un
+    autre (« … / Zurich, Switzerland »).
+    """
+    for segment in _SEGMENTS.split(location or ""):
+        canton = _segment_canton(segment)
+        if canton:
+            return canton
+    return None
+
+
+def _segment_canton(location: str) -> str | None:
     if not location:
         return None
     norm = normalize(location)

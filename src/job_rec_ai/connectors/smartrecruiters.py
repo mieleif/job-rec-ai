@@ -74,9 +74,14 @@ class SmartRecruitersConnector:
             listing += openings(client.get_html(f"{CAREERS}/{board}/api/groups",
                                                 params={"page": page}))
 
+        # Une offre peut figurer dans plusieurs groupes (un par lieu, chez Vitol) : elle passe
+        # le filtre si l'un de ses lieux est dans l'arc lémanique
+        wheres: dict[str, list[str]] = {}
+        for url, where in listing:
+            wheres.setdefault(url, []).append(where)
         postings = []
-        for url, where in dict(listing).items():  # dict : une offre listée deux fois
-            if keep(where):
+        for url, texts in wheres.items():
+            if any(keep(where) for where in texts):
                 postings.append({"id": _JOB_URL.match(url).group(1), "url": url,
                                  "html": archived(client.get_html(url))})
         return envelope(self.name, company, board, postings)
