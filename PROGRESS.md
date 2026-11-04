@@ -3,21 +3,31 @@
 Le carnet de bord du projet : où on en est, ce qu'on a décidé et pourquoi, la suite.
 Les tâches cochables restent dans [ROADMAP.md](ROADMAP.md) ; ce fichier ne les recopie pas.
 
-_Dernière mise à jour : 2026-11-03_
+_Dernière mise à jour : 2026-11-04_
 
 ## Où on en est
 
 | Étape | Checkpoint | Ce qui reste |
 |---|---|---|
 | M0 · Setup | 9/9 (avec une note locale, voir « Contraintes ») | règles perso dans `CLAUDE.md`, Milestones GitHub, questions de contrôle |
-| M1 · Collecte | **8/8** (fixtures réelles Workday, Greenhouse, SmartRecruiters) | **364 offres réelles sur 1 000** (repère : jobup.ch affiche ~2 000 offres pour Genève) : CERN (site maison), Oracle (UBP, Edmond de Rothschild, OMS), note HTTP, questions de contrôle |
+| M1 · Collecte | **8/8** (fixtures réelles Workday, Greenhouse, SmartRecruiters) | **523 offres réelles** (repère : jobup.ch affiche ~2 000 offres pour Genève) : CERN (site maison sans JSON-LD), Phenom (P&G, PMI, Givaudan), Oracle (UBP, Edmond de Rothschild, OMS), note HTTP, questions de contrôle |
 | M2 · Pipeline | 7/7 | installer le timer sur le VPS, note ETL/ELT, questions de contrôle |
 | M3 → M8 | pas commencé | |
 
-Tests du projet : 86 réussis.
+Tests du projet : 107 réussis.
 
 ## Décisions
 
+- **2026-11-03 · Sites maison : un connecteur JSON-LD générique** plutôt qu'un scraper par site.
+  L'État de Genève publie ses offres sur ge.ch, chaque annonce balisée en JSON-LD JobPosting :
+  le connecteur `jsonld` lit la page de liste (liens un niveau sous le board, `rel="next"`),
+  puis le JSON-LD de chaque annonce, et archive ce JSON-LD. Pas de filtre de lieu (l'employeur
+  est choisi parce qu'il est local ; ses lieux sont des adresses sans ville).
+- **2026-11-03 · Canton de repli : celui de l'employeur**, dans la vue gold `jobs_view`
+  (`coalesce`). La table `jobs` garde le canton déduit du lieu seul (25 offres sans canton) :
+  l'information manquante reste visible en silver.
+- **2026-11-03 · Le client HTTP réessaie aussi sur les pannes réseau** (connexion qui
+  n'aboutit pas, timeout), avec le même backoff : ge.ch a été injoignable par intermittence.
 - **2026-11-03 · SuccessFactors : le sitemap, puis les microdonnées.** Chaque employeur a son
   site (jobs.sicpa.com, careers.epfl.ch…), d'une génération ancienne (HTML) ou récente
   (JavaScript nourri par `/services/`, interdit par robots.txt). Point commun autorisé :
@@ -60,6 +70,10 @@ Tests du projet : 86 réussis.
 
 ## Contraintes à connaître
 
+- **DuckDB : un seul processus écrivain à la fois.** Deux `crawl` en parallèle : le second échoue
+  (fichier verrouillé). Collecter séquentiellement.
+- **Phenom (P&G, PMI, Givaudan)** : sitemaps par pays, mais URL sans lieu ; il faudrait
+  télécharger chaque annonce pour la situer (P&G : 870+ annonces). Pas encore fait.
 - **Scan de secrets GitHub** : le HTML archivé peut embarquer des clés publiques de tiers (la
   carte Google Maps des annonces SmartRecruiters a déclenché une alerte le 2026-11-03, sans
   risque : ce n'est pas notre clé). On n'archive que le contenu utile de l'annonce.
@@ -98,6 +112,15 @@ Tests du projet : 86 réussis.
 
 ## Journal des sessions
 
+- **2026-11-04** : revue des PR #3 à #5 (un sous-agent par PR), 10 constats corrigés :
+  redirections soumises au robots.txt de leur cible, annonce retirée qui ne fait plus
+  échouer l'employeur, veto géo lieu par lieu, pré-filtre Nestlé, dates Java CET, JSON-LD
+  robuste et textes nettoyés, canton de repli limité aux sites maison. Collecte complète :
+  514 offres actives, 0 erreur (24 vraies expirations depuis la veille).
+- **2026-11-03** (suite) : objectif 500 atteint : **523 offres actives**. Richemont raccordé
+  (board Workday corrigé : 74 offres), Alcon et Julius Baer ajoutés, connecteur JSON-LD pour
+  l'État de Genève (82), canton de repli de l'employeur, réessai sur pannes réseau ;
+  `replay` des archives bronze pour appliquer le nouveau parseur sans re-télécharger.
 - **2026-11-03** (suite) : connecteur SuccessFactors (EPFL 67, Nestlé 60, BCV 31, CICR 17,
   SICPA 7, Genève Aéroport 1) : 364 offres actives ; correctif `geo` (tirets ≡ espaces,
   coquille Grand-Saconnex) ; alerte de secret GitHub traitée (clé Maps publique de

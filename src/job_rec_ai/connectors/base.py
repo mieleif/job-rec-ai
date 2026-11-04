@@ -16,9 +16,10 @@ from collections.abc import Callable, Iterator
 from datetime import UTC, date, datetime
 from typing import Protocol
 
+import httpx
 from pydantic import ValidationError
 
-from job_rec_ai.http import PoliteClient
+from job_rec_ai.http import DisallowedByRobots, PoliteClient
 from job_rec_ai.models import Job
 
 log = logging.getLogger(__name__)
@@ -65,6 +66,22 @@ def paginate(fetch_page: Callable[[int], tuple[list, int]], page_size: int,
         yield from items
         if not items or (page + 1) * page_size >= total:
             break
+
+
+def get_html_or_skip(client: PoliteClient, url: str) -> str | None:
+    """Une page d'annonce, ou None si elle a disparu (4xx) ou est interdite par robots.txt.
+
+    Une annonce retirée mais encore listée ne doit pas faire perdre toutes les autres ;
+    une panne du site (réseau, 5xx persistants), elle, remonte : mieux vaut une collecte
+    en erreur qu'une collecte vide, qui expirerait toutes les offres de l'employeur.
+    """
+    try:
+        return client.get_html(url)
+    except (httpx.HTTPStatusError, DisallowedByRobots) as exc:
+        if isinstance(exc, httpx.HTTPStatusError) and exc.response.status_code >= 500:
+            raise
+        log.warning("annonce ignorée %s : %s", url, exc)
+        return None
 
 
 def build_jobs(payload: dict, to_fields: Callable[[dict], dict]) -> list[Job]:

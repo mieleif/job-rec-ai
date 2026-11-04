@@ -60,6 +60,18 @@ def _job(n, title="Data Engineer"):
                location="Genève", description="Pipelines.", source="workday")
 
 
+def test_canton_de_repli_celui_de_l_employeur(con):
+    storage.upsert_companies(con, [{**COMPANIES[0], "company": "Acme"}])  # Acme : GE
+    sans_ville = {"location": "Place du Bourg-de-Four 1"}
+    maison = _job(1).model_copy(update={**sans_ville, "source": "jsonld"})
+    ats = _job(2, "Analyste").model_copy(update=sans_ville)  # source workday
+    storage.upsert_jobs(con, [pipeline.enrich(maison), pipeline.enrich(ats)],
+                        datetime(2026, 10, 1))
+    assert con.execute("SELECT count(*) FROM jobs WHERE canton IS NULL").fetchone() == (2,)
+    # gold : repli pour le site maison seulement (une multinationale publie hors de son canton)
+    assert [r["title"] for r in storage.search(con, canton="GE")] == ["Data Engineer"]
+
+
 def test_expiration_seulement_apres_succes(con):
     t1, t2 = datetime(2026, 10, 1), datetime(2026, 10, 2)
     storage.upsert_jobs(con, [pipeline.enrich(_job(1)), pipeline.enrich(_job(2))], t1)
