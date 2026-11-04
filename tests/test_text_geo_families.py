@@ -23,6 +23,12 @@ def test_detect_language_allemand_est_other():
     ("Plan-les-Ouates", "GE"), ("Lausanne, VD", "VD"), ("Le Brassus", "VD"),
     ("Vevey", "VD"), ("Zürich", None), ("Basel / Kaiseraugst", None),
     ("Geneva, IL, United States", None), ("Annemasse, France", None), ("", None),
+    # multi-sites réels (Proton, Logitech) : la Suisse citée l'emporte sur le pays étranger
+    ("Geneva, Switzerland, Paris, France", "GE"),
+    ("Lausanne, Switzerland / London, United Kingdom / Cork, Ireland", "VD"),
+    # veto jugé lieu par lieu : la Suisse d'un segment ne blanchit pas l'homonyme d'un autre
+    ("Geneva, IL, United States / Zurich, Switzerland", None),
+    ("Geneva, New York, USA; Lausanne, Switzerland", "VD"),
 ])
 def test_canton_of(location, canton):
     assert canton_of(location) == canton

@@ -38,18 +38,33 @@ def test_workday_parse(client):
 def test_smartrecruiters_fetch_et_parse(client):
     connector = REGISTRY["smartrecruiters"]
     payload = connector.fetch("ACME", "Acme", client, keep=is_target)
+    # Les deux pages de la liste lues ; l'annonce de Zurich n'est pas téléchargée, celle de
+    # Lausanne l'est bien que son lieu ne figure que dans l'en-tête de son groupe
+    assert [p["id"] for p in payload["postings"]] == ["1", "3"]
+    archive = payload["postings"][0]["html"]
+    assert "gabarit" not in archive  # seul <main> est archivé
+    assert "st-videos" not in archive  # sans vidéos ni carte (clé Google Maps embarquée)
     jobs = connector.parse(payload)
-    assert [j.title for j in jobs] == ["Ingénieur de données"]
     job = jobs[0]
-    assert job.location == "Meyrin, GE, ch"
+    assert job.title == "Ingénieur de données" and job.source_id == "1"
+    assert job.location == "Meyrin, Geneva, Switzerland"
     assert "pipelines" in job.description and "Python SQL" in job.description
+    assert "vidéo" not in job.description  # sections sans texte utile retirées
+    assert job.posted_at == date(2026, 9, 15) and job.employment_type == "Temps complet"
     assert str(job.url) == "https://jobs.smartrecruiters.com/ACME/1-x"
 
 
+def test_smartrecruiters_refuse_une_redirection(client):
+    # Une page sans liste (ex. CERN, redirigé vers son propre site) : erreur, pas 0 offre
+    with pytest.raises(ValueError, match="pas de liste"):
+        REGISTRY["smartrecruiters"].fetch("AUTRE", "Autre", client, keep=is_target)
+
+
 def test_parse_ignore_les_offres_invalides():
-    payload = {"ats": "smartrecruiters", "company": "Acme", "board": "ACME", "postings": [
-        {"id": "9", "name": "   "},  # titre vide → rejetée, sans faire échouer le lot
-        {"id": "10", "name": "Analyste", "location": {"city": "Genève"}},
-    ]}
-    jobs = REGISTRY["smartrecruiters"].parse(payload)
+    payload = {"ats": "greenhouse", "company": "Acme", "board": "acme", "postings": [
+        {"id": 9, "title": "   ", "absolute_url": "https://job-boards.greenhouse.io/acme/jobs/9"},
+        {"id": 10, "title": "Analyste", "location": {"name": "Genève"},
+         "absolute_url": "https://job-boards.greenhouse.io/acme/jobs/10"},
+    ]}  # titre vide → rejetée, sans faire échouer le lot
+    jobs = REGISTRY["greenhouse"].parse(payload)
     assert [j.title for j in jobs] == ["Analyste"]
