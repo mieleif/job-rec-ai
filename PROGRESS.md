@@ -3,7 +3,7 @@
 Le carnet de bord du projet : où on en est, ce qu'on a décidé et pourquoi, la suite.
 Les tâches cochables restent dans [ROADMAP.md](ROADMAP.md) ; ce fichier ne les recopie pas.
 
-_Dernière mise à jour : 2026-11-03_
+_Dernière mise à jour : 2026-11-04_
 
 ## Où on en est
 
@@ -14,7 +14,7 @@ _Dernière mise à jour : 2026-11-03_
 | M2 · Pipeline | 7/7 | installer le timer sur le VPS, note ETL/ELT, questions de contrôle |
 | M3 → M8 | pas commencé | |
 
-Tests du projet : 94 réussis.
+Tests du projet : 107 réussis.
 
 ## Décisions
 
@@ -112,6 +112,11 @@ Tests du projet : 94 réussis.
 
 ## Journal des sessions
 
+- **2026-11-04** : revue des PR #3 à #5 (un sous-agent par PR), 10 constats corrigés :
+  redirections soumises au robots.txt de leur cible, annonce retirée qui ne fait plus
+  échouer l'employeur, veto géo lieu par lieu, pré-filtre Nestlé, dates Java CET, JSON-LD
+  robuste et textes nettoyés, canton de repli limité aux sites maison. Collecte complète :
+  514 offres actives, 0 erreur (24 vraies expirations depuis la veille).
 - **2026-11-03** (suite) : objectif 500 atteint : **523 offres actives**. Richemont raccordé
   (board Workday corrigé : 74 offres), Alcon et Julius Baer ajoutés, connecteur JSON-LD pour
   l'État de Genève (82), canton de repli de l'employeur, réessai sur pannes réseau ;
