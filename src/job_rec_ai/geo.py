@@ -10,7 +10,9 @@ import re
 from job_rec_ai.text import compile_keywords, first_match, normalize
 
 # Périmètre : la Suisse romande (décision du 04.11.2026 ; l'arc lémanique GE + VD avant).
-# « BE » ne couvre que le Jura bernois et Bienne : aucune commune germanophone n'est listée.
+# Un périmètre linguistique, pas cantonal : « BE » ne couvre que le Jura bernois et Bienne,
+# « VS » et « FR » que leur partie francophone (05.11.2026 : ni Haut-Valais ni Singine).
+# Aucune commune germanophone n'est listée ; Bienne, bilingue, l'est.
 TARGET_CANTONS = {"GE", "VD", "FR", "NE", "VS", "JU", "BE"}
 # Le pays des cantons cibles, tel que l'écrivent les ATS dans leurs filtres de recherche
 TARGET_COUNTRY = "Switzerland"
@@ -43,10 +45,10 @@ _PLACES = {
     ],
     "FR": [
         "fribourg", "freiburg", "bulle", "villars-sur-glane", "marly", "granges-paccot",
-        "givisiez", "murten", "morat", "estavayer-le-lac", "estavayer", "romont",
-        "chatel-saint-denis", "dudingen", "guin", "belfaux", "matran", "domdidier",
-        "broc", "riaz", "vuadens", "corminboeuf", "avry", "courtepin", "tafers", "wunnewil",
-        "flamatt", "kerzers", "morlon", "la tour-de-treme", "rossens",
+        "givisiez", "estavayer-le-lac", "estavayer", "romont",
+        "chatel-saint-denis", "belfaux", "matran", "domdidier",
+        "broc", "riaz", "vuadens", "corminboeuf", "avry", "courtepin",
+        "morlon", "la tour-de-treme", "rossens",
     ],
     "NE": [
         "neuchatel", "neuenburg", "la chaux-de-fonds", "le locle", "marin-epagnier",
@@ -58,10 +60,10 @@ _PLACES = {
     "VS": [
         "valais", "wallis", "sion", "sitten", "sierre", "siders", "martigny", "monthey",
         "conthey", "collombey", "collombey-muraz", "saint-maurice", "verbier",
-        "crans-montana", "visp", "viege", "brig", "naters", "zermatt", "saxon",
-        "vetroz", "ardon", "chippis", "steg", "gampel", "leuk", "susten", "vouvry",
+        "crans-montana", "saxon",
+        "vetroz", "ardon", "chippis", "vouvry",
         "port-valais", "bagnes", "le chable", "riddes", "chamoson", "saviese",
-        "uvrier", "bramois", "evolene", "nendaz", "saas-fee",
+        "uvrier", "bramois", "evolene", "nendaz",
     ],
     "JU": [
         "delemont", "porrentruy", "bassecourt", "saignelegier", "courrendlin",
@@ -79,6 +81,22 @@ _PLACES = {
 # les annonces « Plan-les-Ouates » ou « Plan les Ouates »
 _PATTERNS = compile_keywords(
     (canton, [p.replace("-", " ") for p in places]) for canton, places in _PLACES.items())
+# Communes germanophones des cantons cibles : hors périmètre même si le lieu nomme aussi le
+# canton (« Visp, Wallis », « Murten, Freiburg, Schweiz », « Zermatt (VS) »). Morat, bilingue
+# de fait, est officiellement germanophone. Limite : un segment qui cite une commune
+# romande ET une germanophone (« Sion, Visp ») est écarté ; les ATS séparent d'ordinaire
+# les sites par « / » ou « ; », jugés séparément (voir canton_of).
+_GERMAN_SPEAKING = compile_keywords([("de", [p.replace("-", " ") for p in [
+    # Haut-Valais
+    "oberwallis", "haut-valais", "visp", "viege", "brig", "brigue", "glis", "naters",
+    "zermatt", "tasch", "saas-fee", "saas-grund", "stalden", "steg", "gampel", "raron",
+    "leuk", "loeche", "leukerbad", "susten", "salgesch", "turtmann", "fiesch", "lalden",
+    # Singine et Lac germanophone (FR)
+    "singine", "sensebezirk", "dudingen", "guin", "tafers", "wunnewil", "flamatt",
+    "schmitten", "plaffeien", "kerzers", "murten", "morat",
+    # Seeland (BE) et Granges (SO), autour de Bienne
+    "nidau", "lyss", "aarberg", "lengnau", "pieterlen", "grenchen",
+]])])
 # Abréviations de canton en majuscules : « Lausanne, VD » ou « Meyrin (GE) ». Pour les
 # autres cantons, seulement entre parenthèses (« Bulle (FR) ») : « FR », « BE », « NE »
 # sont aussi des codes de pays (« Paris, FR », « Bruxelles, BE ») ou des États américains.
@@ -102,14 +120,19 @@ _SWISS = re.compile(r"switzerland|suisse|schweiz|svizzera")
 # « Hirslanden Clinique Cecil, 1003 Laus », la ville tronquée). Plages approximatives : la
 # Poste publie la table exacte, mais les frontières de NPA ne suivent pas toujours celles des
 # cantons (Versoix 1290 est à GE, Estavayer 1470 à FR, Saignelégier 2350 au JU…). Les plages
-# 3000-9999 (Berne, Haut-Valais, Suisse alémanique et Tessin) ne sont pas romandes.
+# 3000-9999 (Berne, Haut-Valais, Suisse alémanique et Tessin) ne sont pas romandes, ni la
+# Singine (1712-1719, 1734-1737) ni le Seeland et Granges (2512-2514, 2540-2599). Restent
+# pour BE : Bienne (2500-2505), le Plateau de Diesse et La Neuveville (2515-2520), Évilard
+# et Orvin (2532-2538), le Jura bernois (2600-2799).
 # Beaucoup de pays ont des codes postaux à 4 chiffres (Bruxelles 1000, Vienne 1010, Sydney
 # 2000, Sandton 2196) : un NPA ne compte que préfixé « CH- » ou dans un lieu qui nomme la
 # Suisse.
 _NPA_RANGES = [
     (1000, 1199, "VD"), (1200, 1259, "GE"), (1260, 1289, "VD"), (1290, 1299, "GE"),
-    (1300, 1599, "VD"), (1600, 1799, "FR"), (1800, 1869, "VD"), (1870, 1999, "VS"),
-    (2000, 2499, "NE"), (2500, 2799, "BE"), (2800, 2999, "JU"),
+    (1300, 1599, "VD"), (1600, 1711, "FR"), (1720, 1733, "FR"), (1738, 1799, "FR"),
+    (1800, 1869, "VD"), (1870, 1999, "VS"), (2000, 2499, "NE"),
+    (2500, 2505, "BE"), (2515, 2520, "BE"), (2523, 2525, "NE"), (2532, 2538, "BE"),
+    (2600, 2799, "BE"), (2800, 2999, "JU"),
 ]
 _NPA = re.compile(r"(?<![\d.])([12]\d{3})(?![\d.])")
 _CH_NPA = re.compile(r"\bCH[-\s]?([12]\d{3})(?!\d)")
@@ -156,6 +179,8 @@ def _segment_canton(location: str) -> str | None:
         return None
     norm = normalize(location).replace("-", " ")
     if _FOREIGN.search(norm) and not _SWISS.search(norm):
+        return None
+    if first_match(_GERMAN_SPEAKING, norm)[0]:
         return None
     canton, _ = first_match(_PATTERNS, norm)
     if canton:
