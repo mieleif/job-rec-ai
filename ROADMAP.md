@@ -40,7 +40,7 @@ Lancer un checkpoint : `uv run pytest checkpoints/test_m1_collecte.py -v`
 
 - [ ] Note : HTTP, codes de statut, JSON, `robots.txt`, rate limiting
 - [x] Lister 50+ employeurs genevois dans `data/companies.csv` (nom, secteur, URL carrière)
-- [x] Identifier l'ATS de chacun (Greenhouse, Lever, SmartRecruiters, Workday, Personio…)
+- [ ] Identifier l'ATS de chacun (Greenhouse, Lever, SmartRecruiters, Workday, Personio…)
 - [x] Modèle `Job` avec pydantic
 - [x] ⚡ Sauvegarder une vraie réponse JSON d'ATS dans `tests/fixtures/`
 - [x] Premier connecteur ATS : `fetch()` + `parse()` → `list[Job]`
