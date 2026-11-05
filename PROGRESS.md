@@ -10,7 +10,7 @@ _Dernière mise à jour : 2026-11-04_
 | Étape | Checkpoint | Ce qui reste |
 |---|---|---|
 | M0 · Setup | 9/9 (avec une note locale, voir « Contraintes ») | règles perso dans `CLAUDE.md`, Milestones GitHub, questions de contrôle |
-| M1 · Collecte | **8/8** (fixtures réelles pour les 10 connecteurs) | **1 741 offres réelles** en Suisse romande (GE 645, VD 445, FR 233, VS 213, NE 102, BE 81, JU 22 ; 53 employeurs). Restent : note HTTP, questions de contrôle |
+| M1 · Collecte | **8/8** (fixtures réelles pour les 10 connecteurs) | **1 756 offres réelles** en Suisse romande (GE 660, VD 445, FR 233, VS 213, NE 102, BE 81, JU 22 ; 53 employeurs et 1 agence). Restent : note HTTP, questions de contrôle |
 | M2 · Pipeline | 7/7 (livrable : [notebook « 5 graphiques »](notebooks/marche-emploi.ipynb)) | installer le timer sur le VPS, note ETL/ELT, questions de contrôle |
 | M3 → M8 | pas commencé | |
 
@@ -35,12 +35,16 @@ Tests du projet : 128 réussis.
   (`geo._NPA_RANGES`), seulement préfixé « CH- » ou dans un lieu qui nomme la Suisse
   (Bruxelles 1000, Sandton 2196 ont aussi 4 chiffres). Le pré-filtre d'URL SuccessFactors
   l'accepte aussi (« …-Laus-1003 »), sauf 2000-2099 (des années). Hirslanden : 26 → 58 offres.
-- **2026-11-05 · Agences et jobboards : pas encore.** Specitec (Teamtailor, JSON-LD) se lit
-  avec le connecteur existant (15 offres à Genève) ; Michael Page n'a pas de JSON-LD lisible ;
-  Academic Work interdit `/api/` ; SwissDevJobs et jobs.ch/jobup republient les annonces des
-  employeurs. Une agence publie des postes absents ailleurs (le marché caché), mais souvent
-  sans le nom du client et en double : à décider avec un marqueur « agence » (voir Prochaines
-  étapes).
+- **2026-11-05 · Les agences de placement entrent, marquées.** Colonne `publisher_type`
+  (« employeur » par défaut, « agence ») dans `companies.csv`, la table `companies` et la vue
+  `jobs_view` ; facette `--publisher_type` dans `search` et `stats`. Pourquoi : une agence
+  publie des postes absents ailleurs (le marché caché), mais souvent sans le nom du client et
+  parfois en double avec l'employeur ; le marqueur permettra de dédoublonner et de pondérer
+  (M6). Collectée : Specitec (Teamtailor, JSON-LD, 15 offres). Listées sans connecteur :
+  Michael Page, Randstad, Adecco, Manpower, Interiman, Hays, Academic Work (robots.txt
+  interdit `/api/`), Robert Walters (403) : sites maison sans JSON-LD. Les jobboards
+  (SwissDevJobs, jobs.ch, jobup) restent hors source : ils republient les annonces des
+  employeurs ; ils servent de repère (benchmark), comme Adzuna.
 - **2026-11-04 · Périmètre élargi à toute la Suisse romande** (GE, VD, FR, NE, VS, JU et le
   Jura bernois avec Bienne, sous le code BE). Décision de Leif après la mesure (≈ +270 offres
   en élargissant seulement le filtre, dont ~190 Coop) : on élargit **et** on ajoute des
@@ -206,7 +210,8 @@ Tests du projet : 128 réussis.
    Fribourg) : enrichir `families.py` (allemand surtout) ou attendre l'extraction par LLM (M5).
 2. Romandie : identifier l'ATS des États de Neuchâtel, du Valais et du Jura et de l'Hôpital
    du Valais (gros employeurs locaux, pas encore couverts).
-3. Décider du sort des annonces sans description (Coop) pour la recommandation.
+3. Décider du sort des annonces sans description (Coop) et des offres d'agence (doublons
+   avec l'employeur, client anonyme) pour la recommandation (M6).
 4. Mesurer la couverture par employeur contre un agrégateur (expérience reportée par Leif) ;
    pistes restantes : État de Vaud, CHUV, Ville de Genève, Migros Genève/Vaud, HCR.
 5. Sur le VPS : installer la collecte nocturne ([deploy/README.md](deploy/README.md)).
@@ -217,6 +222,8 @@ Tests du projet : 128 réussis.
 
 ## Journal des sessions
 
+- **2026-11-05** (fin) : marqueur « agence » (`publisher_type`) ; Specitec collectée ;
+  8 autres agences listées. 1 756 offres.
 - **2026-11-05** (suite) : grands employeurs genevois et commerce de détail passés en revue
   (31 ajoutés à la liste, 5 collectés : Hirslanden, Zurich, Mobilière, HP, HPE) ; NPA comme
   indice de lieu ; étude des agences et jobboards. 1 741 offres, 53 employeurs.

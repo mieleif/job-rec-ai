@@ -1,4 +1,4 @@
-company,sector,canton,careers_url,ats,board
+company,sector,canton,careers_url,ats,board,publisher_type
 Rolex,Horlogerie,GE,https://www.rolex.com/rolex-careers,,
 Richemont,Luxe,GE,https://careers.richemont.com/en/jobs/,workday,https://richemont.wd3.myworkdayjobs.com/richemont
 Patek Philippe,Horlogerie,GE,https://www.patek.com/en/company/careers,,
@@ -118,3 +118,12 @@ Groupe Mutuel,Assurance,VS,https://job.groupemutuel.ch/fr/,cornerstone,
 Generali Suisse,Assurance,VD,https://www.generali.ch/fr/carriere,umantis,
 Helvetia Baloise,Assurance,BS,https://jobs.helvetia.com,prospective,
 Retraites Populaires,Assurance,VD,https://carriere.retraitespopulaires.ch,,
+Specitec,Recrutement & intérim,GE,https://careers.specitec.com/jobs,jsonld,https://careers.specitec.com/jobs,agence
+Michael Page,Recrutement & intérim,ZH,https://www.michaelpage.ch,,,agence
+Academic Work,Recrutement & intérim,ZH,https://www.academicwork.ch/offres-emploi,,,agence
+Adecco,Recrutement & intérim,ZH,https://www.adecco.ch,,,agence
+Randstad,Recrutement & intérim,ZH,https://www.randstad.ch/fr/emploi/,,,agence
+Manpower,Recrutement & intérim,GE,https://www.manpower.ch/fr,,,agence
+Interiman (Albedis),Recrutement & intérim,VD,https://www.albedis.com,,,agence
+Hays,Recrutement & intérim,BS,https://www.hays.ch/fr,,,agence
+Robert Walters,Recrutement & intérim,ZH,https://www.robertwalters.ch,,,agence
