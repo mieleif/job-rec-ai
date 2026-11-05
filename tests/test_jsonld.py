@@ -139,3 +139,37 @@ def test_annonces_hors_de_la_liste(sleeps):
         payload = REGISTRY["jsonld"].fetch(f"{SITE}/fr/vacancies#jobs=/job/", "Vaudoise",
                                            client, keep=is_target)
     assert [p["url"] for p in payload["postings"]] == [f"{SITE}/job/7/Conseiller?l=fr"]
+
+
+@pytest.mark.parametrize("url, expected", [
+    # softgarden : identifiant de publication retiré, langue gardée
+    ("https://v.softgarden.io/job/7/Conseiller?jobDbPVId=289&l=fr#top",
+     "https://v.softgarden.io/job/7/Conseiller?l=fr"),
+    ("https://x.ch/emplois/1?utm_source=li&utm_medium=social", "https://x.ch/emplois/1"),
+    ("https://x.ch/emplois/1", "https://x.ch/emplois/1"),
+])
+def test_url_canonique(url, expected):
+    from job_rec_ai.connectors.jsonld import canonical_url
+    assert canonical_url(url) == expected
+
+
+def test_code_de_canton_nu():
+    from job_rec_ai.connectors.jsonld import named_localities
+    places = named_localities({"jobLocation": {"address": {"addressLocality": "-",
+                                                           "addressRegion": "FR"}}})
+    assert places == ["(FR)"] and is_target(places[0])  # Fribourg, pas le code pays
+    zurich = named_localities({"jobLocation": {"address": {"addressRegion": "ZH"}}})
+    assert not is_target(zurich[0])
+
+
+def test_pagination_non_suivie_signalee(sleeps, caplog):
+    page = '<div data-total-pages="3"></div><a href="/emplois/1">A</a>'
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(404) if request.url.path == "/robots.txt" else (
+            httpx.Response(200, text=page))
+
+    from job_rec_ai.connectors.jsonld import listed_links
+    with PoliteClient(transport=httpx.MockTransport(handler), sleep=sleeps.append) as client:
+        assert listed_links(client, f"{SITE}/emplois") == [f"{SITE}/emplois/1"]
+    assert "3 pages annoncées, 1 lues" in caplog.text

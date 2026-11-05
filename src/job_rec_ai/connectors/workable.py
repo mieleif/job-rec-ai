@@ -16,10 +16,12 @@ API = "https://apply.workable.com/api/v1/widget/accounts"
 
 
 def _places(job: dict) -> list[str]:
-    """« Lausanne, Vaud, Switzerland » pour chaque lieu de l'offre."""
+    """« Lausanne, Vaud, Switzerland » pour chaque lieu de l'offre. Le canton s'appelle
+    « state » sur l'offre, « region » dans la liste « locations »."""
     places = job.get("locations") or [job]
-    return [", ".join(p for p in (place.get("city"), place.get("state"), place.get("country"))
-                      if p) for place in places if isinstance(place, dict)]
+    return [", ".join(p for p in (place.get("city"), place.get("region") or place.get("state"),
+                                  place.get("country")) if p)
+            for place in places if isinstance(place, dict)]
 
 
 class WorkableConnector:

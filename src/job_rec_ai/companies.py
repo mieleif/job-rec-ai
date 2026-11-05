@@ -4,6 +4,8 @@ Une ligne = une entreprise, son secteur, son canton, et l'adresse de son ATS
 (colonne `board` : URL du site Workday, identifiant SmartRecruiters…). La colonne
 `publisher_type` dit qui publie : « employeur » (par défaut) ou « agence » (une agence de
 placement publie pour des clients souvent anonymes, et parfois la même offre que l'employeur).
+La colonne `blocked` dit pourquoi on ne collecte pas (robots.txt, site qui refuse le robot,
+annonces seulement sur un jobboard) : l'ATS, lui, reste un fait.
 Ce fichier est de la configuration écrite par un humain : le code ne le réécrit jamais.
 Savoir si un board fonctionne est un fait observé, qui vit en base (crawl_runs).
 """
@@ -14,7 +16,8 @@ from pathlib import Path
 from job_rec_ai.text import normalize
 
 DEFAULT_CSV = Path("data/companies.csv")
-FIELDS = ["company", "sector", "canton", "careers_url", "ats", "board", "publisher_type"]
+FIELDS = ["company", "sector", "canton", "careers_url", "ats", "board", "publisher_type",
+          "blocked"]
 EMPLOYER, AGENCY = "employeur", "agence"
 
 

@@ -18,6 +18,15 @@ Tests du projet : 128 réussis.
 
 ## Décisions
 
+- **2026-11-05 · Revue de PR #9 et #10.** L'URL d'une offre est sa clé : le connecteur JSON-LD
+  retire les paramètres de suivi (`jobDbPVId` de softgarden, `utm_*`) ; les 45 URL Vaudoise
+  déjà en base ont été réécrites (pas de faux doublon, `first_seen` gardé). Colonne `blocked`
+  dans `companies.csv` : la raison d'une exclusion (robots.txt, 403, jobboard), l'`ats` reste
+  un fait ; `boards` liste les exclues à part (16). Un board SuccessFactors avec un chemin ne
+  lit que ses annonces du sitemap (`careers.mediclinic.com/Hirslanden` : plus de pages
+  sud-africaines téléchargées pour rien). Workable lit le canton dans `region`. Un code de
+  canton nu (« FR ») est lu entre parenthèses ; « Schweiz », « CHE »… valent la Suisse pour le
+  NPA ; une pagination annoncée mais non suivie est signalée dans le journal.
 - **2026-11-05 · Deux connecteurs de plus, et le JSON-LD élargi.** Workable (API publique du
   widget : Debiopharm, 8 offres) et Cornerstone (le jeton anonyme de la page carrière publique,
   comme le navigateur : MSC 11, Groupe Mutuel 19). Cornerstone : un petit board est lu en
@@ -233,6 +242,8 @@ Tests du projet : 128 réussis.
 
 ## Journal des sessions
 
+- **2026-11-05** (nuit) : revue de PR #9 et #10, 8 corrections ; le travail Romandie (PR #8,
+  fusionnée dans une branche déjà fusionnée) ramené sur `main`.
 - **2026-11-05** (soir) : connecteurs Workable et Cornerstone ; JSON-LD avec chemin
   d'annonces (softgarden, Radancy) ; Debiopharm, MSC, Groupe Mutuel, Vaudoise, Cargill
   collectés. 1 843 offres, 59 sources.

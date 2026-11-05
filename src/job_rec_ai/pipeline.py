@@ -104,6 +104,8 @@ def save_raw(payload: dict, raw_dir: Path) -> Path:
 
 def skip_reason(company: dict) -> str | None:
     """Pourquoi on ne peut pas collecter cette entreprise (None : on peut)."""
+    if company.get("blocked"):
+        return f"exclue : {company['blocked']}"
     if company["ats"] and company["ats"] not in REGISTRY:
         return f"pas de connecteur « {company['ats']} »"
     if not company["ats"] or not company["board"]:

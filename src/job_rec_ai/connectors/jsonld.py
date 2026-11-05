@@ -10,8 +10,9 @@ On archive le JSON-LD lui-même : c'est exactement ce que lit parse().
 """
 
 import html
+import logging
 import re
-from urllib.parse import urljoin, urlsplit
+from urllib.parse import parse_qsl, urlencode, urljoin, urlsplit, urlunsplit
 
 from bs4 import BeautifulSoup
 
@@ -28,6 +29,20 @@ from job_rec_ai.models import Job
 from job_rec_ai.text import clean_html, normalize
 
 MAX_PAGES = 20  # pages de liste suivies via rel="next"
+log = logging.getLogger(__name__)
+# Paramètres de suivi, pas d'identité : l'URL d'une offre est sa clé en base. softgarden ajoute
+# « jobDbPVId » (un identifiant de publication) : s'il change, la même offre aurait une autre URL
+_TRACKING = re.compile(r"^(utm_\w+|jobdbpvid|gclid|fbclid|trk|src)$", re.I)
+# Radancy et d'autres annoncent leur nombre de pages : de quoi voir une pagination non suivie
+_TOTAL_PAGES = re.compile(r'data-total-pages="(\d+)"')
+
+
+def canonical_url(url: str) -> str:
+    """L'URL sans fragment ni paramètres de suivi (les autres, comme la langue, restent)."""
+    parts = urlsplit(url)
+    query = [(k, v) for k, v in parse_qsl(parts.query, keep_blank_values=True)
+             if not _TRACKING.match(k)]
+    return urlunsplit(parts._replace(query=urlencode(query), fragment=""))
 # Champs texte de JobPosting : certains sites y répartissent l'annonce, dans cet ordre de lecture
 _TEXT_FIELDS = ("description", "responsibilities", "qualifications", "experienceRequirements",
                 "educationRequirements", "skills", "jobBenefits")
@@ -50,7 +65,7 @@ def job_links(html: str, page_url: str, board: str) -> tuple[list[str], str | No
     site = urljoin(list_url, "/")
     links = []
     for a in soup.find_all("a", href=True):
-        url = urljoin(page_url, a["href"]).split("#")[0]
+        url = canonical_url(urljoin(page_url, a["href"]))
         if jobs_path:
             ok = url.startswith(site) and urlsplit(url).path.startswith(jobs_path)
         else:
@@ -65,12 +80,18 @@ def job_links(html: str, page_url: str, board: str) -> tuple[list[str], str | No
 def listed_links(client: PoliteClient, board: str) -> list[str]:
     """Toutes les annonces listées sous le board, en suivant les pages rel="next"."""
     links, page_url = [], split_board(board)[0]
+    announced = visited = 0
     for _ in range(MAX_PAGES):
-        found, following = job_links(client.get_html(page_url), page_url, board)
+        html = client.get_html(page_url)
+        visited += 1
+        announced = max([announced, *map(int, _TOTAL_PAGES.findall(html))])
+        found, following = job_links(html, page_url, board)
         links += [url for url in found if url not in links]
         if not following or following == page_url:
             break
         page_url = following
+    if announced > visited:  # pagination en JavaScript : des annonces ne sont pas vues
+        log.warning("%s : %d pages annoncées, %d lues", board, announced, visited)
     return links
 
 
@@ -123,6 +144,8 @@ def named_localities(job: dict) -> list[str]:
             for field in ("addressLocality", "addressRegion"):
                 value = address.get(field)
                 value = _clean(value.get("name", "") if isinstance(value, dict) else value or "")
+                if re.fullmatch(r"[A-Z]{2}", value):  # code de canton nu : geo le veut entre ()
+                    value = f"({value})"
                 if _is_place_name(value):
                     found.append(value)
                     break

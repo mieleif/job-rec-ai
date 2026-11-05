@@ -130,3 +130,12 @@ def test_seniorite_par_le_niveau_de_l_ats():
 ])
 def test_taux_activite(title, expected):
     assert workload(title) == expected
+
+
+@pytest.mark.parametrize("country, expected", [
+    ("CH", True), ("CHE", True), ("Switzerland", True), ("Schweiz", True), ("Suisse", True),
+    ("ZA", False), ("Deutschland", False), (None, False),
+])
+def test_is_switzerland(country, expected):
+    from job_rec_ai.geo import is_switzerland
+    assert is_switzerland(country) == expected

@@ -35,6 +35,11 @@ def _handler(request: httpx.Request) -> httpx.Response:
         _job("C3", "Auditeur·rice", "Basel", locations=[
             {"city": "Basel", "country": "Switzerland"},
             {"city": "Lausanne", "country": "Switzerland"}]),
+        # forme réelle de « locations » : le canton est dans « region » ; la commune est
+        # inconnue de geo, le canton la situe
+        _job("D4", "Chimiste", "Eclagnens", locations=[
+            {"city": "Eclagnens", "region": "Vaud", "country": "Switzerland",
+             "countryCode": "CH", "hidden": False}]),
     ]})
 
 
@@ -42,8 +47,9 @@ def test_workable_fetch_filtre_et_parse(sleeps):
     connector = REGISTRY["workable"]
     with PoliteClient(transport=httpx.MockTransport(_handler), sleep=sleeps.append) as client:
         payload = connector.fetch("acme", "Acme", client, keep=is_target)
-    first, second = connector.parse(payload)
+    first, second, third = connector.parse(payload)
     assert (first.title, second.title) == ("Laborantin·e", "Auditeur·rice")  # Zürich écarté
+    assert third.location == "Eclagnens, Vaud, Switzerland"
     assert first.location == "Martigny, Switzerland"
     assert second.location == "Basel, Switzerland / Lausanne, Switzerland"
     assert first.description == "Chimie & biologie" and first.posted_at == date(2026, 10, 2)
