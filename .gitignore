@@ -22,3 +22,6 @@ data/private/
 # Notes personnelles (privées) : seul le modèle est versionné
 docs/learnings/*
 !docs/learnings/_template.md
+
+# Explorateur d'offres (régénéré après chaque collecte)
+data/offres.html

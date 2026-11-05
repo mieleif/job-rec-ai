@@ -11,7 +11,7 @@ import sys
 from datetime import date
 from pathlib import Path
 
-from job_rec_ai import benchmark, pipeline, storage
+from job_rec_ai import benchmark, explorer, pipeline, storage
 from job_rec_ai.companies import DEFAULT_CSV, find, load_companies
 from job_rec_ai.connectors import REGISTRY
 from job_rec_ai.http import PoliteClient
@@ -138,6 +138,14 @@ def _cmd_replay(args, con):
     print(f"{pipeline.replay(con)} offres rechargées depuis data/raw/")
 
 
+def _cmd_explore(args, con):
+    """Une page HTML autonome pour parcourir les offres actives (filtres, regroupements)."""
+    out = Path(args.out)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(explorer.render(storage.active_jobs(con)), encoding="utf-8")
+    print(f"{out} ({out.stat().st_size / 1e6:.1f} Mo) : à ouvrir dans un navigateur")
+
+
 def _cmd_rederive(args, con):
     result = pipeline.rederive(con)
     print(f"{result.recalculated} offres recalculées, "
@@ -193,6 +201,10 @@ def build_parser() -> argparse.ArgumentParser:
         func=_cmd_replay)
     sub.add_parser("rederive", help="recalculer langue, canton et classement").set_defaults(
         func=_cmd_rederive)
+
+    p = sub.add_parser("explore", help="générer la page HTML qui regroupe les offres")
+    p.add_argument("--out", default="data/offres.html", help="fichier produit")
+    p.set_defaults(func=_cmd_explore)
     return parser
 
 

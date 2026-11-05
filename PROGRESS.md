@@ -27,6 +27,13 @@ Tests du projet : 128 réussis.
   État de Fribourg 5, Groupe E 5, HFR 4, Mobilière 1, Vaudoise 1). Lonza, sans site romand,
   est exclue de la collecte (`blocked`). Limite connue : un même segment de lieu qui cite
   une commune romande et une germanophone (« Sion, Visp ») est écarté.
+- **2026-11-05 · Un explorateur d'offres en page statique.** `job-rec-ai explore` écrit
+  `data/offres.html` (non versionné, régénéré après une collecte) : les offres actives en JSON
+  dans la page, filtres (texte, canton, famille, séniorité, langue, employeur/agence, moins de
+  7 jours), regroupement (famille, employeur, canton), tri. Pourquoi pas Streamlit tout de
+  suite : aucun serveur, ouverture instantanée, ~2 000 offres se filtrent sans peine dans le
+  navigateur ; l'app interactive avec le modèle reste pour M7 (swipes). Testée sur ordinateur
+  et téléphone, en thème clair et sombre.
 - **2026-11-05 · Connecteur Prospective (Helvetia Baloise).** Le site carrière est une
   application JavaScript ; son code donne l'API publique
   (`ohws.prospective.ch/public/v1/medium/<canal>/jobs`, permise par robots.txt). Champs
@@ -243,7 +250,7 @@ Tests du projet : 128 réussis.
 
 ## Prochaines étapes
 
-1. Familles de métiers : 603 offres sur 1 741 dans « Autre » (Coop, Lonza, État de
+1. Familles de métiers : 667 offres sur 1 884 dans « Autre » (Coop, Lonza, État de
    Fribourg) : enrichir `families.py` (allemand surtout) ou attendre l'extraction par LLM (M5).
 2. Romandie : identifier l'ATS des États de Neuchâtel, du Valais et du Jura et de l'Hôpital
    du Valais (gros employeurs locaux, pas encore couverts).
@@ -261,6 +268,7 @@ Tests du projet : 128 réussis.
 
 - **2026-11-05** (matin) : périmètre linguistique (Zermatt repéré par Leif) ; Haut-Valais,
   Singine, Morat et Seeland écartés ; 1 884 → 1 692 offres, Lonza exclue.
+- **2026-11-05** (fin) : explorateur d'offres (`explore`, `data/offres.html`).
 - **2026-11-05** (nuit, suite) : connecteur Prospective, Helvetia Baloise collectée (41).
   1 884 offres, 60 sources.
 - **2026-11-05** (nuit) : revue de PR #9 et #10, 8 corrections ; le travail Romandie (PR #8,
