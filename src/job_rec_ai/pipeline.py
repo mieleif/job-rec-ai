@@ -112,7 +112,7 @@ def skip_reason(company: dict) -> str | None:
 
 
 def fetch_company(company: dict, client: PoliteClient) -> dict:
-    """Rapporte le payload brut d'une entreprise, limité à l'arc lémanique."""
+    """Rapporte le payload brut d'une entreprise, limité à la Suisse romande."""
     return REGISTRY[company["ats"]].fetch(company["board"], company["company"], client,
                                           keep=is_target)
 

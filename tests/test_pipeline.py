@@ -232,3 +232,19 @@ def test_collecte_partielle_only(con, client, tmp_path):
     (planned,) = con.execute("SELECT planned FROM crawls").fetchone()
     assert planned == ["Acme"]  # le plan ne contient que les entreprises demandées
     assert storage.interrupted_crawl(con) is None
+
+
+def test_offres_d_agence_marquees(con, tmp_path):
+    from job_rec_ai.companies import load_companies
+    csv = tmp_path / "companies.csv"
+    csv.write_text("company,sector,canton,careers_url,ats,board,publisher_type\n"
+                   "Acme,Industrie,GE,,workday,,\n"
+                   "Placement SA,Recrutement & intérim,GE,,jsonld,,agence\n", encoding="utf-8")
+    companies = load_companies(csv)
+    assert [c["publisher_type"] for c in companies] == ["employeur", "agence"]  # défaut
+    storage.upsert_companies(con, companies)
+    agency_job = _job(2).model_copy(update={"company": "Placement SA"})
+    storage.upsert_jobs(con, [pipeline.enrich(_job(1)), pipeline.enrich(agency_job)],
+                        datetime(2026, 10, 1))
+    assert [r["company"] for r in storage.search(con, publisher_type="agence")] == ["Placement SA"]
+    assert dict(storage.counts(con, "publisher_type")) == {"employeur": 1, "agence": 1}

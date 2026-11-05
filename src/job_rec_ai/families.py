@@ -76,7 +76,8 @@ FAMILY_RULES: list[tuple[str, list[str]]] = [
         "customer service", "service client", "customer success", "client advisor",
         "conseiller de vente", "conseillere de vente", "boutique", "store manager",
         "retail", "call center", "telesales", "commerce de detail", "detailhandel",
-        "verkauf", "verkaufsberater",
+        "verkauf", "verkaufsberater", "detailhandelsassistent", "detailhandelsfachfrau",
+        "detailhandelsfachmann",
     ]),
     ("Supply chain & Achats", [
         "supply chain", "logistics", "logistique", "logisticien", "logisticienne",
@@ -119,7 +120,8 @@ SENIORITY_RULES: list[tuple[str, list[str]]] = [
     ("Stage / Apprentissage", [
         "intern", "internship", "stage", "stagiaire", "apprenti", "apprentie",
         "apprentissage", "apprentice", "trainee", "werkstudent", "graduate program",
-        "summer analyst",
+        "summer analyst", "lehrstelle", "lernende", "lernender", "praktikum", "praktikant",
+        "praktikantin",
     ]),
     ("Direction", [
         "director", "directeur", "directrice", "head of", "chief", "vice president", "vp",

@@ -19,13 +19,15 @@ DEFAULT_DB = Path("data/jobs.duckdb")
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS companies (
-    company     VARCHAR PRIMARY KEY,
-    sector      VARCHAR,
-    canton      VARCHAR,
-    careers_url VARCHAR,
-    ats         VARCHAR,
-    board       VARCHAR
+    company        VARCHAR PRIMARY KEY,
+    sector         VARCHAR,
+    canton         VARCHAR,
+    careers_url    VARCHAR,
+    ats            VARCHAR,
+    board          VARCHAR,
+    publisher_type VARCHAR       -- employeur | agence
 );
+ALTER TABLE companies ADD COLUMN IF NOT EXISTS publisher_type VARCHAR;
 
 CREATE TABLE IF NOT EXISTS jobs (
     url             VARCHAR PRIMARY KEY,   -- clé naturelle : une offre = une URL
@@ -78,7 +80,8 @@ CREATE TABLE IF NOT EXISTS crawls (
 -- La table jobs garde le canton déduit du lieu seul.
 CREATE OR REPLACE VIEW jobs_view AS
 SELECT j.* REPLACE (CASE WHEN j.source = 'jsonld' THEN coalesce(j.canton, c.canton)
-                         ELSE j.canton END AS canton), c.sector
+                         ELSE j.canton END AS canton), c.sector,
+       coalesce(c.publisher_type, 'employeur') AS publisher_type
 FROM jobs j LEFT JOIN companies c USING (company);
 """
 
@@ -223,7 +226,8 @@ SORTS = {
     "company": "company, title",
     "title": "title",
 }
-FACETS = ("company", "sector", "canton", "family", "seniority", "language", "source")
+FACETS = ("company", "sector", "canton", "family", "seniority", "language", "source",
+          "publisher_type")
 
 
 def search(con, *, text: str | None = None, since: date | None = None,
@@ -254,8 +258,8 @@ def search(con, *, text: str | None = None, since: date | None = None,
         params.append(min_workload)
     if sort not in SORTS:
         raise ValueError(f"tri inconnu : {sort} (possibles : {', '.join(SORTS)})")
-    sql = f"""SELECT title, company, sector, location, canton, family, seniority, language,
-                     posted_at, workload_min, workload_max, url
+    sql = f"""SELECT title, company, sector, publisher_type, location, canton, family,
+                     seniority, language, posted_at, workload_min, workload_max, url
               FROM jobs_view {"WHERE " + " AND ".join(where) if where else ""}
               ORDER BY {SORTS[sort]} LIMIT ?"""
     cursor = con.execute(sql, [*params, limit])
