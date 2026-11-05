@@ -18,6 +18,15 @@ Tests du projet : 128 réussis.
 
 ## Décisions
 
+- **2026-11-05 · M3 : texte du CV et premier cosinus.** CV dans `data/private/cv.pdf`
+  (non versionné), lu par `cv.read_cv` avec pypdf (pur Python ; une colonne suffit),
+  césures recollées, icônes et puces retirées. Expérience : cosinus sur des comptes de
+  mots bruts → 96 % du produit scalaire du top 50 vient de mots-outils (« et », « de »,
+  « des ») ; le top 10 est fait d'annonces longues en français (Responsable de formation,
+  Technicien sanitaire…) ; l'offre Specitec pour laquelle le CV a été écrit arrive 75ᵉ.
+  Motive TF-IDF. Le périmètre reste un filtre de collecte (décision de Leif : le premier
+  modèle est trop simple pour pénaliser Viège lui-même) ; un filtre dur à la requête
+  serait l'alternative sans perte de données.
 - **2026-11-05 · Périmètre linguistique, pas cantonal.** Leif a repéré Zermatt parmi les
   offres Helvetia : le Haut-Valais, la Singine (Guin, Tavel), Morat et le Seeland ne sont pas
   la Suisse romande. Révise la décision du 04.11 (« le canton est l'unité »). `geo` les
@@ -266,6 +275,8 @@ Tests du projet : 128 réussis.
 
 ## Journal des sessions
 
+- **2026-11-05** (après-midi) : PR #12 et #13 fusionnées ; M3 commencé (cosinus, texte du
+  CV, expérience du cosinus brut : l'offre visée 75ᵉ).
 - **2026-11-05** (matin) : périmètre linguistique (Zermatt repéré par Leif) ; Haut-Valais,
   Singine, Morat et Seeland écartés ; 1 884 → 1 692 offres, Lonza exclue.
 - **2026-11-05** (fin) : explorateur d'offres (`explore`, `data/offres.html`).
