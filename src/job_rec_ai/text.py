@@ -102,6 +102,8 @@ _STOPWORDS = {
            "ist", "von", "zu", "auf", "eine", "ein", "im", "den", "bei"},
 }
 
+# Toutes langues confondues : à retirer d'une requête (un CV) avant de chercher
+STOPWORDS = frozenset().union(*_STOPWORDS.values())
 
 def detect_language(text: str) -> str:
     """Renvoie « fr », « en » ou « other » (allemand, italien, texte vide ou trop court)."""

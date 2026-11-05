@@ -310,6 +310,16 @@ def active_jobs(con) -> list[dict]:
     return [dict(zip(names, row)) for row in cursor.fetchall()]
 
 
+def jobs_for_ranking(con) -> list[dict]:
+    """Les offres actives avec leur texte complet : le corpus du moteur de recommandation."""
+    cursor = con.execute(
+        """SELECT url, title, company, canton, family, seniority, language,
+                  coalesce(description, '') AS description
+           FROM jobs_view WHERE active ORDER BY url""")
+    names = [d[0] for d in cursor.description]
+    return [dict(zip(names, row)) for row in cursor.fetchall()]
+
+
 def jobs_for_derivation(con) -> list[dict]:
     """Les champs dont dépendent les colonnes dérivées, nommés (pas de couplage à l'ordre)."""
     cursor = con.execute(

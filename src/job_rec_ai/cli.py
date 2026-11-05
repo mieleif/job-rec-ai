@@ -11,9 +11,10 @@ import sys
 from datetime import date
 from pathlib import Path
 
-from job_rec_ai import benchmark, explorer, pipeline, storage
+from job_rec_ai import benchmark, explorer, pipeline, recommend, storage
 from job_rec_ai.companies import DEFAULT_CSV, find, load_companies
 from job_rec_ai.connectors import REGISTRY
+from job_rec_ai.cv import DEFAULT_CV, read_cv
 from job_rec_ai.http import PoliteClient
 
 FIXTURES = Path("tests/fixtures")
@@ -146,6 +147,16 @@ def _cmd_explore(args, con):
     print(f"{out} ({out.stat().st_size / 1e6:.1f} Mo) : à ouvrir dans un navigateur")
 
 
+def _cmd_recommend(args, con):
+    """Les offres les plus proches du CV (BM25), avec leur score."""
+    ranked = recommend.rank(storage.jobs_for_ranking(con), read_cv(args.cv))
+    for i, job in enumerate(ranked[:args.limit], 1):
+        print(f"{i:>3}. {job['score']:6.1f}  {job['company']:<22.22} {job['title'][:58]:<58}"
+              f"  [{job['family']} · {job['canton']}]")
+        if args.urls:
+            print(f"            {job['url']}")
+
+
 def _cmd_rederive(args, con):
     result = pipeline.rederive(con)
     print(f"{result.recalculated} offres recalculées, "
@@ -199,6 +210,11 @@ def build_parser() -> argparse.ArgumentParser:
 
     sub.add_parser("replay", help="reconstruire la base depuis data/raw").set_defaults(
         func=_cmd_replay)
+    p = sub.add_parser("recommend", help="les offres les plus proches d'un CV (BM25)")
+    p.add_argument("--cv", default=DEFAULT_CV, type=Path, help="PDF, .txt ou .md")
+    p.add_argument("--limit", type=int, default=20)
+    p.add_argument("--urls", action="store_true", help="afficher le lien de chaque offre")
+    p.set_defaults(func=_cmd_recommend)
     sub.add_parser("rederive", help="recalculer langue, canton et classement").set_defaults(
         func=_cmd_rederive)
 

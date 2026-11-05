@@ -18,6 +18,14 @@ Tests du projet : 128 réussis.
 
 ## Décisions
 
+- **2026-11-05 · M3 : BM25.** `bm25.BM25` écrit à la main (index inversé, idf de Lucene
+  toujours positif, k1 = 1,2, b = 0,75) ; `recommend.rank` prend le CV comme requête, sans
+  mots-outils et dédoublonné (BM25 ne sature rien côté requête : « ia » ×9 compterait 9
+  fois) ; commande `job-rec-ai recommend`. L'offre Specitec visée est **1ʳᵉ**, avec un
+  score réparti sur 34 mots (le plus gros : 8 %), contre 62 % pour « ia » seul en TF-IDF.
+  Le dédoublonnage fait passer « Business Analyst IA » (Specitec) de 3ᵉ à 22ᵉ, et la grille
+  k1 × b la déplace de 6ᵉ à 69ᵉ : impossible de dire quel réglage est meilleur avec une
+  seule offre jugée pertinente → le jeu d'évaluation d'abord, le réglage ensuite.
 - **2026-11-05 · M3 : TF-IDF.** `koans.tfidf` (tf = n/longueur, idf = ln(N/df)) et
   `text.tokenize`. Cosinus TF-IDF : l'offre Specitec visée passe de 75ᵉ à **2ᵉ** (1ʳᵉ :
   Business Analyst IA chez Specitec) ; score médian 0,016 contre 0,27 en tête (le brut
@@ -285,7 +293,7 @@ Tests du projet : 128 réussis.
 ## Journal des sessions
 
 - **2026-11-05** (après-midi) : PR #12 et #13 fusionnées ; M3 commencé (cosinus, texte du
-  CV, expérience du cosinus brut : l'offre visée 75ᵉ ; TF-IDF : 2ᵉ).
+  CV, expérience du cosinus brut : l'offre visée 75ᵉ ; TF-IDF : 2ᵉ ; BM25 : 1ʳᵉ).
 - **2026-11-05** (matin) : périmètre linguistique (Zermatt repéré par Leif) ; Haut-Valais,
   Singine, Morat et Seeland écartés ; 1 884 → 1 692 offres, Lonza exclue.
 - **2026-11-05** (fin) : explorateur d'offres (`explore`, `data/offres.html`).
