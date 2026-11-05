@@ -30,7 +30,7 @@ from job_rec_ai.models import Job
 from job_rec_ai.text import clean_html, normalize
 
 # Au-delà, on filtre sur le lieu écrit dans l'URL avant de télécharger les annonces
-# (Nestlé : 2 000 annonces dans le monde pour une cinquantaine dans l'arc lémanique). En deçà,
+# (Nestlé : 2 000 annonces dans le monde pour une centaine en Suisse romande). En deçà,
 # on télécharge tout : certaines URL ne contiennent pas le lieu (SIG).
 FULL_SCAN_MAX = 300
 _ENTRY = re.compile(r"<url>\s*<loc>([^<]+/job/[^<]+)</loc>(?:\s*<lastmod>([^<]+)</lastmod>)?")

@@ -90,7 +90,7 @@ class JsonLdConnector:
     def fetch(self, board: str, company: str, client: PoliteClient,
               keep: LocationFilter) -> dict:
         # Pas de filtre de lieu (keep) : un site maison ne publie que les postes de son
-        # employeur, choisi parce qu'il est dans l'arc lémanique. Ses lieux sont d'ailleurs
+        # employeur, choisi parce qu'il est en Suisse romande. Ses lieux sont d'ailleurs
         # souvent des adresses sans ville (« Place du Bourg-de-Four 1 ») : le canton viendra
         # de l'employeur (vue jobs_view).
         postings = []

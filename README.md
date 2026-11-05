@@ -15,7 +15,7 @@ Où on en est, et les décisions prises : **[PROGRESS.md](PROGRESS.md)**.
 | Étape | Statut |
 |---|---|
 | M0 · Setup | 🚧 en cours |
-| M1 · Collecte | 🚧 1 001 offres réelles ; notes et questions de contrôle restantes |
+| M1 · Collecte | 🚧 1 650 offres réelles en Suisse romande ; notes et questions de contrôle restantes |
 | M2 · Pipeline | 🚧 collecte nocturne sur le VPS à installer |
 | M3 · Baseline et évaluation | ⏳ |
 | M4 · Embeddings et recherche sémantique | ⏳ |
@@ -24,10 +24,10 @@ Où on en est, et les décisions prises : **[PROGRESS.md](PROGRESS.md)**.
 | M7 · Feedback et swipe | ⏳ |
 | M8 · Production | ⏳ |
 
-## Le marché genevois en images
+## Le marché romand en images
 
-1 001 offres actives collectées directement chez 42 employeurs de Genève et Vaud
-(4 novembre 2026). Les cinq graphiques et leur lecture :
+1 650 offres actives collectées directement chez 49 employeurs de Suisse romande
+(4 novembre 2026 ; Genève et Vaud seulement jusque-là). Les graphiques et leur lecture :
 [`notebooks/marche-emploi.ipynb`](notebooks/marche-emploi.ipynb).
 
 ![Top 20 des employeurs](docs/img/top-employeurs.png)
@@ -38,7 +38,7 @@ Où on en est, et les décisions prises : **[PROGRESS.md](PROGRESS.md)**.
 
 ```bash
 uv run job-rec-ai boards                       # quels ATS couvrent quelles entreprises
-uv run job-rec-ai crawl                        # collecte GE + VD → data/jobs.duckdb
+uv run job-rec-ai crawl                        # collecte en Suisse romande → data/jobs.duckdb
 uv run job-rec-ai stats company family         # répartition des offres actives
 uv run job-rec-ai quality                      # champs vides, collectes en échec
 uv run job-rec-ai search --canton GE --family "Data & IA" --sort recent --urls
