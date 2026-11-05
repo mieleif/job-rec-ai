@@ -25,7 +25,7 @@ from job_rec_ai.connectors.base import (
 from job_rec_ai.connectors.schema_org import json_ld_job_posting
 from job_rec_ai.http import PoliteClient
 from job_rec_ai.models import Job
-from job_rec_ai.text import clean_html
+from job_rec_ai.text import clean_html, normalize
 
 MAX_PAGES = 20  # pages de liste suivies via rel="next"
 # Champs texte de JobPosting : certains sites y répartissent l'annonce, dans cet ordre de lecture
@@ -84,20 +84,44 @@ def location_text(job: dict) -> str:
     return " / ".join(t for t in texts if t)
 
 
+# Une « ville » qui n'est qu'un pays ne situe rien (CSEM : addressLocality « Switzerland »)
+_COUNTRY_ONLY = {"switzerland", "suisse", "schweiz", "svizzera", "ch"}
+
+
+def named_localities(job: dict) -> list[str]:
+    """Les villes données en champ structuré (addressLocality), hors simple nom de pays.
+    Vide pour une adresse texte (« Place du Bourg-de-Four 1 ») : le lieu n'y est pas nommé."""
+    places = job.get("jobLocation") or []
+    found = []
+    for place in places if isinstance(places, list) else [places]:
+        addresses = place.get("address", {}) if isinstance(place, dict) else {}
+        for address in addresses if isinstance(addresses, list) else [addresses]:
+            if isinstance(address, dict) and isinstance(address.get("addressLocality"), str):
+                locality = _clean(address["addressLocality"])
+                # un numéro = une rue mise dans le champ ville (« Place du Bourg-de-Four 1 »)
+                if (locality and normalize(locality) not in _COUNTRY_ONLY
+                        and not any(c.isdigit() for c in locality)):
+                    found.append(locality)
+    return found
+
+
 class JsonLdConnector:
     name = "jsonld"
 
     def fetch(self, board: str, company: str, client: PoliteClient,
               keep: LocationFilter) -> dict:
-        # Pas de filtre de lieu (keep) : un site maison ne publie que les postes de son
-        # employeur, choisi parce qu'il est en Suisse romande. Ses lieux sont d'ailleurs
-        # souvent des adresses sans ville (« Place du Bourg-de-Four 1 ») : le canton viendra
-        # de l'employeur (vue jobs_view).
+        # Filtre de lieu (keep) seulement quand l'annonce NOMME sa ville (addressLocality) :
+        # un employeur multi-sites (CSEM : Neuchâtel, Alpnach, Allschwil) publie aussi hors de
+        # Suisse romande. Une adresse texte sans ville (État de Genève : « Place du
+        # Bourg-de-Four 1 ») est gardée : le canton viendra de l'employeur (vue jobs_view).
         postings = []
         for url in listed_links(client, board):
             page = get_html_or_skip(client, url)  # retirée entre la liste et l'annonce : None
             job = json_ld_job_posting(page) if page else None
-            if job is not None:  # sinon : page liée mais qui n'est pas une annonce
+            if job is None:  # page liée mais qui n'est pas une annonce
+                continue
+            places = named_localities(job)
+            if not places or any(keep(place) for place in places):
                 postings.append({"url": url, "ld": job})
         return envelope(self.name, company, board, postings)
 

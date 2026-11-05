@@ -10,7 +10,7 @@ _Dernière mise à jour : 2026-11-04_
 | Étape | Checkpoint | Ce qui reste |
 |---|---|---|
 | M0 · Setup | 9/9 (avec une note locale, voir « Contraintes ») | règles perso dans `CLAUDE.md`, Milestones GitHub, questions de contrôle |
-| M1 · Collecte | **8/8** (fixtures réelles pour les 10 connecteurs) | **1 650 offres réelles** en Suisse romande (GE 633, VD 406, FR 228, VS 206, NE 105, BE 51, JU 21 ; 49 employeurs). Restent : note HTTP, questions de contrôle |
+| M1 · Collecte | **8/8** (fixtures réelles pour les 10 connecteurs) | **1 657 offres réelles** en Suisse romande (GE 637, VD 405, FR 232, VS 210, NE 101, BE 51, JU 21 ; 49 employeurs). Restent : note HTTP, questions de contrôle |
 | M2 · Pipeline | 7/7 (livrable : [notebook « 5 graphiques »](notebooks/marche-emploi.ipynb)) | installer le timer sur le VPS, note ETL/ELT, questions de contrôle |
 | M3 → M8 | pas commencé | |
 
@@ -27,6 +27,11 @@ Tests du projet : 128 réussis.
   (Viège, Brigue) est inclus : le canton est l'unité, la langue reste un filtre. Abréviations
   des nouveaux cantons seulement entre parenthèses (« Bulle (FR) ») : « FR », « BE », « NE »
   nus sont aussi des codes de pays ; veto ajouté pour l'Allemagne (Freiburg im Breisgau).
+  Revue de PR #8 (05.11) : le connecteur JSON-LD filtre aussi le lieu quand l'annonce nomme
+  sa ville (CSEM publiait Alpnach, Allschwil : 6 offres hors périmètre, étiquetées NE) ;
+  veto « breisgau », « am Rhein », « , DE » ; homonymes VD/NE (Colombier, Corcelles,
+  Fontaines) et « Fully » retirés des listes ; le canton tronqué de Coop (« Neuc », « Vala »)
+  est complété, dans le lieu comme dans le pré-filtre d'URL (+18 offres Coop). 1 657 offres.
 - **2026-11-04 · Le classement déclaré par l'ATS, quand il existe, complète le titre.**
   Colonnes `category` et `level` (texte brut de l'ATS, aujourd'hui SuccessFactors seulement ;
   SmartRecruiters publie aussi `function` et `experienceLevel` : à brancher). La famille vient
@@ -174,7 +179,7 @@ Tests du projet : 128 réussis.
 
 ## Prochaines étapes
 
-1. Familles de métiers : 556 offres sur 1 650 dans « Autre » (Coop, Lonza, État de
+1. Familles de métiers : 558 offres sur 1 657 dans « Autre » (Coop, Lonza, État de
    Fribourg) : enrichir `families.py` (allemand surtout) ou attendre l'extraction par LLM (M5).
 2. Romandie : identifier l'ATS des États de Neuchâtel, du Valais et du Jura et de l'Hôpital
    du Valais (gros employeurs locaux, pas encore couverts).
@@ -191,7 +196,8 @@ Tests du projet : 128 réussis.
 
 - **2026-11-05** : revue de PR #7 et #8, corrections : séniorité (cadre, histoire de la maison,
   singulier), l'alerte « collecte interrompue » survit à une collecte partielle, `rederive` par
-  noms de colonnes, case « Identifier l'ATS » décochée (24 employeurs sans ATS identifié).
+  noms de colonnes, case « Identifier l'ATS » décochée (24 employeurs sans ATS identifié) ;
+  CSEM hors périmètre écarté, homonymes allemands et vaudois, canton tronqué de Coop.
 - **2026-11-04** (nuit) : périmètre élargi à la Suisse romande ; 6 employeurs locaux ajoutés
   (État de Fribourg, Groupe E, HFR, UCB, Lonza, CSEM) ; 1 650 offres, 0 erreur ; graphique
   par canton dans le notebook.

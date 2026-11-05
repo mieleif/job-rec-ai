@@ -35,11 +35,17 @@ PAGES = {
                        '<a rel="next" href="/emplois/offres?page=2">Suivant</a>',
     "/emplois/offres?page=2": '<a href="/emplois/offres/3">Zurich</a>'
                               '<a href="/emplois/offres/4">Pas une annonce</a>'
-                              '<a href="/emplois/offres/5">Retirée</a>',  # 404 : ignorée
+                              '<a href="/emplois/offres/5">Retirée</a>'  # 404 : ignorée
+                              '<a href="/emplois/offres/6">Alpnach</a>'
+                              '<a href="/emplois/offres/7">Suisse</a>',
     "/emplois/offres/1": ad("Analyste de données", "Genève"),
     "/emplois/offres/2": ad("Juriste"),  # sans lieu : gardée
     "/emplois/offres/3": ad("Huissier", "Place du  Bourg-de-Four 1​&amp;#160;"),
     "/emplois/offres/4": "<html><body>Page d'information</body></html>",
+    # employeur multi-sites (CSEM) : une ville nommée hors Suisse romande est écartée,
+    # un simple nom de pays ne situe rien et reste
+    "/emplois/offres/6": ad("Ingénieur·e", "Alpnach"),
+    "/emplois/offres/7": ad("Chercheur·se", "Switzerland"),
 }
 
 
@@ -58,9 +64,10 @@ def site_client(sleeps):
 def test_jsonld_fetch_et_parse(site_client):
     connector = REGISTRY["jsonld"]
     payload = connector.fetch(BOARD, "État", site_client, keep=is_target)
-    # page 2 suivie via rel="next" ; la page sans JSON-LD ignorée ; pas de filtre de lieu
-    assert [p["url"].rsplit("/", 1)[1] for p in payload["postings"]] == ["1", "2", "3"]
-    first, second, third = connector.parse(payload)
+    # page 2 suivie via rel="next" ; la page sans JSON-LD ignorée ; filtre de lieu seulement
+    # sur une ville nommée (Alpnach écartée ; sans lieu, rue ou pays seul : gardées)
+    assert [p["url"].rsplit("/", 1)[1] for p in payload["postings"]] == ["1", "2", "3", "7"]
+    first, second, third, _ = connector.parse(payload)
     assert (first.title, first.location, first.posted_at) == (
         "Analyste de données", "Genève, CH", date(2026, 10, 20))
     assert first.description == "Vous l'aimerez : Python."  # entités et balises nettoyées

@@ -37,6 +37,9 @@ def test_detect_language_allemand_est_other():
     ("Bern", None),  # BE = le Jura bernois et Bienne seulement
     # codes de pays et homonymes : « FR » et « BE » nus ne sont pas des cantons
     ("Paris, FR", None), ("Bruxelles, BE", None), ("Freiburg, Germany", None),
+    ("Freiburg im Breisgau", None), ("Freiburg, DE", None), ("Neuenburg am Rhein", None),
+    # homonymes VD / NE non listés : le nom seul ne permet pas de trancher
+    ("Colombier", None), ("Corcelles-Cormondrèche", "NE"),
 ])
 def test_canton_of(location, canton):
     assert canton_of(location) == canton

@@ -50,15 +50,15 @@ _PLACES = {
     ],
     "NE": [
         "neuchatel", "neuenburg", "la chaux-de-fonds", "le locle", "marin-epagnier",
-        "saint-blaise", "peseux", "boudry", "cortaillod", "colombier", "fontainemelon",
+        "saint-blaise", "peseux", "boudry", "cortaillod",
         "couvet", "val-de-travers", "cressier", "hauterive", "serrieres", "val-de-ruz",
-        "cernier", "fleurier", "les brenets", "bevaix", "auvernier", "corcelles",
-        "la tene", "milvignes", "fontaines",
+        "cernier", "fleurier", "les brenets", "bevaix", "auvernier", "la tene", "milvignes",
+        "corcelles-cormondreche", "fontainemelon",
     ],
     "VS": [
         "valais", "wallis", "sion", "sitten", "sierre", "siders", "martigny", "monthey",
         "conthey", "collombey", "collombey-muraz", "saint-maurice", "verbier",
-        "crans-montana", "visp", "viege", "brig", "naters", "zermatt", "fully", "saxon",
+        "crans-montana", "visp", "viege", "brig", "naters", "zermatt", "saxon",
         "vetroz", "ardon", "chippis", "steg", "gampel", "leuk", "susten", "vouvry",
         "port-valais", "bagnes", "le chable", "riddes", "chamoson", "saviese",
         "uvrier", "bramois", "evolene", "nendaz", "saas-fee",
@@ -84,11 +84,14 @@ _PATTERNS = compile_keywords(
 # sont aussi des codes de pays (« Paris, FR », « Bruxelles, BE ») ou des États américains.
 _ABBREV = re.compile(r"\b(GE|VD)\b|\((FR|NE|VS|JU)\)")
 # Homonymes à l'étranger : Geneva (Illinois, New York), Bellevue (Washington), Freiburg
-# im Breisgau…
+# im Breisgau, Neuenburg am Rhein… « , DE » en fin de lieu : le code pays de l'Allemagne.
+# Communes homonymes en Suisse romande même (Colombier, Corcelles et Fontaines existent dans
+# VD et NE ; « Fully » est aussi un mot anglais des URL) : non listées, faute de pouvoir
+# trancher sur le nom seul.
 _FOREIGN = re.compile(
     r"united states|\busa\b|illinois|new york|\b(il|ny|oh|al|wa)\b|ohio|alabama|"
     r"florida|france|italy|italia|united kingdom|germany|deutschland|allemagne|belgium|"
-    r"belgique"
+    r"belgique|breisgau|am rhein|baden wurttemberg|,\s*de\s*$"
 )
 # Une offre multi-sites (« Geneva, Switzerland, Paris, France ») cite un pays étranger sans
 # être à l'étranger : la Suisse nommée explicitement lève le veto des homonymes.

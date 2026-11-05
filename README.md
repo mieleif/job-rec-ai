@@ -15,7 +15,7 @@ Où on en est, et les décisions prises : **[PROGRESS.md](PROGRESS.md)**.
 | Étape | Statut |
 |---|---|
 | M0 · Setup | 🚧 en cours |
-| M1 · Collecte | 🚧 1 650 offres réelles en Suisse romande ; notes et questions de contrôle restantes |
+| M1 · Collecte | 🚧 1 657 offres réelles en Suisse romande ; notes et questions de contrôle restantes |
 | M2 · Pipeline | 🚧 collecte nocturne sur le VPS à installer |
 | M3 · Baseline et évaluation | ⏳ |
 | M4 · Embeddings et recherche sémantique | ⏳ |
@@ -26,8 +26,8 @@ Où on en est, et les décisions prises : **[PROGRESS.md](PROGRESS.md)**.
 
 ## Le marché romand en images
 
-1 650 offres actives collectées directement chez 49 employeurs de Suisse romande
-(4 novembre 2026 ; Genève et Vaud seulement jusque-là). Les graphiques et leur lecture :
+1 657 offres actives collectées directement chez 49 employeurs de Suisse romande
+(5 novembre 2026 ; Genève et Vaud seulement jusque-là). Les graphiques et leur lecture :
 [`notebooks/marche-emploi.ipynb`](notebooks/marche-emploi.ipynb).
 
 ![Top 20 des employeurs](docs/img/top-employeurs.png)

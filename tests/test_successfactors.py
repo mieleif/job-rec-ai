@@ -211,3 +211,31 @@ def test_champs_de_la_fiche_coop(sleeps):
     from job_rec_ai.families import classify
     c = classify(job.title, job.description, job.category, job.level)
     assert (c.family, c.seniority) == ("Vente & Relation client", "Stage / Apprentissage")
+
+
+@pytest.mark.parametrize("region, expected", [
+    ("Neuc", "Neuchâtel"), ("Vala", "Valais"), ("Frib", "Fribourg"), ("Vaud", "Vaud"),
+    ("Bern", "Bern"), ("CH", "CH"), (None, None),
+])
+def test_canton_tronque_par_coop(region, expected):
+    assert successfactors.full_region(region) == expected
+
+
+def test_lieu_avec_canton_tronque():
+    from job_rec_ai.connectors.schema_org import JobPostingPage
+    from job_rec_ai.connectors.successfactors import location_of
+    from job_rec_ai.geo import canton_of
+    page = JobPostingPage('<span itemprop="addressLocality">Colombier</span>'
+                          '<span itemprop="addressRegion">Neuc</span>')
+    location = location_of(page, f"{SITE}/job/Colombier-Vendeur/9/", "Vendeur")
+    assert (location, canton_of(location)) == ("Colombier, Neuchâtel", "NE")
+
+
+@pytest.mark.parametrize("slug, expected", [
+    ("Colombier-Assistant-du-commerce-de-detail-AFP-Neuc", True),
+    ("Fully-Stage-d'orientation-professionnelle-Vala", True),
+    ("Lausanne-Vendeur-Vaud", True),
+    ("Basel-Verkaufer-Base", False), ("Thun-Verkaufer-Bern", False),
+])
+def test_prefiltre_canton_tronque(slug, expected):
+    assert successfactors.worth_fetching(slug) == expected
