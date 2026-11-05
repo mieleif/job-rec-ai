@@ -11,7 +11,7 @@ import sys
 from datetime import date
 from pathlib import Path
 
-from job_rec_ai import benchmark, explorer, pipeline, recommend, storage
+from job_rec_ai import annotation, benchmark, evaluation, explorer, pipeline, recommend, storage
 from job_rec_ai.companies import DEFAULT_CSV, find, load_companies
 from job_rec_ai.connectors import REGISTRY
 from job_rec_ai.cv import DEFAULT_CV, read_cv
@@ -157,6 +157,52 @@ def _cmd_recommend(args, con):
             print(f"            {job['url']}")
 
 
+def _private_set() -> evaluation.EvalSet | None:
+    """Le jeu de Leif, créé au premier pooling à partir de data/private/ (CV, profil)."""
+    path = evaluation.EVAL_DIRS[1] / "leif.json"
+    if path.exists():
+        return next(s for s in evaluation.load_sets() if s.path == path)
+    queries = {name: str(p) for name, p in
+               (("cv", DEFAULT_CV), ("profil", DEFAULT_CV.with_name("profil.md"))) if p.exists()}
+    return evaluation.new_set(path, "leif", queries) if queries else None
+
+
+def _cmd_eval(args, con):
+    """Pooling + page d'annotation (--pool), import des notes (--import), métriques (défaut)."""
+    if args.pool:
+        sets = [s for s in [*evaluation.load_sets(evaluation.EVAL_DIRS[:1]), _private_set()] if s]
+        for es in sets:
+            jobs = storage.jobs_for_ranking(con, include=list(es.judgments))
+            es.pool = evaluation.build_pool(es, jobs)
+            es.save()
+            by_url = {j["url"]: j for j in jobs}
+            out = es.path.with_name(f"annoter-{es.person}.html")
+            out.write_text(annotation.render(es.person, [by_url[u] for u in es.pool if u in by_url],
+                                             es.judgments), encoding="utf-8")
+            todo = sum(u not in es.judgments for u in es.pool)
+            print(f"{es.person} : pool de {len(es.pool)} offres ({todo} à noter) → {out}")
+        return
+    if args.import_path:
+        es = next(s for s in evaluation.load_sets() if s.person == args.person)
+        grades = json.loads(Path(args.import_path).read_text(encoding="utf-8"))
+        es.judgments.update({url: int(g) for url, g in grades.items()})
+        es.save()
+        print(f"{es.person} : {len(grades)} notes importées, {len(es.judgments)} au total")
+        return
+    for es in evaluation.load_sets():
+        if not es.judgments:
+            print(f"{es.person} : aucune note (lancer `eval --pool`, puis noter)")
+            continue
+        jobs = storage.jobs_for_ranking(con, include=list(es.judgments))
+        counts = evaluation.grade_counts(es)
+        print(f"\n── {es.person} : {len(es.judgments)} offres notées "
+              f"(2 : {counts[2]}, 1 : {counts[1]}, 0 : {counts[0]}) ; {len(jobs)} offres classées")
+        print(f"  {'méthode · requête':<26}{'P@10':>7}{'MRR':>7}{'nDCG@10':>9}{'jugées':>8}")
+        rows = sorted(evaluation.evaluate(es, jobs), key=lambda r: -r.ndcg)
+        for r in rows:
+            print(f"  {r.run:<26}{r.precision:>7.2f}{r.mrr:>7.2f}{r.ndcg:>9.3f}{r.judged:>8.0%}")
+
+
 def _cmd_rederive(args, con):
     result = pipeline.rederive(con)
     print(f"{result.recalculated} offres recalculées, "
@@ -215,6 +261,13 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--limit", type=int, default=20)
     p.add_argument("--urls", action="store_true", help="afficher le lien de chaque offre")
     p.set_defaults(func=_cmd_recommend)
+    p = sub.add_parser("eval", help="jeu d'évaluation : pooling, notes, métriques")
+    p.add_argument("--pool", action="store_true",
+                   help="construire le pool d'offres à noter et la page d'annotation")
+    p.add_argument("--import", dest="import_path", metavar="JSON",
+                   help="importer les notes copiées depuis la page d'annotation")
+    p.add_argument("--person", default="leif", help="jeu visé par --import")
+    p.set_defaults(func=_cmd_eval)
     sub.add_parser("rederive", help="recalculer langue, canton et classement").set_defaults(
         func=_cmd_rederive)
 

@@ -35,3 +35,34 @@ def tfidf(docs: list[list[str]]) -> list[dict[str, float]]:
     idf = {word: math.log(n / count) for word, count in df.items()}
     return [{word: count / len(doc) * idf[word] for word, count in Counter(doc).items()}
             for doc in docs]
+
+
+# --- métriques de classement ----------------------------------------------------------------
+# Elles ne regardent que le haut de la liste : un utilisateur lit 10 offres, pas 1 700.
+
+
+def precision_at_k(ranked: list[str], relevant: set[str], k: int) -> float:
+    """Part des k premiers résultats qui sont pertinents. Simple, mais aveugle à l'ordre
+    dans le top k (pertinent en 1ᵉʳ ou en 10ᵉ : même score)."""
+    return sum(item in relevant for item in ranked[:k]) / k
+
+
+def mean_reciprocal_rank(runs: list[tuple[list[str], set[str]]]) -> float:
+    """Moyenne de 1 / rang du PREMIER pertinent (0 si aucun) : « combien faut-il lire avant
+    de trouver quelque chose ? ». 1ᵉʳ → 1, 2ᵉ → 0,5, 10ᵉ → 0,1."""
+    def reciprocal(ranked, relevant):
+        return next((1 / rank for rank, item in enumerate(ranked, 1) if item in relevant), 0.0)
+
+    return sum(reciprocal(r, rel) for r, rel in runs) / len(runs)
+
+
+def ndcg_at_k(ranked: list[str], relevance: dict[str, float], k: int) -> float:
+    """DCG = Σ rel_i / log2(i + 1) sur le top k : pertinence graduée, escomptée par le rang
+    (le 1ᵉʳ compte plein, le 3ᵉ moitié). Divisé par le DCG du classement idéal → [0, 1]."""
+    def dcg(gains):
+        return sum(g / math.log2(i + 1) for i, g in enumerate(gains, 1))
+
+    ideal = dcg(sorted(relevance.values(), reverse=True)[:k])
+    if ideal == 0:
+        return 0.0
+    return dcg([relevance.get(item, 0) for item in ranked[:k]]) / ideal

@@ -18,6 +18,19 @@ Tests du projet : 128 réussis.
 
 ## Décisions
 
+- **2026-11-05 · M3 : jeu d'évaluation (pooling).** Métriques dans `koans` (P@10 avec
+  pertinent = note ≥ 1, MRR du premier « 2 », nDCG@10 avec gain = note) : checkpoint M3
+  6/6. Un jeu = une personne (`data/private/eval/leif.json` ; personas publics plus tard
+  dans `data/eval/`), ses requêtes (CV, `data/private/profil.md` tiré du profil DoxAI par
+  le MCP, sans coordonnées ni activités hors cible : serveur, parascolaire, théâtre) et
+  ses notes 0/1/2 (adéquation au profil, pas le lieu ni le taux). Pooling façon TREC :
+  union des top 10 des 6 classements (TF-IDF, BM25, BM25 répété × CV, profil) + 10 au
+  hasard, mélangés et sans score → 38 offres. Recouvrement faible (BM25 · CV et
+  TF-IDF · CV : 2 offres communes sur 10). Page `annoter-leif.html` (localStorage,
+  « Copier les notes ») ; `eval --import` fusionne ; `eval` affiche P@10, MRR,
+  nDCG@10 et la part jugée du top 10. Le corpus d'évaluation garde les offres jugées même
+  expirées. Le profil DoxAI donne aussi des contraintes (Genève ou à distance, 80 %
+  maximum, hybride) : candidates pour des filtres durs à la requête.
 - **2026-11-05 · M3 : BM25.** `bm25.BM25` écrit à la main (index inversé, idf de Lucene
   toujours positif, k1 = 1,2, b = 0,75) ; `recommend.rank` prend le CV comme requête, sans
   mots-outils et dédoublonné (BM25 ne sature rien côté requête : « ia » ×9 compterait 9
@@ -293,7 +306,8 @@ Tests du projet : 128 réussis.
 ## Journal des sessions
 
 - **2026-11-05** (après-midi) : PR #12 et #13 fusionnées ; M3 commencé (cosinus, texte du
-  CV, expérience du cosinus brut : l'offre visée 75ᵉ ; TF-IDF : 2ᵉ ; BM25 : 1ʳᵉ).
+  CV, expérience du cosinus brut : l'offre visée 75ᵉ ; TF-IDF : 2ᵉ ; BM25 : 1ʳᵉ) ;
+  métriques, pooling de 38 offres et page d'annotation (notes de Leif attendues).
 - **2026-11-05** (matin) : périmètre linguistique (Zermatt repéré par Leif) ; Haut-Valais,
   Singine, Morat et Seeland écartés ; 1 884 → 1 692 offres, Lonza exclue.
 - **2026-11-05** (fin) : explorateur d'offres (`explore`, `data/offres.html`).
