@@ -18,6 +18,15 @@ Tests du projet : 128 réussis.
 
 ## Décisions
 
+- **2026-11-05 · M3 : TF-IDF.** `koans.tfidf` (tf = n/longueur, idf = ln(N/df)) et
+  `text.tokenize`. Cosinus TF-IDF : l'offre Specitec visée passe de 75ᵉ à **2ᵉ** (1ʳᵉ :
+  Business Analyst IA chez Specitec) ; score médian 0,016 contre 0,27 en tête (le brut
+  tassait tout entre 0,62 et 0,64). Limites vues : « et » n'est que dans 39 % des offres
+  (anglais, Coop sans description) → idf 0,94, encore 10-40 % du score ; « ia » n'est que
+  dans 16 offres (l'anglais écrit « AI ») → idf 4,7, jusqu'à 62 % du score ; mots du seul
+  CV (doxai, leif, téléphone) : idf maximal mais contribution nulle. scikit-learn (dev) :
+  idf = ln((1+N)/(1+df)) + 1 et tf brut normalisé L2 → valeurs différentes, même
+  classement ; tf sous-linéaire (1 + ln tf) met Specitec 1ʳᵉ.
 - **2026-11-05 · M3 : texte du CV et premier cosinus.** CV dans `data/private/cv.pdf`
   (non versionné), lu par `cv.read_cv` avec pypdf (pur Python ; une colonne suffit),
   césures recollées, icônes et puces retirées. Expérience : cosinus sur des comptes de
@@ -276,7 +285,7 @@ Tests du projet : 128 réussis.
 ## Journal des sessions
 
 - **2026-11-05** (après-midi) : PR #12 et #13 fusionnées ; M3 commencé (cosinus, texte du
-  CV, expérience du cosinus brut : l'offre visée 75ᵉ).
+  CV, expérience du cosinus brut : l'offre visée 75ᵉ ; TF-IDF : 2ᵉ).
 - **2026-11-05** (matin) : périmètre linguistique (Zermatt repéré par Leif) ; Haut-Valais,
   Singine, Morat et Seeland écartés ; 1 884 → 1 692 offres, Lonza exclue.
 - **2026-11-05** (fin) : explorateur d'offres (`explore`, `data/offres.html`).

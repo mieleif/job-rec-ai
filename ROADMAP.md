@@ -84,7 +84,7 @@ Lancer un checkpoint : `uv run pytest checkpoints/test_m1_collecte.py -v`
 🎯 Une première recommandation pour mon CV, avec un score chiffré.
 
 - [x] Similarité cosinus : intuition géométrique, calcul sur un exemple 2D, puis implémentation numpy (`koans.py`)
-- [ ] TF-IDF from scratch, puis comparaison avec scikit-learn : pourquoi les scores diffèrent-ils ?
+- [x] TF-IDF from scratch, puis comparaison avec scikit-learn : pourquoi les scores diffèrent-ils ?
 - [x] ⚡ Extraire le texte de mon CV (hors du repo : `data/private/`)
 - [ ] Moteur BM25 : CV → offres classées
 - [ ] Jeu d'évaluation : 4-5 CV anonymisés × ~20 offres notées 0/1/2
