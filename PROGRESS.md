@@ -10,7 +10,7 @@ _Dernière mise à jour : 2026-11-04_
 | Étape | Checkpoint | Ce qui reste |
 |---|---|---|
 | M0 · Setup | 9/9 (avec une note locale, voir « Contraintes ») | règles perso dans `CLAUDE.md`, Milestones GitHub, questions de contrôle |
-| M1 · Collecte | **8/8** (fixtures réelles pour les 10 connecteurs) | **1 756 offres réelles** en Suisse romande (GE 660, VD 445, FR 233, VS 213, NE 102, BE 81, JU 22 ; 53 employeurs et 1 agence). Restent : note HTTP, questions de contrôle |
+| M1 · Collecte | **8/8** (fixtures réelles pour les 12 connecteurs) | **1 843 offres réelles** en Suisse romande (GE 676, VD 495, FR 239, VS 224, NE 103, BE 83, JU 23 ; 58 employeurs et 1 agence). Restent : note HTTP, questions de contrôle |
 | M2 · Pipeline | 7/7 (livrable : [notebook « 5 graphiques »](notebooks/marche-emploi.ipynb)) | installer le timer sur le VPS, note ETL/ELT, questions de contrôle |
 | M3 → M8 | pas commencé | |
 
@@ -18,6 +18,17 @@ Tests du projet : 128 réussis.
 
 ## Décisions
 
+- **2026-11-05 · Deux connecteurs de plus, et le JSON-LD élargi.** Workable (API publique du
+  widget : Debiopharm, 8 offres) et Cornerstone (le jeton anonyme de la page carrière publique,
+  comme le navigateur : MSC 11, Groupe Mutuel 19). Cornerstone : un petit board est lu en
+  entier et filtré ici (Groupe Mutuel ne donne pas le pays), un grand est filtré sur la Suisse
+  par le serveur. JSON-LD : « <liste>#jobs=<chemin> » quand les annonces ne sont pas sous la
+  liste (softgarden : Vaudoise 45 ; Radancy : Cargill 4, première page seulement), et la région
+  quand la ville manque. Restent hors connecteur, avec leur raison : SuccessFactors ancienne
+  génération et Eightfold (robots.txt l'interdit : Manor, Aldi, Lidl, Implenia, Haleon),
+  Umantis (gabarit propre à chaque client, lieu non structuré : Generali, UniNE), Avature
+  (flux RSS mondial sans lieu : HSBC, Takeda), Prospective (API introuvable : Helvetia
+  Baloise), Jibe/iCIMS (API ouverte mais 1 offre suisse : Swissport).
 - **2026-11-05 · Les grands employeurs genevois (classement 1999/2019) et le commerce de
   détail.** Ajoutés et collectés : Hirslanden (SuccessFactors de Mediclinic), Zurich
   Assurances, La Mobilière (SuccessFactors), HP et HPE (Workday). 26 autres listés dans
@@ -222,6 +233,9 @@ Tests du projet : 128 réussis.
 
 ## Journal des sessions
 
+- **2026-11-05** (soir) : connecteurs Workable et Cornerstone ; JSON-LD avec chemin
+  d'annonces (softgarden, Radancy) ; Debiopharm, MSC, Groupe Mutuel, Vaudoise, Cargill
+  collectés. 1 843 offres, 59 sources.
 - **2026-11-05** (fin) : marqueur « agence » (`publisher_type`) ; Specitec collectée ;
   8 autres agences listées. 1 756 offres.
 - **2026-11-05** (suite) : grands employeurs genevois et commerce de détail passés en revue

@@ -33,15 +33,30 @@ _TEXT_FIELDS = ("description", "responsibilities", "qualifications", "experience
                 "educationRequirements", "skills", "jobBenefits")
 
 
+def split_board(board: str) -> tuple[str, str | None]:
+    """« <liste>#jobs=<chemin> » → (liste, chemin des annonces). Le fragment n'est jamais
+    envoyé au serveur : il dit seulement où vivent les annonces quand ce n'est pas sous la
+    liste (softgarden : liste /fr/vacancies, annonces /job/<id>/… ; Radancy : /en/job/…)."""
+    url, _, fragment = board.partition("#")
+    return url, fragment.removeprefix("jobs=") if fragment.startswith("jobs=") else None
+
+
 def job_links(html: str, page_url: str, board: str) -> tuple[list[str], str | None]:
-    """Les liens vers les annonces (un niveau sous le board), et la page suivante éventuelle."""
+    """Les liens vers les annonces, et la page suivante éventuelle. Par défaut une annonce est
+    un niveau sous la liste ; avec « #jobs=<chemin> », tout lien sous ce chemin du même site."""
     soup = BeautifulSoup(html, "html.parser")
-    prefix = board.rstrip("/") + "/"
+    list_url, jobs_path = split_board(board)
+    prefix = list_url.rstrip("/") + "/"
+    site = urljoin(list_url, "/")
     links = []
     for a in soup.find_all("a", href=True):
         url = urljoin(page_url, a["href"]).split("#")[0]
-        rest = url.removeprefix(prefix)
-        if rest != url and rest.strip("/") and "/" not in rest.strip("/") and url not in links:
+        if jobs_path:
+            ok = url.startswith(site) and urlsplit(url).path.startswith(jobs_path)
+        else:
+            rest = url.removeprefix(prefix)
+            ok = rest != url and rest.strip("/") and "/" not in rest.strip("/")
+        if ok and url not in links:
             links.append(url)
     following = soup.find(["a", "link"], rel="next", href=True)
     return links, urljoin(page_url, following["href"]) if following else None
@@ -49,7 +64,7 @@ def job_links(html: str, page_url: str, board: str) -> tuple[list[str], str | No
 
 def listed_links(client: PoliteClient, board: str) -> list[str]:
     """Toutes les annonces listées sous le board, en suivant les pages rel="next"."""
-    links, page_url = [], board
+    links, page_url = [], split_board(board)[0]
     for _ in range(MAX_PAGES):
         found, following = job_links(client.get_html(page_url), page_url, board)
         links += [url for url in found if url not in links]
@@ -88,20 +103,29 @@ def location_text(job: dict) -> str:
 _COUNTRY_ONLY = {"switzerland", "suisse", "schweiz", "svizzera", "ch"}
 
 
+def _is_place_name(text: str) -> bool:
+    """Un vrai nom de lieu : ni un simple pays, ni une rue (un numéro : « Place du
+    Bourg-de-Four 1 »), ni un tiret (Vaudoise : « - »)."""
+    return (bool(text) and normalize(text) not in _COUNTRY_ONLY
+            and not any(c.isdigit() for c in text) and any(c.isalpha() for c in text))
+
+
 def named_localities(job: dict) -> list[str]:
-    """Les villes données en champ structuré (addressLocality), hors simple nom de pays.
-    Vide pour une adresse texte (« Place du Bourg-de-Four 1 ») : le lieu n'y est pas nommé."""
+    """Les lieux donnés en champ structuré : la ville (addressLocality), à défaut la région
+    (Vaudoise : « -, Zürich, Schweiz »). Vide pour une adresse texte : rien n'y est nommé."""
     places = job.get("jobLocation") or []
     found = []
     for place in places if isinstance(places, list) else [places]:
         addresses = place.get("address", {}) if isinstance(place, dict) else {}
         for address in addresses if isinstance(addresses, list) else [addresses]:
-            if isinstance(address, dict) and isinstance(address.get("addressLocality"), str):
-                locality = _clean(address["addressLocality"])
-                # un numéro = une rue mise dans le champ ville (« Place du Bourg-de-Four 1 »)
-                if (locality and normalize(locality) not in _COUNTRY_ONLY
-                        and not any(c.isdigit() for c in locality)):
-                    found.append(locality)
+            if not isinstance(address, dict):
+                continue
+            for field in ("addressLocality", "addressRegion"):
+                value = address.get(field)
+                value = _clean(value.get("name", "") if isinstance(value, dict) else value or "")
+                if _is_place_name(value):
+                    found.append(value)
+                    break
     return found
 
 

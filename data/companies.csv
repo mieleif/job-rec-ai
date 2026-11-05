@@ -16,7 +16,7 @@ Vitol,Négoce,GE,https://www.vitol.com/careers,smartrecruiters,Vitol
 Trafigura,Négoce,GE,https://www.trafigura.com/careers,workday,https://trafigura.wd3.myworkdayjobs.com/TrafiguraCareerSite
 Gunvor,Négoce,GE,https://gunvorgroup.com/careers,workday,https://gunvor.wd3.myworkdayjobs.com/Gunvor_Careers
 Mercuria,Négoce,GE,https://mercuria.com/careers,,
-Cargill,Négoce,GE,https://careers.cargill.com,radancy,
+Cargill,Négoce,GE,https://careers.cargill.com,jsonld,https://careers.cargill.com/en/search-jobs/Switzerland#jobs=/en/job/
 Bunge,Négoce,GE,https://jobs.bunge.com,successfactors,
 Louis Dreyfus Company,Négoce,GE,https://www.ldc.com/careers,smartrecruiters,LouisDreyfusCompany
 Procter & Gamble,Biens de consommation,GE,https://www.pgcareers.com,phenom,https://www.pgcareers.com/global/en
@@ -51,7 +51,7 @@ Kudelski,Logiciel,VD,https://www.nagra.com/careers,,
 Nexthink,Logiciel,VD,https://nexthink.com/careers,smartrecruiters,Nexthink
 Swissquote,Banque,VD,https://www.swissquote.com/careers,smartrecruiters,Swissquote
 Banque Cantonale Vaudoise,Banque,VD,https://www.bcv.ch,successfactors,https://jobs.bcv.ch
-Vaudoise Assurances,Assurance,VD,https://www.vaudoise.ch,softgarden,https://vaudoise.softgarden.io
+Vaudoise Assurances,Assurance,VD,https://www.vaudoise.ch,jsonld,https://vaudoise.softgarden.io/fr/vacancies#jobs=/job/
 CHUV,Santé,VD,https://www.chuv.ch,,
 EPFL,Recherche,VD,https://www.epfl.ch/about/working,successfactors,https://careers.epfl.ch
 Université de Lausanne,Recherche,VD,https://www.unil.ch,successfactors,
@@ -114,7 +114,7 @@ La Tour Medical Group,Santé,GE,https://www.la-tour.ch,,
 Protectas,Sécurité,VD,https://www.protectas.com/switzerland/stellenangebote/,,
 Implenia,Construction,ZH,https://implenia.com/fr/carriere,successfactors-classic,
 GF Machining Solutions,Industrie,GE,https://www.gfms.com,,
-Groupe Mutuel,Assurance,VS,https://job.groupemutuel.ch/fr/,cornerstone,
+Groupe Mutuel,Assurance,VS,https://job.groupemutuel.ch/fr/,cornerstone,https://groupemutuel.csod.com/ux/ats/careersite/4/home
 Generali Suisse,Assurance,VD,https://www.generali.ch/fr/carriere,umantis,
 Helvetia Baloise,Assurance,BS,https://jobs.helvetia.com,prospective,
 Retraites Populaires,Assurance,VD,https://carriere.retraitespopulaires.ch,,

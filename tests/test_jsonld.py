@@ -109,3 +109,33 @@ def test_vraie_fixture_texte_propre():
     for job in jobs:
         for text in (job.title, job.description, job.location):
             assert "&#" not in text and "&quot;" not in text and "\u200b" not in text
+
+
+
+@pytest.mark.parametrize("address, expected", [
+    ({"addressLocality": "Alpnach", "addressCountry": "CH"}, ["Alpnach"]),
+    ({"addressLocality": "-", "addressRegion": "Zürich"}, ["Zürich"]),  # Vaudoise
+    ({"addressLocality": "-", "addressRegion": "-"}, []),
+    ({"addressLocality": "Place du Bourg-de-Four 1"}, []),
+    ({"addressLocality": "Switzerland"}, []),
+])
+def test_lieux_nommes(address, expected):
+    from job_rec_ai.connectors.jsonld import named_localities
+    assert named_localities({"jobLocation": {"address": address}}) == expected
+
+
+def test_annonces_hors_de_la_liste(sleeps):
+    """softgarden, Radancy : les annonces ne sont pas sous la liste ; « #jobs=<chemin> » le dit."""
+    pages = {"/fr/vacancies": '<a href="../job/7/Conseiller?l=fr">A</a><a href="/aide">Aide</a>',
+             "/job/7/Conseiller": ad("Conseiller", "Lausanne")}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        if request.url.path == "/robots.txt":
+            return httpx.Response(404)
+        return (httpx.Response(200, text=pages[request.url.path])
+                if request.url.path in pages else httpx.Response(404))
+
+    with PoliteClient(transport=httpx.MockTransport(handler), sleep=sleeps.append) as client:
+        payload = REGISTRY["jsonld"].fetch(f"{SITE}/fr/vacancies#jobs=/job/", "Vaudoise",
+                                           client, keep=is_target)
+    assert [p["url"] for p in payload["postings"]] == [f"{SITE}/job/7/Conseiller?l=fr"]
