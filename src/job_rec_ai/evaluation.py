@@ -92,15 +92,16 @@ def _tfidf(jobs, text):
 
 
 def _bm25(jobs, text):
+    """Le système en production (`recommend`) : BM25, répétitions du CV gardées."""
     return [j["url"] for j in rank(jobs, text)]
 
 
-def _bm25_repeated(jobs, text):
-    """BM25 avec les répétitions du CV (« ia » ×9 compte 9 fois)."""
-    return [j["url"] for j in rank(jobs, text, unique=False)]
+def _bm25_unique(jobs, text):
+    """BM25, chaque mot du CV compté une fois (« ia » ×9 compte 1 fois)."""
+    return [j["url"] for j in rank(jobs, text, unique=True)]
 
 
-METHODS = {"hasard": _random, "tfidf": _tfidf, "bm25": _bm25, "bm25-répété": _bm25_repeated}
+METHODS = {"hasard": _random, "tfidf": _tfidf, "bm25": _bm25, "bm25-dédoublonné": _bm25_unique}
 
 
 def runs(eval_set: EvalSet, jobs: list[dict]) -> dict[str, list[str]]:

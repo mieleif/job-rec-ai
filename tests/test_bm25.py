@@ -31,9 +31,9 @@ def test_normalisation_de_longueur():
     assert short == pytest.approx(long_)
 
 
-def test_requete_sans_mots_outils_ni_doublons():
-    assert query_terms("Python et SQL, python et dbt") == ["python", "sql", "dbt"]
-    assert query_terms("Python et python", unique=False) == ["python", "python"]
+def test_requete_sans_mots_outils_avec_repetitions():
+    assert query_terms("Python et SQL, python et dbt") == ["python", "sql", "python", "dbt"]
+    assert query_terms("Python et python", unique=True) == ["python"]
 
 
 def test_rank_classe_l_offre_la_plus_proche_en_tete():

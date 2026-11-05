@@ -12,12 +12,18 @@ _Dernière mise à jour : 2026-11-04_
 | M0 · Setup | 9/9 (avec une note locale, voir « Contraintes ») | règles perso dans `CLAUDE.md`, Milestones GitHub, questions de contrôle |
 | M1 · Collecte | **8/8** (fixtures réelles pour les 13 connecteurs) | **1 692 offres réelles** en Suisse romande francophone (GE 681, VD 511, FR 214, NE 106, BE 83, VS 72, JU 25 ; 58 employeurs et 1 agence). Restent : note HTTP, questions de contrôle |
 | M2 · Pipeline | 7/7 (livrable : [notebook « 5 graphiques »](notebooks/marche-emploi.ipynb)) | installer le timer sur le VPS, note ETL/ELT, questions de contrôle |
-| M3 → M8 | pas commencé | |
+| M3 · Baseline | code 6/6 ; BM25 en production (`recommend`), nDCG@10 0,775 sur 38 offres notées | 3-4 CV anonymisés de plus, note « mesurer avant d'optimiser », questions de contrôle |
+| M4 → M8 | pas commencé | |
 
-Tests du projet : 128 réussis.
+Tests du projet : 252 réussis.
 
 ## Décisions
 
+- **2026-11-05 · BM25 avec répétitions du CV = système par défaut** (décision de Leif sur
+  les chiffres ci-dessous). `recommend` et `eval` : « bm25 » est ce système,
+  « bm25-dédoublonné » l'ancienne variante. Leif juge le système assez bon pour le
+  brancher plus tard sur l'app DoxAI ; à terme, tests A/B/C en ligne entre systèmes une
+  fois les embeddings là (M4).
 - **2026-11-05 · M3 : premiers chiffres (38 offres notées par Leif : 7 « 2 », 12 « 1 »,
   19 « 0 »).** nDCG@10 : BM25 répété · CV 0,775 ; BM25 répété · profil 0,740 ; TF-IDF · CV
   0,699 ; BM25 dédoublonné · CV 0,662 (mais meilleure P@10, 0,90) ; BM25 · profil 0,617 ;
@@ -308,8 +314,10 @@ Tests du projet : 128 réussis.
    pistes restantes : État de Vaud, CHUV, Ville de Genève, Migros Genève/Vaud, HCR.
 5. Sur le VPS : installer la collecte nocturne ([deploy/README.md](deploy/README.md)).
 6. Interpréter ensemble la première sortie de `uv run job-rec-ai quality`.
-7. M3 : similarité cosinus (intuition géométrique, exemple 2D), puis TF-IDF from scratch et
-   les métriques d'évaluation (precision@k, MRR, nDCG).
+7. M3 : 3-4 CV anonymisés (personas d'autres métiers) notés comme celui de Leif, pour
+   vérifier que BM25 généralise ; note « pourquoi mesurer avant d'optimiser ».
+   Filtres durs à la requête tirés du profil DoxAI (Genève ou à distance, 80 % maximum).
+   Plus tard : brancher `recommend` sur l'app DoxAI ; tests A/B/C (interleaving) en M4-M7.
 8. Finir M0 : règles perso dans `CLAUDE.md`, Milestones GitHub.
 
 ## Journal des sessions
@@ -317,7 +325,7 @@ Tests du projet : 128 réussis.
 - **2026-11-05** (après-midi) : PR #12 et #13 fusionnées ; M3 commencé (cosinus, texte du
   CV, expérience du cosinus brut : l'offre visée 75ᵉ ; TF-IDF : 2ᵉ ; BM25 : 1ʳᵉ) ;
   métriques, pooling de 38 offres, page d'annotation, 38 notes de Leif : BM25 répété
-  en tête (nDCG@10 0,775).
+  en tête (nDCG@10 0,775), devenu le système par défaut.
 - **2026-11-05** (matin) : périmètre linguistique (Zermatt repéré par Leif) ; Haut-Valais,
   Singine, Morat et Seeland écartés ; 1 884 → 1 692 offres, Lonza exclue.
 - **2026-11-05** (fin) : explorateur d'offres (`explore`, `data/offres.html`).
