@@ -285,6 +285,25 @@ def counts(con, facet: str, limit: int | None = 20) -> list[tuple[str, int]]:
     ).fetchall()
 
 
+EXCERPT = 320  # caractères de description montrés dans l'explorateur
+
+
+def active_jobs(con) -> list[dict]:
+    """Les offres actives, prêtes pour l'explorateur : facettes, dates, extrait de description."""
+    cursor = con.execute(
+        """SELECT title, company, publisher_type, sector, location, canton, family, seniority,
+                  language, workload_min, workload_max, employment_type, url,
+                  CAST(posted_at AS VARCHAR) AS posted_at,
+                  CAST(CAST(first_seen AS DATE) AS VARCHAR) AS first_seen,
+                  left(coalesce(description, ''), ?) AS excerpt
+           FROM jobs_view WHERE active
+           ORDER BY coalesce(posted_at, CAST(first_seen AS DATE)) DESC, company, title""",
+        [EXCERPT],
+    )
+    names = [d[0] for d in cursor.description]
+    return [dict(zip(names, row)) for row in cursor.fetchall()]
+
+
 def jobs_for_derivation(con) -> list[dict]:
     """Les champs dont dépendent les colonnes dérivées, nommés (pas de couplage à l'ordre)."""
     cursor = con.execute(
