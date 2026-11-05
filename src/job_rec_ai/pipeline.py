@@ -35,18 +35,20 @@ MAX_EXPIRE_SHARE = 0.5  # au-delà de la moitié des offres actives…
 MIN_SUSPECT = 5         # …et d'au moins 5 offres (3 offres sur 4 chez une PME, c'est plausible)
 
 
-def derive(title: str, location: str, description: str) -> dict:
+def derive(title: str, location: str, description: str, category: str | None = None,
+           level: str | None = None) -> dict:
     """Les colonnes dérivées d'une offre : recalculables à volonté, sans re-télécharger."""
     return {
         "language": detect_language(description),
         "canton": canton_of(location),
-        **asdict(classify(title)),
+        **asdict(classify(title, description, category, level)),
     }
 
 
 def enrich(job: Job) -> dict:
     """Job → ligne de la table jobs (champs du Job + colonnes dérivées)."""
-    row = {**job.model_dump(mode="json"), **derive(job.title, job.location, job.description)}
+    row = {**job.model_dump(mode="json"),
+           **derive(job.title, job.location, job.description, job.category, job.level)}
     row["language"] = job.language or row["language"]  # la langue déclarée par l'ATS prime
     return row
 
@@ -129,10 +131,10 @@ def crawl(con, companies: list[dict], client: PoliteClient, raw_dir: Path = RAW_
     wanted = {normalize(n) for n in only} if only else None
     storage.upsert_companies(con, companies)
     report = CrawlReport()
-    for company in companies:
+    planned = [c for c in companies if not wanted or normalize(c["company"]) in wanted]
+    storage.start_crawl(con, started, [c["company"] for c in planned])
+    for company in planned:
         name, ats = company["company"], company["ats"]
-        if wanted and normalize(name) not in wanted:
-            continue
         reason = skip_reason(company)
         if reason:
             report.skipped.append((name, reason))
@@ -159,6 +161,7 @@ def crawl(con, companies: list[dict], client: PoliteClient, raw_dir: Path = RAW_
                         fetched=len(payload["postings"]), loaded=result.loaded,
                         error=f"{result.expired} offres disparues d'un coup"
                         if result.suspect else None)
+    storage.finish_crawl(con, started)  # pas dans un finally : un arrêt doit rester visible
     return report
 
 
@@ -174,8 +177,8 @@ def replay(con, raw_dir: Path = RAW_DIR) -> int:
 def rederive(con) -> int:
     """Recalcule langue, canton, famille, séniorité et taux pour toutes les offres (après
     un changement de règles), sans rien re-télécharger."""
-    rows = [{"url": url, **derive(title, location, description)}
-            for url, title, location, description in storage.jobs_for_derivation(con)]
+    rows = [{"url": fields.pop("url"), **derive(**fields)}
+            for fields in storage.jobs_for_derivation(con)]
     storage.update_derived(con, rows)
     return len(rows)
 

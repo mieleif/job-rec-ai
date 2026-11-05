@@ -175,3 +175,39 @@ def test_canton_seul_en_microdonnees_l_url_d_abord():
     from job_rec_ai.connectors.successfactors import location_of
     page = JobPostingPage('<span itemprop="addressRegion">CH</span>')
     assert location_of(page, f"{SITE}/job/Lausanne-Analyste/9/", "Analyste") == "Lausanne"
+
+
+def test_champs_de_la_fiche_coop(sleeps):
+    """Coop : pas de description, mais des champs « libellé : valeur » hors microdonnées,
+    qui donnent la famille et le niveau quand le titre ne dit rien."""
+    page = ('<span itemprop="addressLocality">Crissier</span>'
+            '<span itemprop="addressRegion">Vaud</span>'
+            '<span itemprop="title" data-careersite-propertyid="title">'
+            'Collaboratrice / Collaborateur</span>'
+            '<span itemprop="description" data-careersite-propertyid="description">'
+            'Collaboratrice / Collaborateur</span>'
+            '<div><span class="joblayouttoken-label">Poste: </span>'
+            '<span data-careersite-propertyid="customfield3">Apprentie / Apprenti </span></div>'
+            '<div><span class="joblayouttoken-label">Spécialisation professionnelle: </span>'
+            '<span data-careersite-propertyid="shifttype">Vente Food</span></div>'
+            '<div><span class="joblayouttoken-label">Taux d\'occupation: </span>'
+            '<span data-careersite-propertyid="facility">80 - 100%</span></div>')
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        if request.url.path == "/sitemap.xml":
+            return httpx.Response(200, text=f"<url><loc>{SITE}/job/Crissier-Bouchere-Boucher-"
+                                            "Vaud/9/</loc></url>")
+        return httpx.Response(200, text=page)
+
+    connector = REGISTRY["successfactors"]
+    with PoliteClient(transport=httpx.MockTransport(handler), sleep=sleeps.append) as client:
+        payload = connector.fetch(SITE, "Coop", client, keep=is_target)
+    assert payload["postings"][0]["details"] == {
+        "Poste": "Apprentie / Apprenti", "Spécialisation professionnelle": "Vente Food",
+        "Taux d'occupation": "80 - 100%"}
+    (job,) = connector.parse(payload)
+    assert (job.category, job.level) == ("Vente Food", "Apprentie / Apprenti")
+
+    from job_rec_ai.families import classify
+    c = classify(job.title, job.description, job.category, job.level)
+    assert (c.family, c.seniority) == ("Vente & Relation client", "Stage / Apprentissage")

@@ -20,7 +20,7 @@ Lancer un checkpoint : `uv run pytest checkpoints/test_m1_collecte.py -v`
 - [x] Initialiser le projet : `uv init --package --name job-rec-ai --python 3.12` (crée le package `src/job_rec_ai/`)
 - [x] ⚡ Outils de dev : `uv add --dev ruff pytest`, section `[tool.ruff]`, et `testpaths = ["tests"]` dans `[tool.pytest.ini_options]` (les checkpoints se lancent à part)
 - [x] ⚡ Exposer `job_rec_ai.__version__`
-- [ ] ⚡ Premier commit + repo GitHub public (vérifier `.gitignore` avant)
+- [x] ⚡ Premier commit + repo GitHub public (vérifier `.gitignore` avant)
 - [ ] ⚡ Ajouter mes propres règles dans `CLAUDE.md`
 - [ ] Créer les Milestones GitHub M0 à M8 et une issue par tâche (barres de progression natives)
 - [ ] Note : venv, lockfile, dépendances de dev

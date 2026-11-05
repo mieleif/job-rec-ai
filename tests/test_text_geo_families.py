@@ -1,6 +1,6 @@
 import pytest
 
-from job_rec_ai.families import classify, workload
+from job_rec_ai.families import classify, workload, years_of_experience
 from job_rec_ai.geo import canton_of
 from job_rec_ai.text import clean_html, detect_language
 
@@ -65,10 +65,48 @@ def test_classement_explique_sa_decision():
     ("Head of Data", "Direction"),
     ("Senior Accountant", "Senior / Lead"),
     ("Junior Analyst", "Junior"),
-    ("Électricien CFC", "Confirmé·e"),  # CFC = diplôme obtenu, pas un apprentissage
+    ("Électricien CFC", "Non précisé"),  # CFC = diplôme obtenu, pas un apprentissage
+    ("Postdoc Position in Quantitative Finance", "Junior"),
+    ("Assistant(e) Audit - Genève (Graduate)", "Junior"),
+    # programmes de relève : « cadre » n'y veut pas dire senior
+    ("Futur Cadre Junior (H/F)", "Junior"),
+    ("Aspirant·e (Relève Futur·e cadre) / Région de la Gruyère", "Junior"),
 ])
 def test_seniorite(title, seniority):
     assert classify(title).seniority == seniority
+
+
+@pytest.mark.parametrize("description, years", [
+    ("You have 5+ years of experience in treasury.", 5),
+    ("3-5 years’ experience in EHS", 4),
+    ("2 to 5 years of experience", 3.5),
+    ("Au moins 3 ans d'expérience dans un poste similaire", 3),
+    ("A minimum of five years of relevant professional experience", 5),
+    ("Mindestens 4 Jahre Berufserfahrung", 4),
+    ("Au moins 1 an d'expérience en comptabilité", 1),
+    ("Une année d'expérience dans la vente", 1),
+    # l'histoire de la maison n'est pas une exigence : on prend la mention suivante
+    ("Fort de 25 ans d'expérience, notre cabinet recrute. Vous avez 2 ans d'expérience.", 2),
+    ("Founded 150 years ago, our experience is unique", None),
+    ("Rejoignez une équipe de 12 personnes.", None),
+])
+def test_annees_d_experience(description, years):
+    assert years_of_experience(description) == years
+
+
+def test_seniorite_par_la_description():
+    # Le titre ne dit rien : la description tranche ; le titre prime quand il est explicite
+    assert classify("Treasury Officer", "10 years of experience").seniority == "Senior / Lead"
+    assert classify("Data Architect", "3 years of experience").seniority == "Confirmé·e"
+    assert classify("Analyst", "1 year of experience").seniority == "Junior"
+    assert classify("Senior Analyst", "1 year of experience").seniority == "Senior / Lead"
+    assert classify("Comptable", "Poste à 80 %").seniority == "Non précisé"
+
+
+def test_seniorite_par_le_niveau_de_l_ats():
+    # Coop : « Cadre » dans le champ Poste veut dire encadrement ; « Collaborateur » ne dit rien
+    assert classify("Gérant·e de magasin", level="Cadre").seniority == "Senior / Lead"
+    assert classify("Vendeur·se", level="Collaborateur").seniority == "Non précisé"
 
 
 @pytest.mark.parametrize("title, expected", [

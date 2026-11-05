@@ -200,3 +200,35 @@ def test_quality(con):
     assert (q["source"], q["active"]) == ("workday", 2)
     assert (q["empty_description"], q["short_description"]) == (0.5, 1.0)
     assert q["no_date"] == 1.0 and q["no_canton"] == 0.0
+
+
+def test_collecte_interrompue_visible(con, client, tmp_path, monkeypatch):
+    companies = [dict(c) for c in COMPANIES[:2]]
+    real_ingest = pipeline.ingest
+
+    def die_on_second(con, payload):
+        if payload["company"] == "Acme Recherche":
+            raise KeyboardInterrupt  # processus tué : pas une Exception, crawl ne l'attrape pas
+        return real_ingest(con, payload)
+
+    monkeypatch.setattr(pipeline, "ingest", die_on_second)
+    with pytest.raises(KeyboardInterrupt):
+        pipeline.crawl(con, companies, client, raw_dir=tmp_path)
+    stopped = storage.interrupted_crawl(con)
+    assert (stopped.done, stopped.missing) == (["Acme"], ["Acme Recherche"])
+    assert stopped.in_progress == "Acme Recherche"
+
+    monkeypatch.setattr(pipeline, "ingest", real_ingest)
+    # Une collecte partielle d'une AUTRE entreprise ne rattrape rien : l'alerte reste
+    pipeline.crawl(con, companies, client, raw_dir=tmp_path, only=["acme"])
+    assert storage.interrupted_crawl(con).missing == ["Acme Recherche"]
+    # Recollecter celle qui manquait suffit à effacer l'alerte
+    pipeline.crawl(con, companies, client, raw_dir=tmp_path, only=["acme recherche"])
+    assert storage.interrupted_crawl(con) is None
+
+
+def test_collecte_partielle_only(con, client, tmp_path):
+    pipeline.crawl(con, [dict(c) for c in COMPANIES], client, raw_dir=tmp_path, only=["acme"])
+    (planned,) = con.execute("SELECT planned FROM crawls").fetchone()
+    assert planned == ["Acme"]  # le plan ne contient que les entreprises demandées
+    assert storage.interrupted_crawl(con) is None

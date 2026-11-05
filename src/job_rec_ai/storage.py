@@ -9,7 +9,8 @@ Trois couches (vocabulaire « médaillon » des data engineers) :
 - gold : les vues et agrégats pour l'analyse (`jobs_view`, `stats`).
 """
 
-from datetime import date, datetime
+from dataclasses import dataclass
+from datetime import UTC, date, datetime
 from pathlib import Path
 
 import duckdb
@@ -47,6 +48,10 @@ CREATE TABLE IF NOT EXISTS jobs (
     last_seen       TIMESTAMP NOT NULL,    -- dernière collecte où elle était encore en ligne
     active          BOOLEAN NOT NULL
 );
+-- Colonnes ajoutées après coup : ALTER pour les bases existantes (CREATE IF NOT EXISTS ne
+-- touche pas une table déjà là). Le classement déclaré par l'ATS, en texte brut.
+ALTER TABLE jobs ADD COLUMN IF NOT EXISTS category VARCHAR;
+ALTER TABLE jobs ADD COLUMN IF NOT EXISTS level VARCHAR;
 
 CREATE TABLE IF NOT EXISTS crawl_runs (
     started_at TIMESTAMP,
@@ -56,6 +61,15 @@ CREATE TABLE IF NOT EXISTS crawl_runs (
     fetched    INTEGER,      -- offres brutes rapportées par l'ATS (déjà filtrées par lieu)
     loaded     INTEGER,      -- offres valides chargées en base
     error      VARCHAR
+);
+
+-- Une ligne par collecte (crawl_runs : une par entreprise). finished_at reste NULL tant que la
+-- collecte n'est pas allée au bout : une ligne sans fin = un processus tué en route (Ctrl-C,
+-- redémarrage, timeout du timer), le seul échec que le try/except par entreprise ne voit pas.
+CREATE TABLE IF NOT EXISTS crawls (
+    started_at  TIMESTAMP PRIMARY KEY,
+    planned     VARCHAR[],   -- les entreprises prévues, dans l'ordre de passage
+    finished_at TIMESTAMP
 );
 
 -- Canton : celui du lieu de l'offre ; pour un site maison seulement (source jsonld : l'État de
@@ -142,6 +156,47 @@ def log_run(con, **run) -> None:
     )
 
 
+def start_crawl(con, started_at: datetime, planned: list[str]) -> None:
+    con.execute("INSERT INTO crawls VALUES (?, ?, NULL)", [started_at, planned])
+
+
+def finish_crawl(con, started_at: datetime) -> None:
+    con.execute("UPDATE crawls SET finished_at = ? WHERE started_at = ?",
+                [datetime.now(UTC).replace(tzinfo=None), started_at])
+
+
+@dataclass
+class Interrupted:
+    started_at: datetime
+    done: list[str]          # entreprises traitées (ok, erreur ou ignorées)
+    missing: list[str]       # jamais atteintes, et pas recollectées depuis
+    in_progress: str | None  # celle en cours au moment de l'arrêt (si toujours pas recollectée)
+
+
+def interrupted_crawl(con) -> Interrupted | None:
+    """La dernière collecte arrêtée en route, tant que des entreprises qu'elle n'a pas
+    atteintes n'ont pas été recollectées depuis (None sinon).
+
+    Une collecte partielle qui finit (`crawl --company Coop`) ne doit pas effacer l'alerte :
+    elle ne rattrape que les entreprises qu'elle couvre.
+    """
+    last = con.execute("SELECT started_at, planned FROM crawls WHERE finished_at IS NULL "
+                       "ORDER BY started_at DESC LIMIT 1").fetchone()
+    if last is None:
+        return None
+    started_at, planned = last
+    logged = {name for (name,) in con.execute(
+        "SELECT company FROM crawl_runs WHERE started_at = ?", [started_at]).fetchall()}
+    since = {name for (name,) in con.execute(
+        "SELECT DISTINCT company FROM crawl_runs WHERE started_at > ?", [started_at]).fetchall()}
+    unreached = [n for n in planned if n not in logged]
+    missing = [n for n in unreached if n not in since]
+    if not missing:
+        return None
+    in_progress = unreached[0] if unreached[0] in missing else None
+    return Interrupted(started_at, [n for n in planned if n in logged], missing, in_progress)
+
+
 def verified_companies(con) -> set[str]:
     """Entreprises dont au moins une collecte a réussi : leur board est donc le bon."""
     return {name for (name,) in con.execute(
@@ -224,8 +279,12 @@ def counts(con, facet: str, limit: int | None = 20) -> list[tuple[str, int]]:
     ).fetchall()
 
 
-def jobs_for_derivation(con) -> list[tuple[str, str, str, str]]:
-    return con.execute("SELECT url, title, location, description FROM jobs").fetchall()
+def jobs_for_derivation(con) -> list[dict]:
+    """Les champs dont dépendent les colonnes dérivées, nommés (pas de couplage à l'ordre)."""
+    cursor = con.execute(
+        "SELECT url, title, location, description, category, level FROM jobs")
+    names = [d[0] for d in cursor.description]
+    return [dict(zip(names, row)) for row in cursor.fetchall()]
 
 
 # --- contrôles qualité ----------------------------------------------------------------------

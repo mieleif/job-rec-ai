@@ -7,6 +7,7 @@ commandes, et rien de magique à comprendre.
 import argparse
 import json
 import logging
+import sys
 from datetime import date
 from pathlib import Path
 
@@ -69,6 +70,15 @@ def _cmd_quality(args, con):
     for row in storage.quality(con):
         print(f"{row['source']:<16} {row['active']:>7}"
               + "".join(f" {row[key]:>12.0%}" for key, _ in columns))
+    if stopped := storage.interrupted_crawl(con):
+        print(f"\nALERTE : la collecte du {stopped.started_at:%d.%m.%Y %H:%M} s'est "
+              f"arrêtée en route après {len(stopped.done)} entreprises ; "
+              f"{len(stopped.missing)} n'ont pas été recollectées depuis.")
+        if stopped.in_progress:
+            print(f"  en cours au moment de l'arrêt : {stopped.in_progress}")
+        others = [n for n in stopped.missing if n != stopped.in_progress]
+        print(f"  pas recollectées depuis : {', '.join(others) or '(aucune autre)'}")
+        print("  leurs offres datent d'une collecte antérieure : relancer `crawl`")
     failing = storage.failing_companies(con)
     print(f"\n{len(failing)} entreprise(s) en échec ou suspecte(s) à la dernière collecte")
     for company, ats, status, error in failing:
@@ -179,6 +189,10 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main(argv: list[str] | None = None) -> None:
+    # La console Windows écrit par défaut en cp1252 : « ✓ », « → » feraient planter print
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, "reconfigure"):
+            stream.reconfigure(encoding="utf-8", errors="replace")
     args = build_parser().parse_args(argv)
     logging.basicConfig(level=logging.INFO if args.verbose else logging.WARNING,
                         format="%(levelname)s %(name)s: %(message)s")

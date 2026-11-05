@@ -79,6 +79,33 @@ def location_from_url(url: str, title: str) -> str:
     return ""
 
 
+# Les champs « libellé : valeur » de la fiche, hors microdonnées. Coop n'écrit pas de
+# description (le bloc ne répète que le titre) mais renseigne ces champs :
+#   Poste : Collaborateur · Spécialisation professionnelle : Vente Food · Taux d'occupation : …
+# Les libellés dépendent du site et de la langue : on archive tout, on n'interprète que
+# ceux qu'on connaît.
+CATEGORY_LABELS = ("Spécialisation professionnelle", "Fachrichtung", "Job Function")
+LEVEL_LABELS = ("Poste", "Position", "Stelle")
+
+
+def details_of(page: JobPostingPage) -> dict[str, str]:
+    """{libellé: valeur} des champs de la fiche (span data-careersite-propertyid précédé
+    de son libellé). Les champs sans libellé (titre, description) sont déjà lus ailleurs."""
+    details = {}
+    for value in page.soup.select("[data-careersite-propertyid]"):
+        label = value.find_previous_sibling()
+        if label is None or "joblayouttoken-label" not in (label.get("class") or []):
+            continue
+        name, text = label.get_text(strip=True).rstrip(" :"), value.get_text(" ", strip=True)
+        if name and text:
+            details[name] = text
+    return details
+
+
+def _first(details: dict[str, str], labels: tuple[str, ...]) -> str | None:
+    return next((details[label] for label in labels if label in details), None)
+
+
 def title_of(page: JobPostingPage) -> str | None:
     """Le titre : microdonnées, à défaut la balise og:title (l'UIT n'a pas d'itemprop="title")."""
     return page.prop("title") or page.meta("og:title")
@@ -130,7 +157,7 @@ class SuccessFactorsConnector:
             title = title_of(page)  # hors microdonnées s'il vient d'og:title : on le garde à part
             if keep(location_of(page, url, title)):
                 postings.append({"url": url, "lastmod": lastmod, "title": title,
-                                 "html": page.markup()})
+                                 "html": page.markup(), "details": details_of(page)})
         return envelope(self.name, company, board, postings)
 
     def parse(self, payload: dict) -> list[Job]:
@@ -138,6 +165,7 @@ class SuccessFactorsConnector:
             page = JobPostingPage(posting["html"])
             job_id = _JOB_ID.search(posting["url"])
             title = posting.get("title") or page.prop("title")  # archives d'avant « title »
+            details = posting.get("details") or {}  # archives d'avant « details » : rien
             return {
                 "title": title,
                 "url": posting["url"],
@@ -145,6 +173,8 @@ class SuccessFactorsConnector:
                 "description": " ".join(clean_html(str(t)) for t in page.tags("description")),
                 "posted_at": posted_on(page.prop("datePosted")) or parse_date(posting["lastmod"]),
                 "source_id": job_id.group(1) if job_id else None,
+                "category": _first(details, CATEGORY_LABELS),
+                "level": _first(details, LEVEL_LABELS),
             }
 
         return build_jobs(payload, to_fields)

@@ -1,4 +1,5 @@
-"""Classement par règles : famille de métier, séniorité et taux d'activité, à partir du titre.
+"""Classement par règles : famille de métier, séniorité et taux d'activité, à partir du titre
+(et, pour la séniorité, des années d'expérience demandées dans la description).
 
 Pourquoi des règles plutôt qu'un modèle ? Elles sont gratuites, instantanées, et surtout
 explicables : chaque décision renvoie le mot-clé qui l'a déclenchée. Leur défaut, c'est
@@ -74,13 +75,15 @@ FAMILY_RULES: list[tuple[str, list[str]]] = [
         "business development", "key account", "commercial", "commerciale",
         "customer service", "service client", "customer success", "client advisor",
         "conseiller de vente", "conseillere de vente", "boutique", "store manager",
-        "retail", "call center", "telesales",
+        "retail", "call center", "telesales", "commerce de detail", "detailhandel",
+        "verkauf", "verkaufsberater",
     ]),
     ("Supply chain & Achats", [
         "supply chain", "logistics", "logistique", "logisticien", "logisticienne",
         "procurement", "purchasing", "achats", "acheteur", "acheteuse", "buyer",
         "warehouse", "entrepot", "planner", "planificateur", "planificatrice", "demand",
-        "inventory", "stock", "shipping", "freight", "chartering", "operations analyst",
+        "inventory", "inventaire", "inventaires", "stock", "shipping", "freight",
+        "chartering", "operations analyst",
     ]),
     ("Ingénierie & Production", [
         "engineer", "ingenieur", "ingenieure", "mechanical", "mecanique", "mecanicien",
@@ -105,7 +108,10 @@ FAMILY_RULES: list[tuple[str, list[str]]] = [
     ("Hôtellerie & Services", [
         "cuisinier", "cuisiniere", "chef de cuisine", "serveur", "serveuse", "barista",
         "hotel", "hotellerie", "concierge", "nettoyage", "cleaning", "agent de securite",
-        "security guard", "chauffeur", "driver", "housekeeping",
+        "security guard", "chauffeur", "driver", "housekeeping", "conducteur de vehicules",
+        # métiers de bouche (Coop) : boucherie, boulangerie, restauration
+        "restauration", "boucher", "bouchere", "boucherie", "poissonnier", "boulanger",
+        "boulangere", "patissier", "confiseur",
     ]),
 ]
 
@@ -123,12 +129,39 @@ SENIORITY_RULES: list[tuple[str, list[str]]] = [
         "senior", "sr", "lead", "principal", "expert", "experte", "manager",
         "responsable", "chef",
     ]),
-    ("Junior", ["junior", "jr", "entry level", "debutant", "debutante"]),
+    ("Junior", [
+        "junior", "jr", "entry level", "debutant", "debutante", "graduate", "postdoc",
+        "post-doc", "postdoctoral", "phd", "doctorant", "doctorante", "doctoral",
+        "aspirant", "aspirante", "futur cadre", "future cadre", "releve",
+    ]),
 ]
+# Le niveau déclaré par l'ATS (Coop : « Collaborateur », « Cadre », « Führungskräfte /
+# Kader ») a son propre vocabulaire. « cadre » n'est pas dans les règles du titre : « Futur
+# Cadre Junior », « Relève futur·e cadre » sont des programmes de relève, pas des postes senior.
+LEVEL_RULES = SENIORITY_RULES + [("Senior / Lead", ["cadre", "kader", "fuhrungskrafte"])]
+UNKNOWN_SENIORITY = "Non précisé"
+MID_LEVEL = "Confirmé·e"
+
+# « 5+ years of experience », « 3-5 years' experience », « 3 ans d'expérience », « five years
+# of relevant experience », « 5 Jahre Berufserfahrung ». Sur la description normalisée (sans
+# accents). Une fourchette compte pour son milieu : « 2 to 5 years », c'est un profil
+# confirmé, pas junior (« 2-5 » → 3,5).
+_NUMBERS = {w: i for i, w in enumerate(
+    "zero one two three four five six seven eight nine ten".split())}
+_NUMBERS |= {w: i for i, w in enumerate(
+    "zero un deux trois quatre cinq six sept huit neuf dix".split()) if i}
+_NUMBERS["une"] = 1
+_YEARS = re.compile(
+    rf"\b(\d{{1,2}}|{'|'.join(_NUMBERS)})\s*\+?\s*(?:(?:-|–|a|to)\s*(\d{{1,2}})\s*)?"
+    r"(?:years?|yrs|ans?|annees?|jahre?n?)\b[^.;]{0,40}?(?:experience|erfahrung)")
+# Au-delà, c'est l'histoire de la maison (« fort de 25 ans d'expérience, notre cabinet… »,
+# « 150 years of experience »), pas une exigence : on passe à la mention suivante
+MAX_REQUIRED_YEARS = 15
 
 
 _FAMILIES = compile_keywords(FAMILY_RULES)
 _SENIORITY = compile_keywords(SENIORITY_RULES)
+_LEVEL = compile_keywords(LEVEL_RULES)
 # « 80-100% », « 80 – 100 % », « 50% », « Taux d'activité : 100 % »
 _WORKLOAD = re.compile(r"(\d{2,3})\s*%?\s*[-–à]\s*(\d{2,3})\s*%|(\d{2,3})\s*%")
 
@@ -155,10 +188,38 @@ def workload(title: str) -> tuple[int | None, int | None]:
     return min(values), max(values)
 
 
-def classify(title: str) -> Classification:
-    norm = normalize(title)
-    family, keyword = first_match(_FAMILIES, norm, default=OTHER)
-    seniority, _ = first_match(_SENIORITY, norm, default="Confirmé·e")
+def years_of_experience(description: str | None) -> float | None:
+    """Le nombre d'années d'expérience demandé (la première mention plausible), None s'il n'y
+    en a pas."""
+    for match in _YEARS.finditer(normalize(description or "")):
+        low, high = match.group(1), match.group(2)
+        low = int(low) if low.isdigit() else _NUMBERS[low]
+        years = (low + int(high)) / 2 if high and int(high) > low else low
+        if years <= MAX_REQUIRED_YEARS:
+            return years
+    return None
+
+
+def seniority_of(title: str, description: str | None = None, level: str | None = None) -> str:
+    """Le titre d'abord (il est explicite), puis le niveau déclaré par l'ATS, puis les années
+    d'expérience demandées dans la description."""
+    for rules, text in ((_SENIORITY, title), (_LEVEL, level)):
+        found, _ = first_match(rules, normalize(text or ""), default=None)
+        if found:
+            return found
+    years = years_of_experience(description)
+    if years is None:
+        return UNKNOWN_SENIORITY
+    return "Junior" if years <= 2 else MID_LEVEL if years <= 5 else "Senior / Lead"
+
+
+def classify(title: str, description: str | None = None, category: str | None = None,
+             level: str | None = None) -> Classification:
+    """Le titre d'abord ; à défaut, la catégorie de l'ATS (Coop : « Vente Food »)."""
+    family, keyword = first_match(_FAMILIES, normalize(title), default=OTHER)
+    if family == OTHER and category:
+        family, keyword = first_match(_FAMILIES, normalize(category), default=OTHER)
+    seniority = seniority_of(title, description, level)
     low, high = workload(title)
     return Classification(family=family, family_keyword=keyword, seniority=seniority,
                           workload_min=low, workload_max=high)

@@ -11,13 +11,46 @@ _Dernière mise à jour : 2026-11-04_
 |---|---|---|
 | M0 · Setup | 9/9 (avec une note locale, voir « Contraintes ») | règles perso dans `CLAUDE.md`, Milestones GitHub, questions de contrôle |
 | M1 · Collecte | **8/8** (fixtures réelles pour les 10 connecteurs) | **1 002 offres réelles** (608 GE, 394 VD, 42 employeurs ; repère : jobup.ch ~2 000 pour Genève). Restent : note HTTP, questions de contrôle |
-| M2 · Pipeline | 7/7 | installer le timer sur le VPS, note ETL/ELT, questions de contrôle |
+| M2 · Pipeline | 7/7 (livrable : [notebook « 5 graphiques »](notebooks/marche-emploi.ipynb)) | installer le timer sur le VPS, note ETL/ELT, questions de contrôle |
 | M3 → M8 | pas commencé | |
 
 Tests du projet : 128 réussis.
 
 ## Décisions
 
+- **2026-11-04 · Le classement déclaré par l'ATS, quand il existe, complète le titre.**
+  Colonnes `category` et `level` (texte brut de l'ATS, aujourd'hui SuccessFactors seulement ;
+  SmartRecruiters publie aussi `function` et `experienceLevel` : à brancher). La famille vient
+  du titre, à défaut de la catégorie ; la séniorité du titre, puis du niveau, puis des années
+  d'expérience. Mots-clés ajoutés pour le commerce de détail et les métiers de bouche.
+  « Autre » : 431 → 317 offres (Coop 173 → 60). Les « Gestionnaire du commerce de détail
+  CFC » de Coop sont sans doute des places d'apprentissage, mais le titre ne le dit pas :
+  laissées « Non précisé » (cohérent avec « Électricien CFC »).
+- **2026-11-04 · Élargir à toute la Romandie : mesuré, pas fait.** Mêmes 48 employeurs, filtre
+  FR / NE / VS / JU / Jura bernois : **≈ +270 offres (+27 %), dont ~190 annonces Coop**
+  sans description ; hors Coop ≈ +75 (Richemont 35, EPFL 11, PMI 8, Nestlé 7, Alcon 4…).
+  Élargir le filtre ne multiplie pas la base : les employeurs ont été choisis pour GE/VD.
+  Ce qui la multiplierait, ce sont les employeurs locaux (cantons, hôpitaux, Groupe E, CSEM,
+  Swatch…). Décision de périmètre laissée à Leif ; scripts de mesure hors dépôt.
+- **2026-11-04 · Séniorité : le titre, sinon les années d'expérience de la description.**
+  Le défaut s'appelle désormais « Non précisé » (il valait « Confirmé·e », ce qui affirmait
+  un niveau sans indice : 56 % des offres). Ajout de postdoc / PhD / graduate → Junior. Une
+  fourchette (« 2 to 5 years ») compte pour son milieu ; ≤ 2 ans Junior, ≤ 5 Confirmé·e,
+  au-delà Senior / Lead. Résultat : « Non précisé » 561 → 342 (dont 129 Coop), Junior 7 → 94.
+  Revue de PR #7 : une mention de plus de 15 ans est l'histoire de la maison (« fort de 25 ans
+  d'expérience, notre cabinet… »), on passe à la suivante ; « 1 an », « une année » reconnus ;
+  « cadre » ne compte que dans le niveau déclaré par l'ATS (« Futur cadre junior », « Relève
+  futur·e cadre » sont des programmes de relève → Junior).
+  Graphique bonus dans le notebook. La M5 (extraction par LLM) devra battre ces règles.
+- **2026-11-04 · Une collecte interrompue est signalée par `quality`.** Table `crawls` : une
+  ligne par collecte, avec la liste des entreprises prévues ; `finished_at` n'est écrit qu'à la
+  fin (pas dans un `finally`, sinon un Ctrl-C passerait pour une collecte complète). Expérience
+  du crash à 60 % : pas de doublon ni de fausse expiration (expiration par entreprise, après sa
+  collecte), mais les 40 % restants gardaient des offres périmées sans aucune trace. Pas de
+  reprise (« checkpoint ») : la collecte est idempotente, tout relancer est juste, et une
+  reprise ne ferait gagner que du temps. Pas de réordonnancement automatique de l'entreprise
+  « poison » : les erreurs Python sont déjà isolées par entreprise ; à reconsidérer si un même
+  employeur fait tomber le processus deux fois.
 - **2026-11-04 · Filtrer côté serveur sur le pays quand l'ATS le permet.** Workday (facette
   `locationCountry`, à défaut `locations` avec les villes que reconnaît `geo`), Oracle
   (`location=Switzerland`) et Phenom (`qcountry`) restreignent la recherche à la Suisse ; le
@@ -89,6 +122,11 @@ Tests du projet : 128 réussis.
 - **Coop : des annonces sans description** (titre, taux, référence seulement : c'est ce que
   publie Coop). 209 offres sur 1 002, presque toutes classées « Autre » et en langue « other »
   (texte trop court pour la détection). À pondérer, voire à écarter, pour la recommandation.
+  Vérifié le 04.11 sur la page elle-même : le bloc « description » ne contient que le titre.
+  La page a en revanche des champs « libellé : valeur » (`data-careersite-propertyid`),
+  archivés depuis le 04.11 (`details` dans le bronze) : « Spécialisation professionnelle »
+  → colonne `category`, « Poste » → `level`. Coop ne les remplit que sur ~60 annonces sur
+  204 (pas sur les apprentissages ni les stages d'orientation).
 - **Sans connecteur possible pour l'instant** : UNIGE (contrôle anti-robot « Vérification de
   sécurité »), TPG (403), Edmond de Rothschild (offres suisses sans ville), OMC (lieu « CWR »),
   Ferring (pas d'offre suisse sur son board Workday), API WordPress du CERN (authentification).
@@ -133,6 +171,18 @@ Tests du projet : 128 réussis.
 
 ## Journal des sessions
 
+- **2026-11-05** : revue de PR #7 et #8, corrections : séniorité (cadre, histoire de la maison,
+  singulier), l'alerte « collecte interrompue » survit à une collecte partielle, `rederive` par
+  noms de colonnes, case « Identifier l'ATS » décochée (24 employeurs sans ATS identifié).
+- **2026-11-04** (soir) : version HTML du notebook (`docs/marche-emploi.html`) ; expérience du
+  crash à 60 % ; alerte « collecte interrompue » dans `quality` (table `crawls`) ; séniorité
+  par les années d'expérience + graphique ; pourquoi Coop n'a pas de description (il n'en
+  écrit pas) et lecture de ses champs structurés ; mesure de l'élargissement à la Romandie.
+- **2026-11-04** (fin) : livrables M1 et M2 : notebook `notebooks/marche-emploi.ipynb`
+  (top 20 des employeurs, langues, familles, secteurs, âge des offres ; images dans
+  `docs/img/`, deux dans le README). Lecture : 53 % d'offres en anglais, 43 % en « Autre »
+  (dont 173 Coop), âge médian 15 jours, 26 offres de plus de 6 mois. CLI : sortie forcée en
+  UTF-8 (`boards` plantait dans la console Windows sur « ✓ »).
 - **2026-11-04** (suite) : objectif 1 000 atteint : **1 002 offres actives**, 42 employeurs,
   0 erreur. Connecteurs Oracle (UBP 50, JPMorgan 11, OIM 8), Taleo (OMPI 10, OMS 2), Phenom
   (Givaudan 14, PMI 5, P&G 2), careers.un.org (ONU 48), CERN (31) ; nouveaux employeurs sur
