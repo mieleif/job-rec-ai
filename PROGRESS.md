@@ -10,7 +10,7 @@ _Dernière mise à jour : 2026-11-04_
 | Étape | Checkpoint | Ce qui reste |
 |---|---|---|
 | M0 · Setup | 9/9 (avec une note locale, voir « Contraintes ») | règles perso dans `CLAUDE.md`, Milestones GitHub, questions de contrôle |
-| M1 · Collecte | **8/8** (fixtures réelles pour les 12 connecteurs) | **1 843 offres réelles** en Suisse romande (GE 676, VD 495, FR 239, VS 224, NE 103, BE 83, JU 23 ; 58 employeurs et 1 agence). Restent : note HTTP, questions de contrôle |
+| M1 · Collecte | **8/8** (fixtures réelles pour les 13 connecteurs) | **1 884 offres réelles** en Suisse romande (GE 681, VD 511, FR 244, VS 232, NE 106, BE 85, JU 25 ; 59 employeurs et 1 agence). Restent : note HTTP, questions de contrôle |
 | M2 · Pipeline | 7/7 (livrable : [notebook « 5 graphiques »](notebooks/marche-emploi.ipynb)) | installer le timer sur le VPS, note ETL/ELT, questions de contrôle |
 | M3 → M8 | pas commencé | |
 
@@ -18,6 +18,12 @@ Tests du projet : 128 réussis.
 
 ## Décisions
 
+- **2026-11-05 · Connecteur Prospective (Helvetia Baloise).** Le site carrière est une
+  application JavaScript ; son code donne l'API publique
+  (`ohws.prospective.ch/public/v1/medium/<canal>/jobs`, permise par robots.txt). Champs
+  structurés : ville, NPA, pays, introduction, tâches, exigences, domaine, taux. Lieu
+  « Ville, CH-NPA » : le NPA situe les communes inconnues de geo. Pas de date de publication
+  dans l'API (`posted_at` vide). 41 offres en Suisse romande sur 156 en Suisse.
 - **2026-11-05 · Revue de PR #9 et #10.** L'URL d'une offre est sa clé : le connecteur JSON-LD
   retire les paramètres de suivi (`jobDbPVId` de softgarden, `utm_*`) ; les 45 URL Vaudoise
   déjà en base ont été réécrites (pas de faux doublon, `first_seen` gardé). Colonne `blocked`
@@ -36,7 +42,7 @@ Tests du projet : 128 réussis.
   quand la ville manque. Restent hors connecteur, avec leur raison : SuccessFactors ancienne
   génération et Eightfold (robots.txt l'interdit : Manor, Aldi, Lidl, Implenia, Haleon),
   Umantis (gabarit propre à chaque client, lieu non structuré : Generali, UniNE), Avature
-  (flux RSS mondial sans lieu : HSBC, Takeda), Prospective (API introuvable : Helvetia
+  (flux RSS mondial sans lieu : HSBC, Takeda), Prospective (Helvetia, connecteur ajouté depuis :
   Baloise), Jibe/iCIMS (API ouverte mais 1 offre suisse : Swissport).
 - **2026-11-05 · Les grands employeurs genevois (classement 1999/2019) et le commerce de
   détail.** Ajoutés et collectés : Hirslanden (SuccessFactors de Mediclinic), Zurich
@@ -242,6 +248,8 @@ Tests du projet : 128 réussis.
 
 ## Journal des sessions
 
+- **2026-11-05** (nuit, suite) : connecteur Prospective, Helvetia Baloise collectée (41).
+  1 884 offres, 60 sources.
 - **2026-11-05** (nuit) : revue de PR #9 et #10, 8 corrections ; le travail Romandie (PR #8,
   fusionnée dans une branche déjà fusionnée) ramené sur `main`.
 - **2026-11-05** (soir) : connecteurs Workable et Cornerstone ; JSON-LD avec chemin

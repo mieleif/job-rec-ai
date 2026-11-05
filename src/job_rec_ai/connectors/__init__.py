@@ -7,6 +7,7 @@ from job_rec_ai.connectors.greenhouse import GreenhouseConnector
 from job_rec_ai.connectors.jsonld import JsonLdConnector
 from job_rec_ai.connectors.oracle import OracleConnector
 from job_rec_ai.connectors.phenom import PhenomConnector
+from job_rec_ai.connectors.prospective import ProspectiveConnector
 from job_rec_ai.connectors.smartrecruiters import SmartRecruitersConnector
 from job_rec_ai.connectors.successfactors import SuccessFactorsConnector
 from job_rec_ai.connectors.taleo import TaleoConnector
@@ -18,7 +19,8 @@ REGISTRY: dict[str, Connector] = {
     c.name: c for c in (WorkdayConnector(), SmartRecruitersConnector(), GreenhouseConnector(),
                         SuccessFactorsConnector(), JsonLdConnector(), OracleConnector(),
                         TaleoConnector(), PhenomConnector(), UnCareersConnector(),
-                        CernConnector(), WorkableConnector(), CornerstoneConnector())
+                        CernConnector(), WorkableConnector(), CornerstoneConnector(),
+                        ProspectiveConnector())
 }
 
 __all__ = ["REGISTRY", "Connector"]
