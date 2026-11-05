@@ -10,7 +10,7 @@ _Dernière mise à jour : 2026-11-04_
 | Étape | Checkpoint | Ce qui reste |
 |---|---|---|
 | M0 · Setup | 9/9 (avec une note locale, voir « Contraintes ») | règles perso dans `CLAUDE.md`, Milestones GitHub, questions de contrôle |
-| M1 · Collecte | **8/8** (fixtures réelles pour les 10 connecteurs) | **1 002 offres réelles** (608 GE, 394 VD, 42 employeurs ; repère : jobup.ch ~2 000 pour Genève). Restent : note HTTP, questions de contrôle |
+| M1 · Collecte | **8/8** (fixtures réelles pour les 10 connecteurs) | **1 657 offres réelles** en Suisse romande (GE 637, VD 405, FR 232, VS 210, NE 101, BE 51, JU 21 ; 49 employeurs). Restent : note HTTP, questions de contrôle |
 | M2 · Pipeline | 7/7 (livrable : [notebook « 5 graphiques »](notebooks/marche-emploi.ipynb)) | installer le timer sur le VPS, note ETL/ELT, questions de contrôle |
 | M3 → M8 | pas commencé | |
 
@@ -18,6 +18,20 @@ Tests du projet : 128 réussis.
 
 ## Décisions
 
+- **2026-11-04 · Périmètre élargi à toute la Suisse romande** (GE, VD, FR, NE, VS, JU et le
+  Jura bernois avec Bienne, sous le code BE). Décision de Leif après la mesure (≈ +270 offres
+  en élargissant seulement le filtre, dont ~190 Coop) : on élargit **et** on ajoute des
+  employeurs locaux. Six trouvés avec un ATS déjà supporté : État de Fribourg et Groupe E
+  (SuccessFactors), HFR (Oracle), UCB Bulle (Phenom), Lonza Viège (Workday), CSEM
+  (JSON-LD). Résultat : 1 001 → **1 650 offres**, 42 → 49 employeurs. Le VS germanophone
+  (Viège, Brigue) est inclus : le canton est l'unité, la langue reste un filtre. Abréviations
+  des nouveaux cantons seulement entre parenthèses (« Bulle (FR) ») : « FR », « BE », « NE »
+  nus sont aussi des codes de pays ; veto ajouté pour l'Allemagne (Freiburg im Breisgau).
+  Revue de PR #8 (05.11) : le connecteur JSON-LD filtre aussi le lieu quand l'annonce nomme
+  sa ville (CSEM publiait Alpnach, Allschwil : 6 offres hors périmètre, étiquetées NE) ;
+  veto « breisgau », « am Rhein », « , DE » ; homonymes VD/NE (Colombier, Corcelles,
+  Fontaines) et « Fully » retirés des listes ; le canton tronqué de Coop (« Neuc », « Vala »)
+  est complété, dans le lieu comme dans le pré-filtre d'URL (+18 offres Coop). 1 657 offres.
 - **2026-11-04 · Le classement déclaré par l'ATS, quand il existe, complète le titre.**
   Colonnes `category` et `level` (texte brut de l'ATS, aujourd'hui SuccessFactors seulement ;
   SmartRecruiters publie aussi `function` et `experienceLevel` : à brancher). La famille vient
@@ -130,6 +144,13 @@ Tests du projet : 128 réussis.
 - **Sans connecteur possible pour l'instant** : UNIGE (contrôle anti-robot « Vérification de
   sécurité »), TPG (403), Edmond de Rothschild (offres suisses sans ville), OMC (lieu « CWR »),
   Ferring (pas d'offre suisse sur son board Workday), API WordPress du CERN (authentification).
+  Romandie (04.11) : Université de Neuchâtel (Umantis), RHNe et BCN (annonces sur jobup
+  seulement), Takeda (Avature), BMS (robots.txt l'interdit), Swatch Group (site qui ne
+  répond pas au robot) ; État de Neuchâtel, État du Valais, Hôpital du Valais, canton du Jura,
+  Hôpital du Jura, Syngenta, Tornos, Sonceboz : ATS non identifié (sites maison, à creuser).
+- **Offres en allemand** depuis l'élargissement (Lonza, Coop Haut-Valais, État de Fribourg) :
+  ~280 offres en langue « other », et des titres que les règles FR/EN ne classent pas.
+  Quelques mots-clés allemands ajoutés ; le reste attend l'extraction par LLM (M5).
 - **DuckDB : un seul processus écrivain à la fois.** Deux `crawl` en parallèle : le second échoue
   (fichier verrouillé). Collecter séquentiellement.
 - **Phenom (P&G, PMI, Givaudan)** : sitemaps par pays, mais URL sans lieu ; il faudrait
@@ -158,22 +179,28 @@ Tests du projet : 128 réussis.
 
 ## Prochaines étapes
 
-1. Familles de métiers : 431 offres sur 1 002 dans « Autre » (dont presque toutes les Coop) :
-   enrichir `families.py` ou attendre l'extraction par LLM (M5).
-2. Décider du sort des annonces sans description (Coop) pour la recommandation.
-3. Mesurer la couverture par employeur contre un agrégateur (expérience reportée par Leif) ;
+1. Familles de métiers : 558 offres sur 1 657 dans « Autre » (Coop, Lonza, État de
+   Fribourg) : enrichir `families.py` (allemand surtout) ou attendre l'extraction par LLM (M5).
+2. Romandie : identifier l'ATS des États de Neuchâtel, du Valais et du Jura et de l'Hôpital
+   du Valais (gros employeurs locaux, pas encore couverts).
+3. Décider du sort des annonces sans description (Coop) pour la recommandation.
+4. Mesurer la couverture par employeur contre un agrégateur (expérience reportée par Leif) ;
    pistes restantes : État de Vaud, CHUV, Ville de Genève, Migros Genève/Vaud, HCR.
-4. Sur le VPS : installer la collecte nocturne ([deploy/README.md](deploy/README.md)).
-5. Interpréter ensemble la première sortie de `uv run job-rec-ai quality`.
-6. M3 : similarité cosinus (intuition géométrique, exemple 2D), puis TF-IDF from scratch et
+5. Sur le VPS : installer la collecte nocturne ([deploy/README.md](deploy/README.md)).
+6. Interpréter ensemble la première sortie de `uv run job-rec-ai quality`.
+7. M3 : similarité cosinus (intuition géométrique, exemple 2D), puis TF-IDF from scratch et
    les métriques d'évaluation (precision@k, MRR, nDCG).
-7. Finir M0 : règles perso dans `CLAUDE.md`, Milestones GitHub.
+8. Finir M0 : règles perso dans `CLAUDE.md`, Milestones GitHub.
 
 ## Journal des sessions
 
 - **2026-11-05** : revue de PR #7 et #8, corrections : séniorité (cadre, histoire de la maison,
   singulier), l'alerte « collecte interrompue » survit à une collecte partielle, `rederive` par
-  noms de colonnes, case « Identifier l'ATS » décochée (24 employeurs sans ATS identifié).
+  noms de colonnes, case « Identifier l'ATS » décochée (24 employeurs sans ATS identifié) ;
+  CSEM hors périmètre écarté, homonymes allemands et vaudois, canton tronqué de Coop.
+- **2026-11-04** (nuit) : périmètre élargi à la Suisse romande ; 6 employeurs locaux ajoutés
+  (État de Fribourg, Groupe E, HFR, UCB, Lonza, CSEM) ; 1 650 offres, 0 erreur ; graphique
+  par canton dans le notebook.
 - **2026-11-04** (soir) : version HTML du notebook (`docs/marche-emploi.html`) ; expérience du
   crash à 60 % ; alerte « collecte interrompue » dans `quality` (table `crawls`) ; séniorité
   par les années d'expérience + graphique ; pourquoi Coop n'a pas de description (il n'en

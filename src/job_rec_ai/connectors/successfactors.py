@@ -30,7 +30,7 @@ from job_rec_ai.models import Job
 from job_rec_ai.text import clean_html, normalize
 
 # Au-delà, on filtre sur le lieu écrit dans l'URL avant de télécharger les annonces
-# (Nestlé : 2 000 annonces dans le monde pour une cinquantaine dans l'arc lémanique). En deçà,
+# (Nestlé : 2 000 annonces dans le monde pour une centaine en Suisse romande). En deçà,
 # on télécharge tout : certaines URL ne contiennent pas le lieu (SIG).
 FULL_SCAN_MAX = 300
 _ENTRY = re.compile(r"<url>\s*<loc>([^<]+/job/[^<]+)</loc>(?:\s*<lastmod>([^<]+)</lastmod>)?")
@@ -111,6 +111,28 @@ def title_of(page: JobPostingPage) -> str | None:
     return page.prop("title") or page.meta("og:title")
 
 
+# Coop tronque parfois le canton à quatre lettres (« Colombier, Neuc », « Fully, Vala ») :
+# on le complète quand il est le début d'un nom de canton romand
+_CANTON_NAMES = ("Genève", "Vaud", "Fribourg", "Neuchâtel", "Valais", "Jura")
+
+
+def full_region(region: str | None) -> str | None:
+    """« Neuc » → « Neuchâtel » ; un nom complet ou inconnu est rendu tel quel."""
+    if region and len(region) <= 4:
+        prefix = normalize(region)
+        for name in _CANTON_NAMES:
+            if normalize(name).startswith(prefix) and normalize(name) != prefix:
+                return name
+    return region
+
+
+def worth_fetching(slug: str) -> bool:
+    """Pré-filtre sur l'URL : un lieu romand y figure, y compris un canton tronqué en
+    dernier mot (Coop : « Colombier-Vendeur-Neuc »)."""
+    last = slug.rsplit("-", 1)[-1]
+    return mentions_target_place(slug) or mentions_target_place(full_region(last))
+
+
 def location_of(page: JobPostingPage, url: str, title: str | None) -> str:
     """Le lieu de l'annonce : microdonnées si elles disent plus qu'un code pays, sinon l'URL."""
     address = page.prop("streetAddress") or ""
@@ -118,7 +140,8 @@ def location_of(page: JobPostingPage, url: str, title: str | None) -> str:
         return address
     # Coop : commune et canton à part (« Aclens », « Vaud ») ; la commune seule est
     # souvent inconnue de geo, le canton la situe. Un seul des deux (« CH ») : l'URL d'abord
-    place = ", ".join(p for p in (page.prop("addressLocality"), page.prop("addressRegion")) if p)
+    region = full_region(page.prop("addressRegion"))
+    place = ", ".join(p for p in (page.prop("addressLocality"), region) if p)
     if "," in place:
         return place
     return location_from_url(url, title or "") or place or address
@@ -148,7 +171,7 @@ class SuccessFactorsConnector:
 
         postings = []
         for url, lastmod in entries:
-            if prefilter and not mentions_target_place(_slug(url)):
+            if prefilter and not worth_fetching(_slug(url)):
                 continue
             raw = get_html_or_skip(client, url)  # retirée mais encore dans le sitemap : None
             if raw is None:

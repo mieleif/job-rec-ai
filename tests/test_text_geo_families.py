@@ -31,6 +31,15 @@ def test_detect_language_allemand_est_other():
     # veto jugé lieu par lieu : la Suisse d'un segment ne blanchit pas l'homonyme d'un autre
     ("Geneva, IL, United States / Zurich, Switzerland", None),
     ("Geneva, New York, USA; Lausanne, Switzerland", "VD"),
+    # le reste de la Romandie (04.11.2026)
+    ("Neuchâtel", "NE"), ("La Chaux-de-Fonds, CH", "NE"), ("Bulle (FR)", "FR"),
+    ("Sion", "VS"), ("Visp, Switzerland", "VS"), ("Delémont", "JU"), ("Biel/Bienne", "BE"),
+    ("Bern", None),  # BE = le Jura bernois et Bienne seulement
+    # codes de pays et homonymes : « FR » et « BE » nus ne sont pas des cantons
+    ("Paris, FR", None), ("Bruxelles, BE", None), ("Freiburg, Germany", None),
+    ("Freiburg im Breisgau", None), ("Freiburg, DE", None), ("Neuenburg am Rhein", None),
+    # homonymes VD / NE non listés : le nom seul ne permet pas de trancher
+    ("Colombier", None), ("Corcelles-Cormondrèche", "NE"),
 ])
 def test_canton_of(location, canton):
     assert canton_of(location) == canton
@@ -68,6 +77,7 @@ def test_classement_explique_sa_decision():
     ("Électricien CFC", "Non précisé"),  # CFC = diplôme obtenu, pas un apprentissage
     ("Postdoc Position in Quantitative Finance", "Junior"),
     ("Assistant(e) Audit - Genève (Graduate)", "Junior"),
+    ("Lehrstelle als Chemie- und Pharmatechnologe EFZ", "Stage / Apprentissage"),
     # programmes de relève : « cadre » n'y veut pas dire senior
     ("Futur Cadre Junior (H/F)", "Junior"),
     ("Aspirant·e (Relève Futur·e cadre) / Région de la Gruyère", "Junior"),

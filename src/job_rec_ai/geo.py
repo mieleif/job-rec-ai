@@ -2,15 +2,16 @@
 
 Les ATS écrivent les lieux de façon hétérogène : Geneva / Genève / Genf, « Lausanne, VD »,
 « Meyrin (GE) », « 2 Locations »… On ne cherche pas la perfection : une liste de communes
-de l'arc lémanique où se trouvent les grands employeurs, plus les noms de canton.
+de Suisse romande où se trouvent les employeurs, plus les noms de canton.
 """
 
 import re
 
 from job_rec_ai.text import compile_keywords, first_match, normalize
 
-# Périmètre retenu pour la première base : l'arc lémanique (décision du 22.10.2026)
-TARGET_CANTONS = {"GE", "VD"}
+# Périmètre : la Suisse romande (décision du 04.11.2026 ; l'arc lémanique GE + VD avant).
+# « BE » ne couvre que le Jura bernois et Bienne : aucune commune germanophone n'est listée.
+TARGET_CANTONS = {"GE", "VD", "FR", "NE", "VS", "JU", "BE"}
 # Le pays des cantons cibles, tel que l'écrivent les ATS dans leurs filtres de recherche
 TARGET_COUNTRY = "Switzerland"
 
@@ -40,18 +41,57 @@ _PLACES = {
         "villars-sur-ollon", "leysin", "rennaz", "ollon", "avenches", "cossonay", "lucens",
         "chexbres", "cully", "sainte-croix", "chateau-d'oex",
     ],
+    "FR": [
+        "fribourg", "freiburg", "bulle", "villars-sur-glane", "marly", "granges-paccot",
+        "givisiez", "murten", "morat", "estavayer-le-lac", "estavayer", "romont",
+        "chatel-saint-denis", "dudingen", "guin", "belfaux", "matran", "domdidier",
+        "broc", "riaz", "vuadens", "corminboeuf", "avry", "courtepin", "tafers", "wunnewil",
+        "flamatt", "kerzers", "morlon", "la tour-de-treme", "rossens",
+    ],
+    "NE": [
+        "neuchatel", "neuenburg", "la chaux-de-fonds", "le locle", "marin-epagnier",
+        "saint-blaise", "peseux", "boudry", "cortaillod",
+        "couvet", "val-de-travers", "cressier", "hauterive", "serrieres", "val-de-ruz",
+        "cernier", "fleurier", "les brenets", "bevaix", "auvernier", "la tene", "milvignes",
+        "corcelles-cormondreche", "fontainemelon",
+    ],
+    "VS": [
+        "valais", "wallis", "sion", "sitten", "sierre", "siders", "martigny", "monthey",
+        "conthey", "collombey", "collombey-muraz", "saint-maurice", "verbier",
+        "crans-montana", "visp", "viege", "brig", "naters", "zermatt", "saxon",
+        "vetroz", "ardon", "chippis", "steg", "gampel", "leuk", "susten", "vouvry",
+        "port-valais", "bagnes", "le chable", "riddes", "chamoson", "saviese",
+        "uvrier", "bramois", "evolene", "nendaz", "saas-fee",
+    ],
+    "JU": [
+        "delemont", "porrentruy", "bassecourt", "saignelegier", "courrendlin",
+        "courgenay", "glovelier", "le noirmont", "les breuleux", "courroux", "boncourt",
+        "canton du jura",
+    ],
+    "BE": [  # le Jura bernois et Bienne seulement (voir TARGET_CANTONS)
+        "bienne", "biel", "saint-imier", "st-imier", "moutier", "tavannes",
+        "tramelan", "reconvilier", "la neuveville", "courtelary", "sonceboz", "malleray",
+        "bevilard", "cormoret", "villeret", "corgemont", "jura bernois",
+    ],
 }
 
 # Tirets et espaces équivalents : les URL écrivent « Chene-Bourg » ou « Chene Bourg »,
 # les annonces « Plan-les-Ouates » ou « Plan les Ouates »
 _PATTERNS = compile_keywords(
     (canton, [p.replace("-", " ") for p in places]) for canton, places in _PLACES.items())
-# Abréviations de canton en majuscules : « Lausanne, VD » ou « Meyrin (GE) »
-_ABBREV = re.compile(rf"\b({'|'.join(_PLACES)})\b")
-# Homonymes à l'étranger : Geneva (Illinois, New York), Bellevue (Washington)…
+# Abréviations de canton en majuscules : « Lausanne, VD » ou « Meyrin (GE) ». Pour les
+# autres cantons, seulement entre parenthèses (« Bulle (FR) ») : « FR », « BE », « NE »
+# sont aussi des codes de pays (« Paris, FR », « Bruxelles, BE ») ou des États américains.
+_ABBREV = re.compile(r"\b(GE|VD)\b|\((FR|NE|VS|JU)\)")
+# Homonymes à l'étranger : Geneva (Illinois, New York), Bellevue (Washington), Freiburg
+# im Breisgau, Neuenburg am Rhein… « , DE » en fin de lieu : le code pays de l'Allemagne.
+# Communes homonymes en Suisse romande même (Colombier, Corcelles et Fontaines existent dans
+# VD et NE ; « Fully » est aussi un mot anglais des URL) : non listées, faute de pouvoir
+# trancher sur le nom seul.
 _FOREIGN = re.compile(
     r"united states|\busa\b|illinois|new york|\b(il|ny|oh|al|wa)\b|ohio|alabama|"
-    r"florida|france|italy|italia|united kingdom"
+    r"florida|france|italy|italia|united kingdom|germany|deutschland|allemagne|belgium|"
+    r"belgique|breisgau|am rhein|baden wurttemberg|,\s*de\s*$"
 )
 # Une offre multi-sites (« Geneva, Switzerland, Paris, France ») cite un pays étranger sans
 # être à l'étranger : la Suisse nommée explicitement lève le veto des homonymes.
@@ -63,7 +103,7 @@ _SEGMENTS = re.compile(r"\s*[/;·|]\s*")
 
 
 def canton_of(location: str | None) -> str | None:
-    """Renvoie « GE », « VD » ou None si le lieu n'est pas dans l'arc lémanique.
+    """Renvoie le canton romand du lieu (« GE », « NE »…), None s'il n'est pas reconnu.
 
     Chaque lieu d'une offre multi-sites est jugé séparément : le veto « homonyme étranger »
     d'un segment (« Geneva, IL, United States ») ne doit ni contaminer ni être levé par un
@@ -86,11 +126,11 @@ def _segment_canton(location: str) -> str | None:
     if canton:
         return canton
     match = _ABBREV.search(location)
-    return match.group(1) if match else None
+    return (match.group(1) or match.group(2)) if match else None
 
 
 def mentions_target_place(text: str | None) -> bool:
-    """Un nom de lieu de l'arc lémanique apparaît-il dans le texte ?
+    """Un nom de lieu romand apparaît-il dans le texte ?
 
     Pré-filtre grossier pour un texte qui mêle lieu et autre chose (une URL « Lieu-Titre ») :
     pas de veto des homonymes étrangers, qui se déclencherait sur les mots du titre
