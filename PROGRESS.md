@@ -10,7 +10,7 @@ _Dernière mise à jour : 2026-11-04_
 | Étape | Checkpoint | Ce qui reste |
 |---|---|---|
 | M0 · Setup | 9/9 (avec une note locale, voir « Contraintes ») | règles perso dans `CLAUDE.md`, Milestones GitHub, questions de contrôle |
-| M1 · Collecte | **8/8** (fixtures réelles pour les 13 connecteurs) | **1 884 offres réelles** en Suisse romande (GE 681, VD 511, FR 244, VS 232, NE 106, BE 85, JU 25 ; 59 employeurs et 1 agence). Restent : note HTTP, questions de contrôle |
+| M1 · Collecte | **8/8** (fixtures réelles pour les 13 connecteurs) | **1 692 offres réelles** en Suisse romande francophone (GE 681, VD 511, FR 214, NE 106, BE 83, VS 72, JU 25 ; 58 employeurs et 1 agence). Restent : note HTTP, questions de contrôle |
 | M2 · Pipeline | 7/7 (livrable : [notebook « 5 graphiques »](notebooks/marche-emploi.ipynb)) | installer le timer sur le VPS, note ETL/ELT, questions de contrôle |
 | M3 → M8 | pas commencé | |
 
@@ -18,6 +18,15 @@ Tests du projet : 128 réussis.
 
 ## Décisions
 
+- **2026-11-05 · Périmètre linguistique, pas cantonal.** Leif a repéré Zermatt parmi les
+  offres Helvetia : le Haut-Valais, la Singine (Guin, Tavel), Morat et le Seeland ne sont pas
+  la Suisse romande. Révise la décision du 04.11 (« le canton est l'unité »). `geo` les
+  écarte même quand le lieu nomme aussi le canton (« Visp, Wallis ») ; les plages de NPA
+  sont affinées (Granges SO 2540 était classée BE). `rederive` désactive désormais les
+  offres qui perdent leur canton : 192 offres sorties (Lonza Viège 141, Coop 30, Helvetia 5,
+  État de Fribourg 5, Groupe E 5, HFR 4, Mobilière 1, Vaudoise 1). Lonza, sans site romand,
+  est exclue de la collecte (`blocked`). Limite connue : un même segment de lieu qui cite
+  une commune romande et une germanophone (« Sion, Visp ») est écarté.
 - **2026-11-05 · Un explorateur d'offres en page statique.** `job-rec-ai explore` écrit
   `data/offres.html` (non versionné, régénéré après une collecte) : les offres actives en JSON
   dans la page, filtres (texte, canton, famille, séniorité, langue, employeur/agence, moins de
@@ -30,7 +39,8 @@ Tests du projet : 128 réussis.
   (`ohws.prospective.ch/public/v1/medium/<canal>/jobs`, permise par robots.txt). Champs
   structurés : ville, NPA, pays, introduction, tâches, exigences, domaine, taux. Lieu
   « Ville, CH-NPA » : le NPA situe les communes inconnues de geo. Pas de date de publication
-  dans l'API (`posted_at` vide). 41 offres en Suisse romande sur 156 en Suisse.
+  dans l'API (`posted_at` vide). 36 offres en Suisse romande sur 156 en Suisse (41 avant
+  le périmètre linguistique : Zermatt, Viège, Guin et Granges en sont sortis).
 - **2026-11-05 · Revue de PR #9 et #10.** L'URL d'une offre est sa clé : le connecteur JSON-LD
   retire les paramètres de suivi (`jobDbPVId` de softgarden, `utm_*`) ; les 45 URL Vaudoise
   déjà en base ont été réécrites (pas de faux doublon, `first_seen` gardé). Colonne `blocked`
@@ -84,7 +94,8 @@ Tests du projet : 128 réussis.
   employeurs locaux. Six trouvés avec un ATS déjà supporté : État de Fribourg et Groupe E
   (SuccessFactors), HFR (Oracle), UCB Bulle (Phenom), Lonza Viège (Workday), CSEM
   (JSON-LD). Résultat : 1 001 → **1 650 offres**, 42 → 49 employeurs. Le VS germanophone
-  (Viège, Brigue) est inclus : le canton est l'unité, la langue reste un filtre. Abréviations
+  (Viège, Brigue) est inclus : le canton est l'unité, la langue reste un filtre (révisé le
+  05.11 : périmètre linguistique, voir plus haut). Abréviations
   des nouveaux cantons seulement entre parenthèses (« Bulle (FR) ») : « FR », « BE », « NE »
   nus sont aussi des codes de pays ; veto ajouté pour l'Allemagne (Freiburg im Breisgau).
   Revue de PR #8 (05.11) : le connecteur JSON-LD filtre aussi le lieu quand l'annonce nomme
@@ -255,6 +266,8 @@ Tests du projet : 128 réussis.
 
 ## Journal des sessions
 
+- **2026-11-05** (matin) : périmètre linguistique (Zermatt repéré par Leif) ; Haut-Valais,
+  Singine, Morat et Seeland écartés ; 1 884 → 1 692 offres, Lonza exclue.
 - **2026-11-05** (fin) : explorateur d'offres (`explore`, `data/offres.html`).
 - **2026-11-05** (nuit, suite) : connecteur Prospective, Helvetia Baloise collectée (41).
   1 884 offres, 60 sources.

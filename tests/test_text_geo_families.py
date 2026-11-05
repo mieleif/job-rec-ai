@@ -33,7 +33,13 @@ def test_detect_language_allemand_est_other():
     ("Geneva, New York, USA; Lausanne, Switzerland", "VD"),
     # le reste de la Romandie (04.11.2026)
     ("Neuchâtel", "NE"), ("La Chaux-de-Fonds, CH", "NE"), ("Bulle (FR)", "FR"),
-    ("Sion", "VS"), ("Visp, Switzerland", "VS"), ("Delémont", "JU"), ("Biel/Bienne", "BE"),
+    ("Sion", "VS"), ("Delémont", "JU"), ("Biel/Bienne", "BE"),
+    # périmètre linguistique (05.11.2026) : ni Haut-Valais, ni Singine, ni Seeland
+    ("Zermatt, CH-3920", None), ("Visp, Switzerland", None), ("Brig VS, Wallis", None),
+    ("Zermatt (VS)", None), ("Murten, Freiburg, Schweiz", None),
+    ("Guin - Düdingen, Frei", None), ("Tafers, Switzerland", None),
+    ("Grenchen, CH-2545", None), ("Site, CH-1712 Taf", None), ("Bureau, CH-2560 Nida", None),
+    ("Sierre / Visp", "VS"), ("Fribourg, CH-1700", "FR"),
     ("Bern", None),  # BE = le Jura bernois et Bienne seulement
     # codes de pays et homonymes : « FR » et « BE » nus ne sont pas des cantons
     ("Paris, FR", None), ("Bruxelles, BE", None), ("Freiburg, Germany", None),

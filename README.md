@@ -15,7 +15,7 @@ Où on en est, et les décisions prises : **[PROGRESS.md](PROGRESS.md)**.
 | Étape | Statut |
 |---|---|
 | M0 · Setup | 🚧 en cours |
-| M1 · Collecte | 🚧 1 884 offres réelles en Suisse romande ; notes et questions de contrôle restantes |
+| M1 · Collecte | 🚧 1 692 offres réelles en Suisse romande francophone ; notes et questions de contrôle restantes |
 | M2 · Pipeline | 🚧 collecte nocturne sur le VPS à installer |
 | M3 · Baseline et évaluation | ⏳ |
 | M4 · Embeddings et recherche sémantique | ⏳ |

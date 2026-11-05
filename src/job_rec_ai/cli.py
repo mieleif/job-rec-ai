@@ -147,7 +147,9 @@ def _cmd_explore(args, con):
 
 
 def _cmd_rederive(args, con):
-    print(f"{pipeline.rederive(con)} offres recalculées")
+    result = pipeline.rederive(con)
+    print(f"{result.recalculated} offres recalculées, "
+          f"{result.out_of_scope} sorties du périmètre (désactivées)")
 
 
 def build_parser() -> argparse.ArgumentParser:

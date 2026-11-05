@@ -176,13 +176,30 @@ def replay(con, raw_dir: Path = RAW_DIR) -> int:
     return total
 
 
-def rederive(con) -> int:
+@dataclass
+class Rederived:
+    recalculated: int
+    out_of_scope: int  # offres qui avaient un canton romand et n'en ont plus : désactivées
+
+
+def rederive(con) -> Rederived:
     """Recalcule langue, canton, famille, séniorité et taux pour toutes les offres (après
-    un changement de règles), sans rien re-télécharger."""
-    rows = [{"url": fields.pop("url"), **derive(**fields)}
-            for fields in storage.jobs_for_derivation(con)]
+    un changement de règles), sans rien re-télécharger.
+
+    Une offre qui perd son canton romand est sortie du périmètre : la prochaine collecte la
+    filtrerait (keep=is_target) puis l'expirerait ; on la désactive dès maintenant. Les offres
+    sans canton dès le départ (JSON-LD sans ville, canton de l'employeur) ne sont pas touchées.
+    """
+    rows, out = [], []
+    for fields in storage.jobs_for_derivation(con):
+        url, before = fields.pop("url"), fields.pop("canton")
+        derived = derive(**fields)
+        rows.append({"url": url, **derived})
+        if before and not derived["canton"]:
+            out.append(url)
     storage.update_derived(con, rows)
-    return len(rows)
+    storage.deactivate(con, out)
+    return Rederived(len(rows), len(out))
 
 
 @dataclass
