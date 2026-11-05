@@ -115,6 +115,12 @@ _NPA = re.compile(r"(?<![\d.])([12]\d{3})(?![\d.])")
 _CH_NPA = re.compile(r"\bCH[-\s]?([12]\d{3})(?!\d)")
 
 
+def is_switzerland(country: str | None) -> bool:
+    """« CH », « CHE », « Switzerland », « Schweiz », « Suisse »… → True."""
+    norm = normalize(country or "").strip()
+    return norm in ("ch", "che") or bool(_SWISS.search(norm))
+
+
 def canton_of_npa(text: str) -> str | None:
     """Le canton d'un NPA romand (« CH-1003 Laus », « 1870 Monthey, Switzerland » → VD, VS),
     None sans NPA romand ou sans indice que le lieu est en Suisse."""

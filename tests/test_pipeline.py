@@ -248,3 +248,9 @@ def test_offres_d_agence_marquees(con, tmp_path):
                         datetime(2026, 10, 1))
     assert [r["company"] for r in storage.search(con, publisher_type="agence")] == ["Placement SA"]
     assert dict(storage.counts(con, "publisher_type")) == {"employeur": 1, "agence": 1}
+
+
+def test_entreprise_exclue():
+    company = {**COMPANIES[0], "blocked": "robots.txt interdit le site"}
+    assert pipeline.skip_reason(company) == "exclue : robots.txt interdit le site"
+    assert pipeline.skip_reason(COMPANIES[0]) is None  # pas de colonne blocked : collectable

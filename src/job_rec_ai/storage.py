@@ -25,9 +25,11 @@ CREATE TABLE IF NOT EXISTS companies (
     careers_url    VARCHAR,
     ats            VARCHAR,
     board          VARCHAR,
-    publisher_type VARCHAR       -- employeur | agence
+    publisher_type VARCHAR,      -- employeur | agence
+    blocked        VARCHAR       -- pourquoi on ne collecte pas (NULL : rien ne l'interdit)
 );
 ALTER TABLE companies ADD COLUMN IF NOT EXISTS publisher_type VARCHAR;
+ALTER TABLE companies ADD COLUMN IF NOT EXISTS blocked VARCHAR;
 
 CREATE TABLE IF NOT EXISTS jobs (
     url             VARCHAR PRIMARY KEY,   -- clé naturelle : une offre = une URL

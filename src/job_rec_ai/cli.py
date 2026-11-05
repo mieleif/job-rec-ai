@@ -36,13 +36,19 @@ def _cmd_boards(args, con):
     """Couverture : quels ATS couvrent combien d'entreprises ? → quel connecteur écrire."""
     verified = storage.verified_companies(con)
     by_ats: dict[str, list[str]] = {}
+    blocked: list[str] = []
     for c in load_companies(args.companies):
+        if c["blocked"]:  # rien à écrire : robots.txt, refus du site, jobboard…
+            blocked.append(f"{c['company']} ({c['blocked']})")
+            continue
         by_ats.setdefault(c["ats"] or "(inconnu)", []).append(
             c["company"] + ("" if c["company"] in verified else " ?"))
     for ats, names in sorted(by_ats.items(), key=lambda kv: -len(kv[1])):
         status = "connecteur ✓" if ats in REGISTRY else "—"
         print(f"{ats:<16} {len(names):>3}  {status:<12} {', '.join(names)}")
     print("\n« ? » = board pas encore vérifié par une collecte réussie")
+    if blocked:
+        print(f"\nExclues ({len(blocked)}) : " + " ; ".join(blocked))
 
 
 def _print_counts(con, facet, limit):

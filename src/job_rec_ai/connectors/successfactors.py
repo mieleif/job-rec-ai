@@ -24,7 +24,7 @@ from job_rec_ai.connectors.base import (
     parse_date,
 )
 from job_rec_ai.connectors.schema_org import JobPostingPage
-from job_rec_ai.geo import mentions_target_place
+from job_rec_ai.geo import is_switzerland, mentions_target_place
 from job_rec_ai.http import PoliteClient
 from job_rec_ai.models import Job
 from job_rec_ai.text import clean_html, normalize
@@ -150,7 +150,7 @@ def location_of(page: JobPostingPage, url: str, title: str | None) -> str:
     # tronquée ; préfixé « CH- » seulement si l'annonce se dit en Suisse (Mediclinic recrute
     # aussi en Afrique du Sud : « 2196 », c'est Sandton)
     postal = page.prop("postalCode")
-    if postal and page.prop("addressCountry") in ("CH", "Switzerland"):
+    if postal and is_switzerland(page.prop("addressCountry")):
         postal = f"CH-{postal}"
     region = " ".join(p for p in (postal, full_region(page.prop("addressRegion"))) if p)
     place = ", ".join(p for p in (page.prop("addressLocality"), region) if p)
@@ -175,10 +175,15 @@ class SuccessFactorsConnector:
 
     def fetch(self, board: str, company: str, client: PoliteClient,
               keep: LocationFilter) -> dict:
-        site = board.rstrip("/")
-        entries = sitemap_entries(client.get_html(f"{site}/sitemap.xml"))
+        # Un board avec un chemin ne garde que ses annonces dans le sitemap du site : Mediclinic
+        # publie Hirslanden (/Hirslanden/job/…), l'Afrique du Sud et le Moyen-Orient ensemble
+        parts = urlsplit(board.rstrip("/"))
+        site = f"{parts.scheme}://{parts.netloc}"
+        entries = [(url, lastmod) for url, lastmod
+                   in sitemap_entries(client.get_html(f"{site}/sitemap.xml"))
+                   if urlsplit(url).path.startswith(f"{parts.path}/")]
         if not entries:
-            raise ValueError(f"aucune annonce dans {site}/sitemap.xml")
+            raise ValueError(f"aucune annonce de {board} dans {site}/sitemap.xml")
         prefilter = len(entries) > FULL_SCAN_MAX
 
         postings = []

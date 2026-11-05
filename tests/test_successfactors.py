@@ -243,3 +243,30 @@ def test_lieu_avec_canton_tronque():
 ])
 def test_prefiltre_canton_tronque(slug, expected):
     assert successfactors.worth_fetching(slug) == expected
+
+
+def test_board_avec_chemin(sleeps):
+    """Mediclinic : un sitemap pour plusieurs marques ; le board /Hirslanden ne lit que les
+    siennes (l'Afrique du Sud n'est même pas téléchargée)."""
+    sitemap = (f"<url><loc>{SITE}/Hirslanden/job/Cecil-Secretaire-Laus-1003/1/</loc></url>"
+               f"<url><loc>{SITE}/SouthernAfrica/job/Morningside-Nurse-Sand-2196/2/</loc></url>")
+    page = ('<span itemprop="addressLocality">Clinique Cecil</span>'
+            '<span itemprop="addressRegion">Laus</span><span itemprop="postalCode">1003</span>'
+            '<span itemprop="addressCountry">Schweiz</span>'
+            '<span itemprop="title">Secrétaire</span>')
+    asked = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        asked.append(request.url.path)
+        if request.url.path == "/sitemap.xml":
+            return httpx.Response(200, text=sitemap)
+        return httpx.Response(200, text=page) if "/job/" in request.url.path else (
+            httpx.Response(404))
+
+    connector = REGISTRY["successfactors"]
+    with PoliteClient(transport=httpx.MockTransport(handler), sleep=sleeps.append) as client:
+        payload = connector.fetch(f"{SITE}/Hirslanden", "Hirslanden", client, keep=is_target)
+    assert not any("SouthernAfrica" in p for p in asked)
+    (job,) = connector.parse(payload)
+    # « Schweiz » suffit pour préfixer le NPA : la ville tronquée est quand même située
+    assert job.location == "Clinique Cecil, CH-1003 Laus"
