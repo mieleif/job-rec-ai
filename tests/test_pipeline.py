@@ -216,10 +216,15 @@ def test_collecte_interrompue_visible(con, client, tmp_path, monkeypatch):
         pipeline.crawl(con, companies, client, raw_dir=tmp_path)
     stopped = storage.interrupted_crawl(con)
     assert (stopped.done, stopped.missing) == (["Acme"], ["Acme Recherche"])
+    assert stopped.in_progress == "Acme Recherche"
 
     monkeypatch.setattr(pipeline, "ingest", real_ingest)
-    pipeline.crawl(con, companies, client, raw_dir=tmp_path)
-    assert storage.interrupted_crawl(con) is None  # la relance complète efface l'alerte
+    # Une collecte partielle d'une AUTRE entreprise ne rattrape rien : l'alerte reste
+    pipeline.crawl(con, companies, client, raw_dir=tmp_path, only=["acme"])
+    assert storage.interrupted_crawl(con).missing == ["Acme Recherche"]
+    # Recollecter celle qui manquait suffit à effacer l'alerte
+    pipeline.crawl(con, companies, client, raw_dir=tmp_path, only=["acme recherche"])
+    assert storage.interrupted_crawl(con) is None
 
 
 def test_collecte_partielle_only(con, client, tmp_path):

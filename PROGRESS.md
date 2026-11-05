@@ -37,6 +37,10 @@ Tests du projet : 128 réussis.
   un niveau sans indice : 56 % des offres). Ajout de postdoc / PhD / graduate → Junior. Une
   fourchette (« 2 to 5 years ») compte pour son milieu ; ≤ 2 ans Junior, ≤ 5 Confirmé·e,
   au-delà Senior / Lead. Résultat : « Non précisé » 561 → 342 (dont 129 Coop), Junior 7 → 94.
+  Revue de PR #7 : une mention de plus de 15 ans est l'histoire de la maison (« fort de 25 ans
+  d'expérience, notre cabinet… »), on passe à la suivante ; « 1 an », « une année » reconnus ;
+  « cadre » ne compte que dans le niveau déclaré par l'ATS (« Futur cadre junior », « Relève
+  futur·e cadre » sont des programmes de relève → Junior).
   Graphique bonus dans le notebook. La M5 (extraction par LLM) devra battre ces règles.
 - **2026-11-04 · Une collecte interrompue est signalée par `quality`.** Table `crawls` : une
   ligne par collecte, avec la liste des entreprises prévues ; `finished_at` n'est écrit qu'à la
@@ -167,6 +171,9 @@ Tests du projet : 128 réussis.
 
 ## Journal des sessions
 
+- **2026-11-05** : revue de PR #7 et #8, corrections : séniorité (cadre, histoire de la maison,
+  singulier), l'alerte « collecte interrompue » survit à une collecte partielle, `rederive` par
+  noms de colonnes, case « Identifier l'ATS » décochée (24 employeurs sans ATS identifié).
 - **2026-11-04** (soir) : version HTML du notebook (`docs/marche-emploi.html`) ; expérience du
   crash à 60 % ; alerte « collecte interrompue » dans `quality` (table `crawls`) ; séniorité
   par les années d'expérience + graphique ; pourquoi Coop n'a pas de description (il n'en

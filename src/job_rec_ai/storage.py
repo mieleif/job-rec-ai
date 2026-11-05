@@ -168,21 +168,33 @@ def finish_crawl(con, started_at: datetime) -> None:
 @dataclass
 class Interrupted:
     started_at: datetime
-    done: list[str]     # entreprises traitées (ok, erreur ou ignorées)
-    missing: list[str]  # jamais atteintes ; la première était en cours au moment de l'arrêt
+    done: list[str]          # entreprises traitées (ok, erreur ou ignorées)
+    missing: list[str]       # jamais atteintes, et pas recollectées depuis
+    in_progress: str | None  # celle en cours au moment de l'arrêt (si toujours pas recollectée)
 
 
 def interrupted_crawl(con) -> Interrupted | None:
-    """La DERNIÈRE collecte, si elle s'est arrêtée en route (None : elle est allée au bout)."""
-    last = con.execute("SELECT started_at, planned, finished_at FROM crawls "
+    """La dernière collecte arrêtée en route, tant que des entreprises qu'elle n'a pas
+    atteintes n'ont pas été recollectées depuis (None sinon).
+
+    Une collecte partielle qui finit (`crawl --company Coop`) ne doit pas effacer l'alerte :
+    elle ne rattrape que les entreprises qu'elle couvre.
+    """
+    last = con.execute("SELECT started_at, planned FROM crawls WHERE finished_at IS NULL "
                        "ORDER BY started_at DESC LIMIT 1").fetchone()
-    if last is None or last[2] is not None:
+    if last is None:
         return None
-    started_at, planned, _ = last
+    started_at, planned = last
     logged = {name for (name,) in con.execute(
         "SELECT company FROM crawl_runs WHERE started_at = ?", [started_at]).fetchall()}
-    return Interrupted(started_at, [n for n in planned if n in logged],
-                       [n for n in planned if n not in logged])
+    since = {name for (name,) in con.execute(
+        "SELECT DISTINCT company FROM crawl_runs WHERE started_at > ?", [started_at]).fetchall()}
+    unreached = [n for n in planned if n not in logged]
+    missing = [n for n in unreached if n not in since]
+    if not missing:
+        return None
+    in_progress = unreached[0] if unreached[0] in missing else None
+    return Interrupted(started_at, [n for n in planned if n in logged], missing, in_progress)
 
 
 def verified_companies(con) -> set[str]:
@@ -267,9 +279,12 @@ def counts(con, facet: str, limit: int | None = 20) -> list[tuple[str, int]]:
     ).fetchall()
 
 
-def jobs_for_derivation(con) -> list[tuple]:
-    return con.execute(
-        "SELECT url, title, location, description, category, level FROM jobs").fetchall()
+def jobs_for_derivation(con) -> list[dict]:
+    """Les champs dont dépendent les colonnes dérivées, nommés (pas de couplage à l'ordre)."""
+    cursor = con.execute(
+        "SELECT url, title, location, description, category, level FROM jobs")
+    names = [d[0] for d in cursor.description]
+    return [dict(zip(names, row)) for row in cursor.fetchall()]
 
 
 # --- contrôles qualité ----------------------------------------------------------------------

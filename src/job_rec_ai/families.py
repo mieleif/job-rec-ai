@@ -127,13 +127,18 @@ SENIORITY_RULES: list[tuple[str, list[str]]] = [
     ]),
     ("Senior / Lead", [
         "senior", "sr", "lead", "principal", "expert", "experte", "manager",
-        "responsable", "chef", "cadre", "kader", "fuhrungskrafte",
+        "responsable", "chef",
     ]),
     ("Junior", [
         "junior", "jr", "entry level", "debutant", "debutante", "graduate", "postdoc",
         "post-doc", "postdoctoral", "phd", "doctorant", "doctorante", "doctoral",
+        "aspirant", "aspirante", "futur cadre", "future cadre", "releve",
     ]),
 ]
+# Le niveau déclaré par l'ATS (Coop : « Collaborateur », « Cadre », « Führungskräfte /
+# Kader ») a son propre vocabulaire. « cadre » n'est pas dans les règles du titre : « Futur
+# Cadre Junior », « Relève futur·e cadre » sont des programmes de relève, pas des postes senior.
+LEVEL_RULES = SENIORITY_RULES + [("Senior / Lead", ["cadre", "kader", "fuhrungskrafte"])]
 UNKNOWN_SENIORITY = "Non précisé"
 MID_LEVEL = "Confirmé·e"
 
@@ -145,13 +150,18 @@ _NUMBERS = {w: i for i, w in enumerate(
     "zero one two three four five six seven eight nine ten".split())}
 _NUMBERS |= {w: i for i, w in enumerate(
     "zero un deux trois quatre cinq six sept huit neuf dix".split()) if i}
+_NUMBERS["une"] = 1
 _YEARS = re.compile(
     rf"\b(\d{{1,2}}|{'|'.join(_NUMBERS)})\s*\+?\s*(?:(?:-|–|a|to)\s*(\d{{1,2}})\s*)?"
-    r"(?:years?|yrs|ans|annees|jahre?n?)\b[^.;]{0,40}?(?:experience|erfahrung)")
+    r"(?:years?|yrs|ans?|annees?|jahre?n?)\b[^.;]{0,40}?(?:experience|erfahrung)")
+# Au-delà, c'est l'histoire de la maison (« fort de 25 ans d'expérience, notre cabinet… »,
+# « 150 years of experience »), pas une exigence : on passe à la mention suivante
+MAX_REQUIRED_YEARS = 15
 
 
 _FAMILIES = compile_keywords(FAMILY_RULES)
 _SENIORITY = compile_keywords(SENIORITY_RULES)
+_LEVEL = compile_keywords(LEVEL_RULES)
 # « 80-100% », « 80 – 100 % », « 50% », « Taux d'activité : 100 % »
 _WORKLOAD = re.compile(r"(\d{2,3})\s*%?\s*[-–à]\s*(\d{2,3})\s*%|(\d{2,3})\s*%")
 
@@ -179,21 +189,22 @@ def workload(title: str) -> tuple[int | None, int | None]:
 
 
 def years_of_experience(description: str | None) -> float | None:
-    """Le nombre d'années d'expérience demandé (la première mention), None s'il n'y en a pas."""
-    match = _YEARS.search(normalize(description or ""))
-    if not match:
-        return None
-    low, high = match.group(1), match.group(2)
-    low = int(low) if low.isdigit() else _NUMBERS[low]
-    years = (low + int(high)) / 2 if high and int(high) > low else low
-    return years if years <= 30 else None  # « 150 years of experience » : l'histoire de la maison
+    """Le nombre d'années d'expérience demandé (la première mention plausible), None s'il n'y
+    en a pas."""
+    for match in _YEARS.finditer(normalize(description or "")):
+        low, high = match.group(1), match.group(2)
+        low = int(low) if low.isdigit() else _NUMBERS[low]
+        years = (low + int(high)) / 2 if high and int(high) > low else low
+        if years <= MAX_REQUIRED_YEARS:
+            return years
+    return None
 
 
 def seniority_of(title: str, description: str | None = None, level: str | None = None) -> str:
     """Le titre d'abord (il est explicite), puis le niveau déclaré par l'ATS, puis les années
     d'expérience demandées dans la description."""
-    for text in (title, level):
-        found, _ = first_match(_SENIORITY, normalize(text or ""), default=None)
+    for rules, text in ((_SENIORITY, title), (_LEVEL, level)):
+        found, _ = first_match(rules, normalize(text or ""), default=None)
         if found:
             return found
     years = years_of_experience(description)

@@ -177,7 +177,8 @@ def replay(con, raw_dir: Path = RAW_DIR) -> int:
 def rederive(con) -> int:
     """Recalcule langue, canton, famille, séniorité et taux pour toutes les offres (après
     un changement de règles), sans rien re-télécharger."""
-    rows = [{"url": url, **derive(*fields)} for url, *fields in storage.jobs_for_derivation(con)]
+    rows = [{"url": fields.pop("url"), **derive(**fields)}
+            for fields in storage.jobs_for_derivation(con)]
     storage.update_derived(con, rows)
     return len(rows)
 

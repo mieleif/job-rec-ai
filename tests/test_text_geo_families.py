@@ -68,6 +68,9 @@ def test_classement_explique_sa_decision():
     ("Électricien CFC", "Non précisé"),  # CFC = diplôme obtenu, pas un apprentissage
     ("Postdoc Position in Quantitative Finance", "Junior"),
     ("Assistant(e) Audit - Genève (Graduate)", "Junior"),
+    # programmes de relève : « cadre » n'y veut pas dire senior
+    ("Futur Cadre Junior (H/F)", "Junior"),
+    ("Aspirant·e (Relève Futur·e cadre) / Région de la Gruyère", "Junior"),
 ])
 def test_seniorite(title, seniority):
     assert classify(title).seniority == seniority
@@ -80,6 +83,10 @@ def test_seniorite(title, seniority):
     ("Au moins 3 ans d'expérience dans un poste similaire", 3),
     ("A minimum of five years of relevant professional experience", 5),
     ("Mindestens 4 Jahre Berufserfahrung", 4),
+    ("Au moins 1 an d'expérience en comptabilité", 1),
+    ("Une année d'expérience dans la vente", 1),
+    # l'histoire de la maison n'est pas une exigence : on prend la mention suivante
+    ("Fort de 25 ans d'expérience, notre cabinet recrute. Vous avez 2 ans d'expérience.", 2),
     ("Founded 150 years ago, our experience is unique", None),
     ("Rejoignez une équipe de 12 personnes.", None),
 ])
@@ -94,6 +101,12 @@ def test_seniorite_par_la_description():
     assert classify("Analyst", "1 year of experience").seniority == "Junior"
     assert classify("Senior Analyst", "1 year of experience").seniority == "Senior / Lead"
     assert classify("Comptable", "Poste à 80 %").seniority == "Non précisé"
+
+
+def test_seniorite_par_le_niveau_de_l_ats():
+    # Coop : « Cadre » dans le champ Poste veut dire encadrement ; « Collaborateur » ne dit rien
+    assert classify("Gérant·e de magasin", level="Cadre").seniority == "Senior / Lead"
+    assert classify("Vendeur·se", level="Collaborateur").seniority == "Non précisé"
 
 
 @pytest.mark.parametrize("title, expected", [
