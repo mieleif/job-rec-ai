@@ -1,6 +1,8 @@
 """Jeu d'évaluation : des offres notées 0/1/2 par une personne, et les métriques des méthodes.
 
-Un jeu = une personne (fichier JSON) : ses requêtes (CV, profil…) et ses jugements.
+Un jeu = une personne (fichier JSON à la racine de data/eval/ ou data/private/eval/ : tout
+*.json y est lu comme un jeu ; les notes copiées depuis la page vont dans notes/) : ses
+requêtes (CV, profil…) et ses jugements.
 
     {"person": "leif", "queries": {"cv": "data/private/cv.pdf", "profil": "data/private/profil.md"},
      "pooled_at": "2026-11-05", "pool": [url, …], "judgments": {url: 0 | 1 | 2}}

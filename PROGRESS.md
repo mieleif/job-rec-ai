@@ -18,6 +18,15 @@ Tests du projet : 128 réussis.
 
 ## Décisions
 
+- **2026-11-05 · M3 : premiers chiffres (38 offres notées par Leif : 7 « 2 », 12 « 1 »,
+  19 « 0 »).** nDCG@10 : BM25 répété · CV 0,775 ; BM25 répété · profil 0,740 ; TF-IDF · CV
+  0,699 ; BM25 dédoublonné · CV 0,662 (mais meilleure P@10, 0,90) ; BM25 · profil 0,617 ;
+  TF-IDF · profil 0,249 ; hasard 0. Garder les répétitions du CV gagne sur les deux
+  requêtes : elles encodent ce que le CV met en avant (« ia » ×9), ce que Leif confirme
+  (« l'IA est pertinente ») ; dédoublonner remonte des offres IT génériques notées 1. Les
+  10 offres du hasard seul : neuf 0, un 1. Prudence : une seule personne, 38 notes ;
+  0,775 contre 0,740 tient à un échange de rang. « Analyste programmeur » (IMAD), noté 2,
+  n'est dans le top 10 que de TF-IDF · profil.
 - **2026-11-05 · M3 : jeu d'évaluation (pooling).** Métriques dans `koans` (P@10 avec
   pertinent = note ≥ 1, MRR du premier « 2 », nDCG@10 avec gain = note) : checkpoint M3
   6/6. Un jeu = une personne (`data/private/eval/leif.json` ; personas publics plus tard
@@ -307,7 +316,8 @@ Tests du projet : 128 réussis.
 
 - **2026-11-05** (après-midi) : PR #12 et #13 fusionnées ; M3 commencé (cosinus, texte du
   CV, expérience du cosinus brut : l'offre visée 75ᵉ ; TF-IDF : 2ᵉ ; BM25 : 1ʳᵉ) ;
-  métriques, pooling de 38 offres et page d'annotation (notes de Leif attendues).
+  métriques, pooling de 38 offres, page d'annotation, 38 notes de Leif : BM25 répété
+  en tête (nDCG@10 0,775).
 - **2026-11-05** (matin) : périmètre linguistique (Zermatt repéré par Leif) ; Haut-Valais,
   Singine, Morat et Seeland écartés ; 1 884 → 1 692 offres, Lonza exclue.
 - **2026-11-05** (fin) : explorateur d'offres (`explore`, `data/offres.html`).
