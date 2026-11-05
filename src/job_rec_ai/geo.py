@@ -98,6 +98,35 @@ _FOREIGN = re.compile(
 _SWISS = re.compile(r"switzerland|suisse|schweiz|svizzera")
 
 
+# NPA (code postal suisse) → canton, quand aucun nom de lieu n'a parlé (Mediclinic :
+# « Hirslanden Clinique Cecil, 1003 Laus », la ville tronquée). Plages approximatives : la
+# Poste publie la table exacte, mais les frontières de NPA ne suivent pas toujours celles des
+# cantons (Versoix 1290 est à GE, Estavayer 1470 à FR, Saignelégier 2350 au JU…). Les plages
+# 3000-9999 (Berne, Haut-Valais, Suisse alémanique et Tessin) ne sont pas romandes.
+# Beaucoup de pays ont des codes postaux à 4 chiffres (Bruxelles 1000, Vienne 1010, Sydney
+# 2000, Sandton 2196) : un NPA ne compte que préfixé « CH- » ou dans un lieu qui nomme la
+# Suisse.
+_NPA_RANGES = [
+    (1000, 1199, "VD"), (1200, 1259, "GE"), (1260, 1289, "VD"), (1290, 1299, "GE"),
+    (1300, 1599, "VD"), (1600, 1799, "FR"), (1800, 1869, "VD"), (1870, 1999, "VS"),
+    (2000, 2499, "NE"), (2500, 2799, "BE"), (2800, 2999, "JU"),
+]
+_NPA = re.compile(r"(?<![\d.])([12]\d{3})(?![\d.])")
+_CH_NPA = re.compile(r"\bCH[-\s]?([12]\d{3})(?!\d)")
+
+
+def canton_of_npa(text: str) -> str | None:
+    """Le canton d'un NPA romand (« CH-1003 Laus », « 1870 Monthey, Switzerland » → VD, VS),
+    None sans NPA romand ou sans indice que le lieu est en Suisse."""
+    match = _CH_NPA.search(text)
+    if not match and _SWISS.search(normalize(text)):
+        match = _NPA.search(text)
+    if not match:
+        return None
+    npa = int(match.group(1))
+    return next((canton for low, high, canton in _NPA_RANGES if low <= npa <= high), None)
+
+
 # Séparateurs des lieux multiples : « Zürich / Lausanne », « Genève; Paris », « Genève · CDI »
 _SEGMENTS = re.compile(r"\s*[/;·|]\s*")
 
@@ -126,7 +155,9 @@ def _segment_canton(location: str) -> str | None:
     if canton:
         return canton
     match = _ABBREV.search(location)
-    return (match.group(1) or match.group(2)) if match else None
+    if match:
+        return match.group(1) or match.group(2)
+    return canton_of_npa(location)
 
 
 def mentions_target_place(text: str | None) -> bool:

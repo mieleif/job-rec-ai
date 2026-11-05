@@ -236,6 +236,10 @@ def test_lieu_avec_canton_tronque():
     ("Fully-Stage-d'orientation-professionnelle-Vala", True),
     ("Lausanne-Vendeur-Vaud", True),
     ("Basel-Verkaufer-Base", False), ("Thun-Verkaufer-Bern", False),
+    # Mediclinic : ville tronquée, NPA en fin d'URL ; une année n'est pas un NPA
+    ("Hirslanden-Clinique-Cecil-Secretaire-medicale-Laus-1003", True),
+    ("Hirslanden-Klinik-Hirslanden-Pflegefachperson-Zuri-8032", False),
+    ("Graduate-Programme-Audit-2026", False),
 ])
 def test_prefiltre_canton_tronque(slug, expected):
     assert successfactors.worth_fetching(slug) == expected

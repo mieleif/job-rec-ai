@@ -35,6 +35,10 @@ from job_rec_ai.text import clean_html, normalize
 FULL_SCAN_MAX = 300
 _ENTRY = re.compile(r"<url>\s*<loc>([^<]+/job/[^<]+)</loc>(?:\s*<lastmod>([^<]+)</lastmod>)?")
 _JOB_ID = re.compile(r"/(\d+)/?$")
+# Un NPA romand en fin d'URL (Mediclinic : « …-Clinique-Cecil-Secretaire-Laus-1003 », la ville
+# tronquée). 1000-1999 : GE, VD, FR, VS romand ; 2100-2999 : NE, JU, Jura bernois et Bienne.
+# 2000-2099 (Neuchâtel) exclus : ce sont surtout des années (« Graduate-Program-2026 »)
+_ROMAND_NPA = re.compile(r"-(1\d{3}|2[1-9]\d{2})$")
 # Date.toString() de Java : « Tue Nov 03 02:00:00 CET 2026 », quel que soit le fuseau
 _JAVA_DATE = re.compile(r"^\w{3} (\w{3}) (\d{1,2}) \d{2}:\d{2}:\d{2} \S+ (\d{4})$")
 _MONTHS = {m: i for i, m in enumerate(
@@ -128,9 +132,11 @@ def full_region(region: str | None) -> str | None:
 
 def worth_fetching(slug: str) -> bool:
     """Pré-filtre sur l'URL : un lieu romand y figure, y compris un canton tronqué en
-    dernier mot (Coop : « Colombier-Vendeur-Neuc »)."""
+    dernier mot (Coop : « Colombier-Vendeur-Neuc ») ou un NPA romand (« …-Laus-1003 »).
+    Grossier exprès : le verdict vient du lieu de l'annonce, une fois téléchargée."""
     last = slug.rsplit("-", 1)[-1]
-    return mentions_target_place(slug) or mentions_target_place(full_region(last))
+    return (mentions_target_place(slug) or mentions_target_place(full_region(last))
+            or bool(_ROMAND_NPA.search(slug)))
 
 
 def location_of(page: JobPostingPage, url: str, title: str | None) -> str:
@@ -140,7 +146,13 @@ def location_of(page: JobPostingPage, url: str, title: str | None) -> str:
         return address
     # Coop : commune et canton à part (« Aclens », « Vaud ») ; la commune seule est
     # souvent inconnue de geo, le canton la situe. Un seul des deux (« CH ») : l'URL d'abord
-    region = full_region(page.prop("addressRegion"))
+    # le NPA devant le canton (« Clinique Cecil, CH-1003 Laus ») : il situe même une ville
+    # tronquée ; préfixé « CH- » seulement si l'annonce se dit en Suisse (Mediclinic recrute
+    # aussi en Afrique du Sud : « 2196 », c'est Sandton)
+    postal = page.prop("postalCode")
+    if postal and page.prop("addressCountry") in ("CH", "Switzerland"):
+        postal = f"CH-{postal}"
+    region = " ".join(p for p in (postal, full_region(page.prop("addressRegion"))) if p)
     place = ", ".join(p for p in (page.prop("addressLocality"), region) if p)
     if "," in place:
         return place

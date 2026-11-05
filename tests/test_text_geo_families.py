@@ -40,6 +40,11 @@ def test_detect_language_allemand_est_other():
     ("Freiburg im Breisgau", None), ("Freiburg, DE", None), ("Neuenburg am Rhein", None),
     # homonymes VD / NE non listés : le nom seul ne permet pas de trancher
     ("Colombier", None), ("Corcelles-Cormondrèche", "NE"),
+    # NPA quand aucun nom ne parle : ville tronquée par l'ATS
+    ("Hirslanden Clinique Cecil, CH-1003 Laus", "VD"), ("Clinique, 1870 Mont, Switzerland", "VS"),
+    ("Site, CH-2740 Mout", "BE"), ("Klinik, CH-8032 Zuri", None), ("Bureau 12.1234", None),
+    # sans indice suisse, un code postal à 4 chiffres ne prouve rien
+    ("1000 Bruxelles", None), ("Mediclinic Morningside, 2196 Sand", None),
 ])
 def test_canton_of(location, canton):
     assert canton_of(location) == canton
