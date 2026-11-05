@@ -153,6 +153,12 @@ def expire_missing(con, company: str, source: str, seen_at: datetime) -> int:
     return count
 
 
+def deactivate(con, urls: list[str]) -> None:
+    """Désactive ces offres (sorties du périmètre après un changement de règles)."""
+    if urls:
+        con.execute("UPDATE jobs SET active = FALSE WHERE url IN (SELECT unnest(?))", [urls])
+
+
 def log_run(con, **run) -> None:
     con.execute(
         """INSERT INTO crawl_runs VALUES ($started_at, $company, $ats, $status, $fetched,
@@ -288,7 +294,7 @@ def counts(con, facet: str, limit: int | None = 20) -> list[tuple[str, int]]:
 def jobs_for_derivation(con) -> list[dict]:
     """Les champs dont dépendent les colonnes dérivées, nommés (pas de couplage à l'ordre)."""
     cursor = con.execute(
-        "SELECT url, title, location, description, category, level FROM jobs")
+        "SELECT url, title, location, description, category, level, canton FROM jobs")
     names = [d[0] for d in cursor.description]
     return [dict(zip(names, row)) for row in cursor.fetchall()]
 

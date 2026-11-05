@@ -109,8 +109,18 @@ def test_replay_reconstruit_la_base(con, client, tmp_path):
 def test_rederive(con):
     storage.upsert_jobs(con, [pipeline.enrich(_job(1, "Data Engineer"))], datetime(2026, 10, 1))
     con.execute("UPDATE jobs SET family = 'Autre', canton = NULL")
-    assert pipeline.rederive(con) == 1
+    assert pipeline.rederive(con) == pipeline.Rederived(recalculated=1, out_of_scope=0)
     assert storage.counts(con, "family") == [("Data & IA", 1)]
+    assert storage.counts(con, "canton") == [("GE", 1)]
+
+
+def test_rederive_desactive_les_offres_sorties_du_perimetre(con):
+    """Zermatt était classée VS : avec le périmètre linguistique, elle sort des offres actives."""
+    zermatt = _job(2, "Data Analyst").model_copy(update={"location": "Zermatt, CH-3920"})
+    storage.upsert_jobs(con, [pipeline.enrich(j) for j in (_job(1, "Data Engineer"), zermatt)],
+                        datetime(2026, 10, 1))
+    con.execute("UPDATE jobs SET canton = 'VS' WHERE location LIKE 'Zermatt%'")  # anciennes règles
+    assert pipeline.rederive(con).out_of_scope == 1
     assert storage.counts(con, "canton") == [("GE", 1)]
 
 
