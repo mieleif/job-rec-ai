@@ -1,0 +1,46 @@
+# job-rec-ai sur le VPS de DoxAI : un projet Compose à part (/opt/job-rec-ai), sans toucher aux
+# fichiers de /opt/n8n-stack. L'API rejoint le réseau Docker de DoxAI pour y être joignable
+# sous le nom « job-rec-ai » ; elle n'a pas d'URL publique (Traefik ne la route pas).
+#
+#   docker compose up -d api                          # l'API
+#   docker compose --profile crawl run --rm crawl     # une collecte (le timer systemd la lance)
+#
+# Image : JOB_REC_TAG dans .env (un SHA de main) ; « latest » par défaut.
+name: job-rec-ai
+
+x-image: &image ghcr.io/mieleif/job-rec-ai:${JOB_REC_TAG:-latest}
+
+services:
+  api:
+    image: *image
+    container_name: job-rec-ai
+    restart: unless-stopped
+    env_file: .env            # JOB_REC_TOKEN (le même que dans cv-app.env)
+    volumes:
+      - data:/srv/data
+    networks:
+      doxai:
+        aliases: [job-rec-ai]
+    labels:
+      - traefik.enable=false  # jamais exposée, même si Traefik expose par défaut
+    mem_limit: 384m           # VPS de 4 Go partagé avec la production DoxAI
+    logging: &logging
+      driver: json-file
+      options: { max-size: 10m, max-file: "3" }
+
+  crawl:
+    image: *image
+    profiles: [crawl]         # jamais démarré par « up » : seulement par « run »
+    command: ["job-rec-ai", "--companies", "/app/companies.csv", "crawl"]
+    volumes:
+      - data:/srv/data
+    mem_limit: 768m
+    logging: *logging
+
+volumes:
+  data:                       # base DuckDB + réponses brutes (data/raw) : à sauvegarder
+
+networks:
+  doxai:
+    external: true
+    name: ${DOXAI_NETWORK:-n8n-stack_default}

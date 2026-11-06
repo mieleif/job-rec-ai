@@ -19,6 +19,17 @@ Tests du projet : 259 réussis.
 
 ## Décisions
 
+- **2026-11-06 · Mise en ligne pour DoxAI (M8 avancé, embeddings en pause).** Décisions de
+  Leif : API sur le réseau Docker du VPS seulement (pas d'URL publique), image GHCR comme
+  DoxAI, intégration par une page de l'app web (Next.js), code préparé ici puis session sur
+  le VPS. `api.py` (FastAPI) : `/health`, `/status`, `/recommend {cv_text, k, cantons}` ;
+  index BM25 en mémoire, rechargé quand la base change ; base verrouillée pendant la
+  collecte → l'index de la veille reste servi ; `storage.connect` réessaie si l'API tient
+  le fichier. Projet Compose à part (`/opt/job-rec-ai`, `deploy/docker-compose.yml`) pour ne
+  pas toucher `/opt/n8n-stack` ; collecte = même image, `docker compose run crawl`, timer
+  systemd ; plafonds mémoire (VPS 4 Go partagé). Contrat côté DoxAI :
+  `docs/integration-doxai.md` (route serveur, page, réutilisation de
+  `POST /api/v2/opportunities`). Les embeddings (torch, ~1 Go) restent hors de l'image.
 - **2026-11-06 · Revue de PR #14, 9 corrections.** La requête retire les lignes de
   coordonnées (adresse et NPA 1203, e-mail, téléphone, profils) et les nombres purs
   (dates, « 200+ ») : avec les répétitions gardées, ils matchaient des adresses et des
@@ -327,14 +338,19 @@ Tests du projet : 259 réussis.
    pistes restantes : État de Vaud, CHUV, Ville de Genève, Migros Genève/Vaud, HCR.
 5. Sur le VPS : installer la collecte nocturne ([deploy/README.md](deploy/README.md)).
 6. Interpréter ensemble la première sortie de `uv run job-rec-ai quality`.
-7. M3 : 3-4 CV anonymisés (personas d'autres métiers) notés comme celui de Leif, pour
-   vérifier que BM25 généralise ; note « pourquoi mesurer avant d'optimiser ».
+7. M3 : vérifier que BM25 généralise au-delà du profil de Leif. Contrainte (Leif,
+   06.11) : il ne peut pas juger la pertinence d'offres pour des métiers qu'il n'a pas.
+   Pistes : CV et notes de vrais amis (rejoint « faire tester par 3 amis » de M7), ou un
+   LLM juge (M5) calibré d'abord sur les 38 notes de Leif (accord mesuré). Note « mesurer
+   avant d'optimiser » écrite.
    Filtres durs à la requête tirés du profil DoxAI (Genève ou à distance, 80 % maximum).
    Plus tard : brancher `recommend` sur l'app DoxAI ; tests A/B/C (interleaving) en M4-M7.
 8. Finir M0 : règles perso dans `CLAUDE.md`, Milestones GitHub.
 
 ## Journal des sessions
 
+- **2026-11-06** (suite) : API FastAPI, Dockerfile, CI et image GHCR, déploiement Docker
+  pour le VPS de DoxAI, contrat d'intégration ; checkpoint M8 (API) 3/3.
 - **2026-11-06** : revue de PR #14, 9 corrections (requête sans coordonnées ni nombres,
   plancher du hasard mesuré, re-pooling idempotent) ; nDCG@10 0,779.
 - **2026-11-05** (après-midi) : PR #12 et #13 fusionnées ; M3 commencé (cosinus, texte du
