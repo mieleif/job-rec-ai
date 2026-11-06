@@ -26,7 +26,7 @@ jobs:
           context: .
           load: true
           tags: ${{ env.IMAGE }}:${{ github.sha }}
-      - name: Test de démarrage (sans base : /health répond, /recommend dit 503)
+      - name: "Test de démarrage (sans base : /health répond, /recommend dit 503)"
         run: |
           docker run -d --name smoke -p 8000:8000 ${{ env.IMAGE }}:${{ github.sha }}
           for i in $(seq 1 30); do curl -fsS http://127.0.0.1:8000/health && break; sleep 1; done
