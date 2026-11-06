@@ -327,8 +327,11 @@ Tests du projet : 259 réussis.
    pistes restantes : État de Vaud, CHUV, Ville de Genève, Migros Genève/Vaud, HCR.
 5. Sur le VPS : installer la collecte nocturne ([deploy/README.md](deploy/README.md)).
 6. Interpréter ensemble la première sortie de `uv run job-rec-ai quality`.
-7. M3 : 3-4 CV anonymisés (personas d'autres métiers) notés comme celui de Leif, pour
-   vérifier que BM25 généralise ; note « pourquoi mesurer avant d'optimiser ».
+7. M3 : vérifier que BM25 généralise au-delà du profil de Leif. Contrainte (Leif,
+   06.11) : il ne peut pas juger la pertinence d'offres pour des métiers qu'il n'a pas.
+   Pistes : CV et notes de vrais amis (rejoint « faire tester par 3 amis » de M7), ou un
+   LLM juge (M5) calibré d'abord sur les 38 notes de Leif (accord mesuré). Note « mesurer
+   avant d'optimiser » écrite.
    Filtres durs à la requête tirés du profil DoxAI (Genève ou à distance, 80 % maximum).
    Plus tard : brancher `recommend` sur l'app DoxAI ; tests A/B/C (interleaving) en M4-M7.
 8. Finir M0 : règles perso dans `CLAUDE.md`, Milestones GitHub.

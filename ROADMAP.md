@@ -90,7 +90,7 @@ Lancer un checkpoint : `uv run pytest checkpoints/test_m1_collecte.py -v`
 - [ ] Jeu d'évaluation : 4-5 CV anonymisés × ~20 offres notées 0/1/2
 - [x] precision@k, MRR, nDCG@k
 - [x] Commande `uv run job-rec-ai eval`
-- [ ] Note : pourquoi mesurer avant d'optimiser
+- [x] Note : pourquoi mesurer avant d'optimiser
 
 🖼️ Mon premier top 10 + le tableau de scores de la baseline.
 
