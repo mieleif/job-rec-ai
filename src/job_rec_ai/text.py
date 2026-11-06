@@ -61,6 +61,15 @@ def normalize(text: str) -> str:
     return re.sub(r"\s+", " ", text).strip()
 
 
+_TOKEN = re.compile(r"[a-z0-9+#]{2,}")
+
+
+def tokenize(text: str | None) -> list[str]:
+    """Texte → mots normalisés (« C++ et Python » → ["c++", "et", "python"]). « + » et « # »
+    gardés pour C++ et C# ; les lettres isolées (« l' », « d' ») écartées."""
+    return _TOKEN.findall(normalize(text or ""))
+
+
 def compile_keywords(rules) -> list[tuple[str, re.Pattern]]:
     """[(étiquette, [mots-clés])] → [(étiquette, motif)] qui ne matche que des mots entiers
     d'un texte normalisé : « it » ne doit pas matcher « audit », ni « onex » « bonex »."""
@@ -93,6 +102,8 @@ _STOPWORDS = {
            "ist", "von", "zu", "auf", "eine", "ein", "im", "den", "bei"},
 }
 
+# Toutes langues confondues : à retirer d'une requête (un CV) avant de chercher
+STOPWORDS = frozenset().union(*_STOPWORDS.values())
 
 def detect_language(text: str) -> str:
     """Renvoie « fr », « en » ou « other » (allemand, italien, texte vide ou trop court)."""

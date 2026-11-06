@@ -43,6 +43,9 @@ uv run job-rec-ai stats company family         # répartition des offres actives
 uv run job-rec-ai quality                      # champs vides, collectes en échec
 uv run job-rec-ai search --canton GE --family "Data & IA" --sort recent --urls
 uv run job-rec-ai explore                      # page HTML des offres → data/offres.html
+uv run job-rec-ai recommend                    # offres les plus proches du CV (BM25), data/private/cv.pdf
+uv run job-rec-ai eval --pool                   # offres à noter → data/private/eval/annoter-leif.html
+uv run job-rec-ai eval                          # P@10, MRR, nDCG@10 par méthode
 uv run --env-file .env job-rec-ai benchmark    # couverture comparée à Adzuna
 ```
 

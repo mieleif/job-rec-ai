@@ -83,13 +83,13 @@ Lancer un checkpoint : `uv run pytest checkpoints/test_m1_collecte.py -v`
 
 🎯 Une première recommandation pour mon CV, avec un score chiffré.
 
-- [ ] Similarité cosinus : intuition géométrique, calcul sur un exemple 2D, puis implémentation numpy (`koans.py`)
-- [ ] TF-IDF from scratch, puis comparaison avec scikit-learn : pourquoi les scores diffèrent-ils ?
-- [ ] ⚡ Extraire le texte de mon CV (hors du repo : `data/private/`)
-- [ ] Moteur BM25 : CV → offres classées
+- [x] Similarité cosinus : intuition géométrique, calcul sur un exemple 2D, puis implémentation numpy (`koans.py`)
+- [x] TF-IDF from scratch, puis comparaison avec scikit-learn : pourquoi les scores diffèrent-ils ?
+- [x] ⚡ Extraire le texte de mon CV (hors du repo : `data/private/`)
+- [x] Moteur BM25 : CV → offres classées
 - [ ] Jeu d'évaluation : 4-5 CV anonymisés × ~20 offres notées 0/1/2
-- [ ] precision@k, MRR, nDCG@k
-- [ ] Commande `uv run job-rec-ai eval`
+- [x] precision@k, MRR, nDCG@k
+- [x] Commande `uv run job-rec-ai eval`
 - [ ] Note : pourquoi mesurer avant d'optimiser
 
 🖼️ Mon premier top 10 + le tableau de scores de la baseline.

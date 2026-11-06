@@ -11,9 +11,10 @@ import sys
 from datetime import date
 from pathlib import Path
 
-from job_rec_ai import benchmark, explorer, pipeline, storage
+from job_rec_ai import annotation, benchmark, evaluation, explorer, pipeline, recommend, storage
 from job_rec_ai.companies import DEFAULT_CSV, find, load_companies
 from job_rec_ai.connectors import REGISTRY
+from job_rec_ai.cv import DEFAULT_CV, read_cv
 from job_rec_ai.http import PoliteClient
 
 FIXTURES = Path("tests/fixtures")
@@ -146,6 +147,78 @@ def _cmd_explore(args, con):
     print(f"{out} ({out.stat().st_size / 1e6:.1f} Mo) : à ouvrir dans un navigateur")
 
 
+def _cmd_recommend(args, con):
+    """Les offres les plus proches du CV (BM25), avec leur score."""
+    ranked = recommend.rank(storage.jobs_for_ranking(con), read_cv(args.cv))
+    for i, job in enumerate(ranked[:args.limit], 1):
+        print(f"{i:>3}. {job['score']:6.1f}  {job['company']:<22.22} {job['title'][:58]:<58}"
+              f"  [{job['family']} · {job['canton']}]")
+        if args.urls:
+            print(f"            {job['url']}")
+
+
+def _private_set() -> evaluation.EvalSet | None:
+    """Le jeu de Leif, créé au premier pooling à partir de data/private/ (CV, profil)."""
+    path = evaluation.EVAL_DIRS[1] / "leif.json"
+    if path.exists():
+        return next(s for s in evaluation.load_sets() if s.path == path)
+    queries = {name: str(p) for name, p in
+               (("cv", DEFAULT_CV), ("profil", DEFAULT_CV.with_name("profil.md"))) if p.exists()}
+    return evaluation.new_set(path, "leif", queries) if queries else None
+
+
+def _cmd_eval(args, con):
+    """Pooling + page d'annotation (--pool), import des notes (--import), métriques (défaut)."""
+    if args.pool:
+        sets = [s for s in [*evaluation.load_sets(evaluation.EVAL_DIRS[:1]), _private_set()] if s]
+        for es in sets:
+            # Pool et notes gardés même expirés : une offre du pool reste à noter
+            corpus = evaluation.Corpus.of(
+                storage.jobs_for_ranking(con, include=[*es.pool, *es.judgments]))
+            es.pool, es.drawn = evaluation.build_pool(es, corpus)
+            es.pooled_at = evaluation.today()
+            es.save()
+            by_url = {j["url"]: j for j in corpus.jobs}
+            shown = [by_url[u] for u in es.pool if u in by_url]
+            out = es.path.with_name(f"annoter-{es.person}.html")
+            out.write_text(annotation.render(es.person, shown, es.judgments), encoding="utf-8")
+            todo = sum(j["url"] not in es.judgments for j in shown)
+            print(f"{es.person} : pool de {len(shown)} offres ({todo} à noter) → {out}")
+        return
+    if args.import_path:
+        es = next((s for s in evaluation.load_sets() if s.person == args.person), None)
+        if es is None:
+            sys.exit(f"aucun jeu d'évaluation pour « {args.person} » (lancer `eval --pool`)")
+        raw = json.loads(Path(args.import_path).read_text(encoding="utf-8"))
+        try:
+            grades = evaluation.validate_grades(raw)
+        except ValueError as e:
+            sys.exit(str(e))
+        outside = sum(url not in es.pool for url in grades)
+        es.judgments.update(grades)
+        es.save()
+        print(f"{es.person} : {len(grades)} notes importées, {len(es.judgments)} au total"
+              + (f" ({outside} hors du pool)" if outside else ""))
+        return
+    for es in evaluation.load_sets():
+        if not es.judgments:
+            print(f"{es.person} : aucune note (lancer `eval --pool`, puis noter)")
+            continue
+        corpus = evaluation.Corpus.of(storage.jobs_for_ranking(con, include=list(es.judgments)))
+        counts = evaluation.grade_counts(es)
+        print(f"\n── {es.person} : {len(es.judgments)} offres notées "
+              f"(2 : {counts[2]}, 1 : {counts[1]}, 0 : {counts[0]}) ; "
+              f"{len(corpus.jobs)} offres classées")
+        print(f"  {'méthode · requête':<26}{'P@10':>7}{'MRR':>7}{'nDCG@10':>9}{'jugées':>8}")
+        rows = sorted(evaluation.evaluate(es, corpus), key=lambda r: -r.ndcg)
+        for r in rows:
+            print(f"  {r.run:<26}{r.precision:>7.2f}{r.mrr:>7.2f}{r.ndcg:>9.3f}{r.judged:>8.0%}")
+        n, random_grades = evaluation.random_baseline(es)
+        if n:
+            print(f"  hasard ({n} offres tirées) : {n - random_grades[0]} notée(s) ≥ 1, "
+                  f"{random_grades[2]} notée(s) 2 → P@10 attendue ≈ {1 - random_grades[0] / n:.2f}")
+
+
 def _cmd_rederive(args, con):
     result = pipeline.rederive(con)
     print(f"{result.recalculated} offres recalculées, "
@@ -199,6 +272,18 @@ def build_parser() -> argparse.ArgumentParser:
 
     sub.add_parser("replay", help="reconstruire la base depuis data/raw").set_defaults(
         func=_cmd_replay)
+    p = sub.add_parser("recommend", help="les offres les plus proches d'un CV (BM25)")
+    p.add_argument("--cv", default=DEFAULT_CV, type=Path, help="PDF, .txt ou .md")
+    p.add_argument("--limit", type=int, default=20)
+    p.add_argument("--urls", action="store_true", help="afficher le lien de chaque offre")
+    p.set_defaults(func=_cmd_recommend)
+    p = sub.add_parser("eval", help="jeu d'évaluation : pooling, notes, métriques")
+    p.add_argument("--pool", action="store_true",
+                   help="construire le pool d'offres à noter et la page d'annotation")
+    p.add_argument("--import", dest="import_path", metavar="JSON",
+                   help="importer les notes copiées depuis la page d'annotation")
+    p.add_argument("--person", default="leif", help="jeu visé par --import")
+    p.set_defaults(func=_cmd_eval)
     sub.add_parser("rederive", help="recalculer langue, canton et classement").set_defaults(
         func=_cmd_rederive)
 

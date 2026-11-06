@@ -12,12 +12,79 @@ _Dernière mise à jour : 2026-11-04_
 | M0 · Setup | 9/9 (avec une note locale, voir « Contraintes ») | règles perso dans `CLAUDE.md`, Milestones GitHub, questions de contrôle |
 | M1 · Collecte | **8/8** (fixtures réelles pour les 13 connecteurs) | **1 692 offres réelles** en Suisse romande francophone (GE 681, VD 511, FR 214, NE 106, BE 83, VS 72, JU 25 ; 58 employeurs et 1 agence). Restent : note HTTP, questions de contrôle |
 | M2 · Pipeline | 7/7 (livrable : [notebook « 5 graphiques »](notebooks/marche-emploi.ipynb)) | installer le timer sur le VPS, note ETL/ELT, questions de contrôle |
-| M3 → M8 | pas commencé | |
+| M3 · Baseline | code 6/6 ; BM25 en production (`recommend`), nDCG@10 0,779 sur 38 offres notées | 3-4 CV anonymisés de plus, note « mesurer avant d'optimiser », questions de contrôle |
+| M4 → M8 | pas commencé | |
 
-Tests du projet : 128 réussis.
+Tests du projet : 259 réussis.
 
 ## Décisions
 
+- **2026-11-06 · Revue de PR #14, 9 corrections.** La requête retire les lignes de
+  coordonnées (adresse et NPA 1203, e-mail, téléphone, profils) et les nombres purs
+  (dates, « 200+ ») : avec les répétitions gardées, ils matchaient des adresses et des
+  dates d'offres ; nDCG@10 bm25 · CV 0,775 → 0,779. Le « hasard » n'est plus une méthode
+  (son top 10 n'était jamais jugé : 0 par construction) ; le plancher se lit sur les 10
+  offres tirées au hasard du pool, retrouvées et enregistrées dans `leif.json`
+  (« random ») : 1 notée ≥ 1 → P@10 attendue ≈ 0,10. `load_sets` ignore un JSON qui
+  n'est pas un jeu ; `--import` refuse une note hors de 0/1/2 ; le re-pooling garde les
+  offres du pool même expirées, met `pooled_at` à jour et ne retire plus 10 offres au
+  hasard à chaque appel ; la page d'annotation range les notes du navigateur sous une clé
+  propre à sa version ; corpus découpé et index BM25 construits une fois par jeu ;
+  scikit-learn retiré (utilisé seulement par un script hors dépôt) ; puces retirées en
+  début de ligne seulement.
+- **2026-11-05 · BM25 avec répétitions du CV = système par défaut** (décision de Leif sur
+  les chiffres ci-dessous). `recommend` et `eval` : « bm25 » est ce système,
+  « bm25-dédoublonné » l'ancienne variante. Leif juge le système assez bon pour le
+  brancher plus tard sur l'app DoxAI ; à terme, tests A/B/C en ligne entre systèmes une
+  fois les embeddings là (M4).
+- **2026-11-05 · M3 : premiers chiffres (38 offres notées par Leif : 7 « 2 », 12 « 1 »,
+  19 « 0 »).** nDCG@10 : BM25 répété · CV 0,775 ; BM25 répété · profil 0,740 ; TF-IDF · CV
+  0,699 ; BM25 dédoublonné · CV 0,662 (mais meilleure P@10, 0,90) ; BM25 · profil 0,617 ;
+  TF-IDF · profil 0,249 ; hasard 0. Garder les répétitions du CV gagne sur les deux
+  requêtes : elles encodent ce que le CV met en avant (« ia » ×9), ce que Leif confirme
+  (« l'IA est pertinente ») ; dédoublonner remonte des offres IT génériques notées 1. Les
+  10 offres du hasard seul : neuf 0, un 1. Prudence : une seule personne, 38 notes ;
+  0,775 contre 0,740 tient à un échange de rang. « Analyste programmeur » (IMAD), noté 2,
+  n'est dans le top 10 que de TF-IDF · profil.
+- **2026-11-05 · M3 : jeu d'évaluation (pooling).** Métriques dans `koans` (P@10 avec
+  pertinent = note ≥ 1, MRR du premier « 2 », nDCG@10 avec gain = note) : checkpoint M3
+  6/6. Un jeu = une personne (`data/private/eval/leif.json` ; personas publics plus tard
+  dans `data/eval/`), ses requêtes (CV, `data/private/profil.md` tiré du profil DoxAI par
+  le MCP, sans coordonnées ni activités hors cible : serveur, parascolaire, théâtre) et
+  ses notes 0/1/2 (adéquation au profil, pas le lieu ni le taux). Pooling façon TREC :
+  union des top 10 des 6 classements (TF-IDF, BM25, BM25 répété × CV, profil) + 10 au
+  hasard, mélangés et sans score → 38 offres. Recouvrement faible (BM25 · CV et
+  TF-IDF · CV : 2 offres communes sur 10). Page `annoter-leif.html` (localStorage,
+  « Copier les notes ») ; `eval --import` fusionne ; `eval` affiche P@10, MRR,
+  nDCG@10 et la part jugée du top 10. Le corpus d'évaluation garde les offres jugées même
+  expirées. Le profil DoxAI donne aussi des contraintes (Genève ou à distance, 80 %
+  maximum, hybride) : candidates pour des filtres durs à la requête.
+- **2026-11-05 · M3 : BM25.** `bm25.BM25` écrit à la main (index inversé, idf de Lucene
+  toujours positif, k1 = 1,2, b = 0,75) ; `recommend.rank` prend le CV comme requête, sans
+  mots-outils et dédoublonné (BM25 ne sature rien côté requête : « ia » ×9 compterait 9
+  fois) ; commande `job-rec-ai recommend`. L'offre Specitec visée est **1ʳᵉ**, avec un
+  score réparti sur 34 mots (le plus gros : 8 %), contre 62 % pour « ia » seul en TF-IDF.
+  Le dédoublonnage fait passer « Business Analyst IA » (Specitec) de 3ᵉ à 22ᵉ, et la grille
+  k1 × b la déplace de 6ᵉ à 69ᵉ : impossible de dire quel réglage est meilleur avec une
+  seule offre jugée pertinente → le jeu d'évaluation d'abord, le réglage ensuite.
+- **2026-11-05 · M3 : TF-IDF.** `koans.tfidf` (tf = n/longueur, idf = ln(N/df)) et
+  `text.tokenize`. Cosinus TF-IDF : l'offre Specitec visée passe de 75ᵉ à **2ᵉ** (1ʳᵉ :
+  Business Analyst IA chez Specitec) ; score médian 0,016 contre 0,27 en tête (le brut
+  tassait tout entre 0,62 et 0,64). Limites vues : « et » n'est que dans 39 % des offres
+  (anglais, Coop sans description) → idf 0,94, encore 10-40 % du score ; « ia » n'est que
+  dans 16 offres (l'anglais écrit « AI ») → idf 4,7, jusqu'à 62 % du score ; mots du seul
+  CV (doxai, leif, téléphone) : idf maximal mais contribution nulle. scikit-learn (dev) :
+  idf = ln((1+N)/(1+df)) + 1 et tf brut normalisé L2 → valeurs différentes, même
+  classement ; tf sous-linéaire (1 + ln tf) met Specitec 1ʳᵉ.
+- **2026-11-05 · M3 : texte du CV et premier cosinus.** CV dans `data/private/cv.pdf`
+  (non versionné), lu par `cv.read_cv` avec pypdf (pur Python ; une colonne suffit),
+  césures recollées, icônes et puces retirées. Expérience : cosinus sur des comptes de
+  mots bruts → 96 % du produit scalaire du top 50 vient de mots-outils (« et », « de »,
+  « des ») ; le top 10 est fait d'annonces longues en français (Responsable de formation,
+  Technicien sanitaire…) ; l'offre Specitec pour laquelle le CV a été écrit arrive 75ᵉ.
+  Motive TF-IDF. Le périmètre reste un filtre de collecte (décision de Leif : le premier
+  modèle est trop simple pour pénaliser Viège lui-même) ; un filtre dur à la requête
+  serait l'alternative sans perte de données.
 - **2026-11-05 · Périmètre linguistique, pas cantonal.** Leif a repéré Zermatt parmi les
   offres Helvetia : le Haut-Valais, la Singine (Guin, Tavel), Morat et le Seeland ne sont pas
   la Suisse romande. Révise la décision du 04.11 (« le canton est l'unité »). `geo` les
@@ -260,12 +327,20 @@ Tests du projet : 128 réussis.
    pistes restantes : État de Vaud, CHUV, Ville de Genève, Migros Genève/Vaud, HCR.
 5. Sur le VPS : installer la collecte nocturne ([deploy/README.md](deploy/README.md)).
 6. Interpréter ensemble la première sortie de `uv run job-rec-ai quality`.
-7. M3 : similarité cosinus (intuition géométrique, exemple 2D), puis TF-IDF from scratch et
-   les métriques d'évaluation (precision@k, MRR, nDCG).
+7. M3 : 3-4 CV anonymisés (personas d'autres métiers) notés comme celui de Leif, pour
+   vérifier que BM25 généralise ; note « pourquoi mesurer avant d'optimiser ».
+   Filtres durs à la requête tirés du profil DoxAI (Genève ou à distance, 80 % maximum).
+   Plus tard : brancher `recommend` sur l'app DoxAI ; tests A/B/C (interleaving) en M4-M7.
 8. Finir M0 : règles perso dans `CLAUDE.md`, Milestones GitHub.
 
 ## Journal des sessions
 
+- **2026-11-06** : revue de PR #14, 9 corrections (requête sans coordonnées ni nombres,
+  plancher du hasard mesuré, re-pooling idempotent) ; nDCG@10 0,779.
+- **2026-11-05** (après-midi) : PR #12 et #13 fusionnées ; M3 commencé (cosinus, texte du
+  CV, expérience du cosinus brut : l'offre visée 75ᵉ ; TF-IDF : 2ᵉ ; BM25 : 1ʳᵉ) ;
+  métriques, pooling de 38 offres, page d'annotation, 38 notes de Leif : BM25 répété
+  en tête (nDCG@10 0,775), devenu le système par défaut.
 - **2026-11-05** (matin) : périmètre linguistique (Zermatt repéré par Leif) ; Haut-Valais,
   Singine, Morat et Seeland écartés ; 1 884 → 1 692 offres, Lonza exclue.
 - **2026-11-05** (fin) : explorateur d'offres (`explore`, `data/offres.html`).
