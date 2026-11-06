@@ -9,6 +9,7 @@ Trois couches (vocabulaire « médaillon » des data engineers) :
 - gold : les vues et agrégats pour l'analyse (`jobs_view`, `stats`).
 """
 
+import time
 from dataclasses import dataclass
 from datetime import UTC, date, datetime
 from pathlib import Path
@@ -87,10 +88,22 @@ SELECT j.* REPLACE (CASE WHEN j.source = 'jsonld' THEN coalesce(j.canton, c.cant
 FROM jobs j LEFT JOIN companies c USING (company);
 """
 
+LOCK_RETRIES, LOCK_WAIT = 10, 3.0  # secondes
+
+
 def connect(path: Path | str = DEFAULT_DB) -> duckdb.DuckDBPyConnection:
+    """Connexion en écriture. Si un autre processus tient le fichier (l'API qui relit la
+    base, quelques secondes), on réessaie au lieu d'abandonner la collecte."""
     if str(path) != ":memory:":
         Path(path).parent.mkdir(parents=True, exist_ok=True)
-    con = duckdb.connect(str(path))
+    for attempt in range(LOCK_RETRIES):
+        try:
+            con = duckdb.connect(str(path))
+            break
+        except duckdb.IOException as e:
+            if "lock" not in str(e).lower() or attempt == LOCK_RETRIES - 1:
+                raise
+            time.sleep(LOCK_WAIT)
     con.execute(SCHEMA)
     return con
 
@@ -316,8 +329,9 @@ def jobs_for_ranking(con, include: list[str] = ()) -> list[dict]:
     `include` : des URL à garder même expirées (les offres d'un jeu d'évaluation : une offre
     jugée qui disparaît fausserait la comparaison d'un jour à l'autre)."""
     cursor = con.execute(
-        """SELECT url, title, company, canton, family, seniority, language,
-                  workload_min, workload_max, coalesce(description, '') AS description
+        """SELECT url, title, company, publisher_type, canton, family, seniority, language,
+                  workload_min, workload_max, CAST(posted_at AS VARCHAR) AS posted_at,
+                  coalesce(description, '') AS description
            FROM jobs_view WHERE active OR list_contains(?, url) ORDER BY url""",
         [list(include)])
     names = [d[0] for d in cursor.description]

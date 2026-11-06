@@ -190,9 +190,9 @@ Lancer un checkpoint : `uv run pytest checkpoints/test_m1_collecte.py -v`
 
 🎯 Une API en ligne et une démo publique.
 
-- [ ] API FastAPI : `GET /health`, `POST /recommend`
-- [ ] CI GitHub Actions : ruff + pytest à chaque push
-- [ ] Dockerfile
+- [x] API FastAPI : `GET /health`, `POST /recommend`
+- [x] CI GitHub Actions : ruff + pytest à chaque push
+- [x] Dockerfile
 - [ ] Déploiement (Hugging Face Spaces, Fly.io, Render…)
 - [ ] Logs structurés + métriques de base
 - [ ] README vitrine : GIF de démo, architecture, résultats

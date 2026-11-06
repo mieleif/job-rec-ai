@@ -1,0 +1,43 @@
+# Construit l'image et la publie sur GHCR à chaque push sur main : ghcr.io/mieleif/job-rec-ai:<sha>
+# (immuable, celle qu'on déploie) et :latest. Sur une PR : construction + test de démarrage seulement.
+name: Image
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  IMAGE: ghcr.io/mieleif/job-rec-ai
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Construire
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          load: true
+          tags: ${{ env.IMAGE }}:${{ github.sha }}
+      - name: Test de démarrage (sans base : /health répond, /recommend dit 503)
+        run: |
+          docker run -d --name smoke -p 8000:8000 ${{ env.IMAGE }}:${{ github.sha }}
+          for i in $(seq 1 30); do curl -fsS http://127.0.0.1:8000/health && break; sleep 1; done
+          curl -fsS http://127.0.0.1:8000/health | grep -q '"ok"'
+          test "$(curl -s -o /dev/null -w '%{http_code}' -X POST http://127.0.0.1:8000/recommend \
+            -H 'Content-Type: application/json' -d '{"cv_text": "Python"}')" = 503
+          docker run --rm --entrypoint job-rec-ai ${{ env.IMAGE }}:${{ github.sha }} --help > /dev/null
+      - name: Publier
+        if: github.event_name == 'push'
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+          docker tag ${{ env.IMAGE }}:${{ github.sha }} ${{ env.IMAGE }}:latest
+          docker push ${{ env.IMAGE }}:${{ github.sha }}
+          docker push ${{ env.IMAGE }}:latest
