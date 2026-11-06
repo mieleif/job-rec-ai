@@ -25,11 +25,12 @@ import random
 from collections import Counter
 from dataclasses import dataclass, field
 from datetime import date
+from functools import cached_property
 from pathlib import Path
 
-from job_rec_ai import koans
+from job_rec_ai import embeddings, koans
 from job_rec_ai.bm25 import BM25
-from job_rec_ai.cv import read_cv
+from job_rec_ai.cv import read_cv, without_contact
 from job_rec_ai.recommend import document, rank
 from job_rec_ai.text import tokenize
 
@@ -105,6 +106,11 @@ class Corpus:
         docs = [document(j) for j in jobs]
         return cls(jobs, docs, BM25(docs))
 
+    @cached_property
+    def vectors(self):
+        """Embeddings des offres (calculés à la première méthode qui en a besoin)."""
+        return embeddings.passage_matrix([f"{j['title']}. {j['description']}" for j in self.jobs])
+
 
 def _tfidf(corpus, text):
     """Cosinus TF-IDF (koans), IDF appris sur les offres + la requête."""
@@ -132,7 +138,14 @@ def _bm25_unique(corpus, text):
     return [j["url"] for j in rank(corpus.jobs, text, unique=True, index=corpus.index)]
 
 
-METHODS = {"tfidf": _tfidf, "bm25": _bm25, "bm25-dédoublonné": _bm25_unique}
+def _e5(corpus, text):
+    """Cosinus entre l'embedding du CV (« query: ») et celui de chaque offre (« passage: »)."""
+    query = embeddings.encode([without_contact(text)], "query")[0]
+    scores = corpus.vectors @ query
+    return [corpus.jobs[i]["url"] for i in scores.argsort()[::-1]]
+
+
+METHODS = {"tfidf": _tfidf, "bm25": _bm25, "bm25-dédoublonné": _bm25_unique, "e5": _e5}
 
 
 def runs(eval_set: EvalSet, corpus: Corpus) -> dict[str, list[str]]:

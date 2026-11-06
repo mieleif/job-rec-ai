@@ -25,3 +25,6 @@ docs/learnings/*
 
 # Explorateur d'offres (régénéré après chaque collecte)
 data/offres.html
+
+# Vecteurs des offres (recalculables)
+data/embeddings/

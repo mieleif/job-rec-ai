@@ -19,6 +19,16 @@ Tests du projet : 259 réussis.
 
 ## Décisions
 
+- **2026-11-06 · M4 : premiers embeddings.** sentence-transformers (standard, torch CPU) avec
+  `intfloat/multilingual-e5-small` (118 M paramètres, 384 dimensions, préfixes « query: » /
+  « passage: », 512 tokens) : petit pour tourner sans GPU. Expérience : cos(« IA », « AI »)
+  0,91, (« IA », « boulanger ») 0,79 : les cosinus e5 sont tassés vers le haut, seul l'ordre
+  compte. Vecteurs des offres en cache (`data/embeddings/`, clé = empreinte du texte).
+  Premier eval, offres tronquées à 512 tokens : nDCG@10 e5 · CV 0,283 et e5 · profil 0,537,
+  mais jugées à 20 % et 40 % seulement (biais de pooling : e5 trouve des offres jamais
+  notées). Son top 10 · CV contient des apprentissages d'employé de commerce : le début
+  des offres (texte de présentation de l'employeur) pèse sans doute trop. Pool relancé :
+  12 offres de plus à noter.
 - **2026-11-06 · Revue de PR #14, 9 corrections.** La requête retire les lignes de
   coordonnées (adresse et NPA 1203, e-mail, téléphone, profils) et les nombres purs
   (dates, « 200+ ») : avec les répétitions gardées, ils matchaient des adresses et des
