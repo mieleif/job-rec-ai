@@ -43,10 +43,10 @@ def _key(text: str) -> str:
     return hashlib.sha1(f"{MODEL}\n{text}".encode()).hexdigest()
 
 
-def passage_matrix(texts: list[str], cache_dir: Path = CACHE_DIR) -> np.ndarray:
+def passage_matrix(texts: list[str], cache_dir: Path | None = None) -> np.ndarray:
     """Un vecteur par texte (lignes dans l'ordre de `texts`), calculé seulement s'il n'est pas
     déjà en cache. Clé = empreinte du modèle et du texte."""
-    path = cache_dir / f"{MODEL.split('/')[-1]}.npz"
+    path = (cache_dir or CACHE_DIR) / f"{MODEL.split('/')[-1]}.npz"
     known: dict[str, np.ndarray] = {}
     if path.exists():
         with np.load(path) as data:

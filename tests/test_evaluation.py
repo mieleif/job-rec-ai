@@ -1,8 +1,9 @@
 import json
 
+import numpy as np
 import pytest
 
-from job_rec_ai import annotation, evaluation
+from job_rec_ai import annotation, embeddings, evaluation
 
 JOBS = [{"url": f"https://ex.ch/{i}", "title": t, "company": "Acme", "description": d}
         for i, (t, d) in enumerate([
@@ -13,6 +14,18 @@ JOBS = [{"url": f"https://ex.ch/{i}", "title": t, "company": "Acme", "descriptio
             ("Boulanger", "Pain, viennoiseries."),
             ("Juriste", "Droit des contrats."),
         ])]
+
+
+@pytest.fixture(autouse=True)
+def fake_embeddings(monkeypatch, tmp_path):
+    """Pas de vrai modèle dans les tests (lent, téléchargement) ni d'écriture dans le vrai
+    cache : un « embedding » jouet, le nombre de lettres « i » et « a » du texte."""
+    def encode(texts, kind):
+        v = np.array([[t.lower().count("i"), t.lower().count("a"), 1.0] for t in texts])
+        return v / np.linalg.norm(v, axis=1, keepdims=True)
+
+    monkeypatch.setattr(embeddings, "encode", encode)
+    monkeypatch.setattr(embeddings, "CACHE_DIR", tmp_path / "embeddings")
 
 
 @pytest.fixture
