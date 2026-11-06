@@ -8,6 +8,7 @@ répétitions, 0,662 dédoublonné (0,740 contre 0,617 avec le profil comme requ
 """
 
 from job_rec_ai.bm25 import BM25, K1, B
+from job_rec_ai.cv import without_contact
 from job_rec_ai.text import STOPWORDS, tokenize
 
 
@@ -16,13 +17,19 @@ def document(job: dict) -> list[str]:
 
 
 def query_terms(text: str, unique: bool = False) -> list[str]:
-    words = [w for w in tokenize(text) if w not in STOPWORDS]
+    """Les mots de recherche d'un CV : sans coordonnées, mots-outils ni nombres purs (dates,
+    NPA, « 200+ » : ils matcheraient des dates et des adresses d'offres, pas des métiers).
+    Les mots mêlant lettres et chiffres restent (« n8n », « b2 »)."""
+    words = [w for w in tokenize(without_contact(text))
+             if w not in STOPWORDS and any(c.isalpha() for c in w)]
     return list(dict.fromkeys(words)) if unique else words
 
 
 def rank(jobs: list[dict], cv_text: str, unique: bool = False, k1: float = K1,
-         b: float = B) -> list[dict]:
-    """Toutes les offres, de la plus pertinente à la moins pertinente, avec leur score."""
-    scores = BM25([document(j) for j in jobs], k1=k1, b=b).scores(query_terms(cv_text, unique))
+         b: float = B, index: BM25 | None = None) -> list[dict]:
+    """Toutes les offres, de la plus pertinente à la moins pertinente, avec leur score.
+    `index` : un BM25 déjà construit sur ces offres (k1 et b sont alors les siens)."""
+    index = index or BM25([document(j) for j in jobs], k1=k1, b=b)
+    scores = index.scores(query_terms(cv_text, unique))
     order = sorted(range(len(jobs)), key=lambda i: -scores[i])
     return [{**jobs[i], "score": float(scores[i])} for i in order]

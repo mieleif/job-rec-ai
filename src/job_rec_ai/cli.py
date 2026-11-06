@@ -172,35 +172,51 @@ def _cmd_eval(args, con):
     if args.pool:
         sets = [s for s in [*evaluation.load_sets(evaluation.EVAL_DIRS[:1]), _private_set()] if s]
         for es in sets:
-            jobs = storage.jobs_for_ranking(con, include=list(es.judgments))
-            es.pool = evaluation.build_pool(es, jobs)
+            # Pool et notes gardés même expirés : une offre du pool reste à noter
+            corpus = evaluation.Corpus.of(
+                storage.jobs_for_ranking(con, include=[*es.pool, *es.judgments]))
+            es.pool, es.drawn = evaluation.build_pool(es, corpus)
+            es.pooled_at = evaluation.today()
             es.save()
-            by_url = {j["url"]: j for j in jobs}
+            by_url = {j["url"]: j for j in corpus.jobs}
+            shown = [by_url[u] for u in es.pool if u in by_url]
             out = es.path.with_name(f"annoter-{es.person}.html")
-            out.write_text(annotation.render(es.person, [by_url[u] for u in es.pool if u in by_url],
-                                             es.judgments), encoding="utf-8")
-            todo = sum(u not in es.judgments for u in es.pool)
-            print(f"{es.person} : pool de {len(es.pool)} offres ({todo} à noter) → {out}")
+            out.write_text(annotation.render(es.person, shown, es.judgments), encoding="utf-8")
+            todo = sum(j["url"] not in es.judgments for j in shown)
+            print(f"{es.person} : pool de {len(shown)} offres ({todo} à noter) → {out}")
         return
     if args.import_path:
-        es = next(s for s in evaluation.load_sets() if s.person == args.person)
-        grades = json.loads(Path(args.import_path).read_text(encoding="utf-8"))
-        es.judgments.update({url: int(g) for url, g in grades.items()})
+        es = next((s for s in evaluation.load_sets() if s.person == args.person), None)
+        if es is None:
+            sys.exit(f"aucun jeu d'évaluation pour « {args.person} » (lancer `eval --pool`)")
+        raw = json.loads(Path(args.import_path).read_text(encoding="utf-8"))
+        try:
+            grades = evaluation.validate_grades(raw)
+        except ValueError as e:
+            sys.exit(str(e))
+        outside = sum(url not in es.pool for url in grades)
+        es.judgments.update(grades)
         es.save()
-        print(f"{es.person} : {len(grades)} notes importées, {len(es.judgments)} au total")
+        print(f"{es.person} : {len(grades)} notes importées, {len(es.judgments)} au total"
+              + (f" ({outside} hors du pool)" if outside else ""))
         return
     for es in evaluation.load_sets():
         if not es.judgments:
             print(f"{es.person} : aucune note (lancer `eval --pool`, puis noter)")
             continue
-        jobs = storage.jobs_for_ranking(con, include=list(es.judgments))
+        corpus = evaluation.Corpus.of(storage.jobs_for_ranking(con, include=list(es.judgments)))
         counts = evaluation.grade_counts(es)
         print(f"\n── {es.person} : {len(es.judgments)} offres notées "
-              f"(2 : {counts[2]}, 1 : {counts[1]}, 0 : {counts[0]}) ; {len(jobs)} offres classées")
+              f"(2 : {counts[2]}, 1 : {counts[1]}, 0 : {counts[0]}) ; "
+              f"{len(corpus.jobs)} offres classées")
         print(f"  {'méthode · requête':<26}{'P@10':>7}{'MRR':>7}{'nDCG@10':>9}{'jugées':>8}")
-        rows = sorted(evaluation.evaluate(es, jobs), key=lambda r: -r.ndcg)
+        rows = sorted(evaluation.evaluate(es, corpus), key=lambda r: -r.ndcg)
         for r in rows:
             print(f"  {r.run:<26}{r.precision:>7.2f}{r.mrr:>7.2f}{r.ndcg:>9.3f}{r.judged:>8.0%}")
+        n, random_grades = evaluation.random_baseline(es)
+        if n:
+            print(f"  hasard ({n} offres tirées) : {n - random_grades[0]} notée(s) ≥ 1, "
+                  f"{random_grades[2]} notée(s) 2 → P@10 attendue ≈ {1 - random_grades[0] / n:.2f}")
 
 
 def _cmd_rederive(args, con):

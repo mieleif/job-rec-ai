@@ -36,6 +36,16 @@ def test_requete_sans_mots_outils_avec_repetitions():
     assert query_terms("Python et python", unique=True) == ["python"]
 
 
+def test_requete_sans_coordonnees_ni_nombres():
+    """Le NPA, le téléphone et les dates matcheraient des adresses et des dates d'offres."""
+    cv = ("Jeanne Dupont\n"
+          "Rue du Rhône 1, 1204 Genève | jeanne@ex.ch | +41 79 000 00 00\n"
+          "in/jdupont | @jdupont\n"
+          "Data Engineer 06/2025–Présent, 200+ utilisateurs, n8n, anglais C1")
+    assert query_terms(cv) == ["jeanne", "dupont", "data", "engineer", "present",
+                               "utilisateurs", "n8n", "anglais", "c1"]
+
+
 def test_rank_classe_l_offre_la_plus_proche_en_tete():
     jobs = [{"title": "Comptable", "description": "Comptabilité fournisseurs, SAP."},
             {"title": "Data Engineer", "description": "Python, SQL, dbt et Airflow."},

@@ -6,6 +6,7 @@ Les notes vivent dans le navigateur (localStorage) ; « Copier les notes » met 
 savoir quelle méthode les a proposées.
 """
 
+import hashlib
 import html
 import json
 
@@ -179,7 +180,11 @@ def render(person: str, jobs: list[dict], judgments: dict[str, int]) -> str:
     def embed(obj):
         return json.dumps(obj, ensure_ascii=False).replace("</", "<\\/")
 
-    key = "".join(c for c in person if c.isalnum())
+    # Les notes du navigateur sont rangées sous une clé propre à CETTE page (pool + notes du
+    # fichier) : une page régénérée après un import repart des notes du fichier, au lieu
+    # que d'anciennes notes du navigateur écrasent une correction.
+    version = hashlib.sha1(embed([[j["url"] for j in jobs], initial]).encode()).hexdigest()[:10]
+    key = "".join(c for c in person if c.isalnum()) + "-" + version
     return (TEMPLATE.replace("__PERSON_KEY__", key).replace("__PERSON__", html.escape(person))
             .replace("__COUNT__", str(len(jobs))).replace("__INITIAL__", embed(initial))
             .replace("__DATA__", embed(data)))

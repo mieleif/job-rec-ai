@@ -11,6 +11,10 @@ def test_clean_recolle_les_cesures_et_retire_icones_et_puces():
                           "Python, SQL\n- Docker")
 
 
+def test_tiret_au_milieu_d_une_phrase_garde():
+    assert clean("– Data & BI – Consolidation ERP") == "Data & BI – Consolidation ERP"
+
+
 def test_read_cv_texte_brut(tmp_path):
     path = tmp_path / "cv.md"
     path.write_text("Data   Engineer\n\n■ dbt, Air-\nflow\n", encoding="utf-8")
