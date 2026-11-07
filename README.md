@@ -48,9 +48,12 @@ uv run job-rec-ai eval --pool                   # offres à noter → data/priva
 uv run job-rec-ai eval                          # P@10, MRR, nDCG@10 par méthode
 uv run --env-file .env job-rec-ai benchmark    # couverture comparée à Adzuna
 uv run job-rec-ai backfill-markdown            # annonces en Markdown depuis data/raw (sans réseau)
+uv run --env-file .env job-rec-ai resolve-domains  # domaine web des employeurs (logos de DoxAI)
 ```
 
-Les entreprises suivies sont dans [`data/companies.csv`](data/companies.csv).
+Les entreprises suivies sont dans [`data/companies.csv`](data/companies.csv), avec leur domaine
+web (colonne `domain`) ; les corrections de domaine dans
+[`data/company_domains.csv`](data/company_domains.csv).
 Collecte nocturne sur un VPS : voir [`deploy/`](deploy/README.md).
 
 ## API
@@ -67,7 +70,12 @@ envoyé en `Authorization: Bearer …` sur toutes les routes sauf `/health`).
 | `GET /jobs/{id}` | une offre, avec l'annonce en Markdown (titres, listes, gras gardés) |
 | `GET /jobs/{id}/similar` | les offres les plus proches de celle-ci |
 
-`id` = 16 caractères hexadécimaux du SHA-256 de l'URL de l'offre. Contrat complet (paramètres,
+`id` = 16 caractères hexadécimaux du SHA-256 de l'URL de l'offre. Chaque offre des quatre
+routes porte `company_domain` (« vitol.com », `null` si inconnu) : le domaine nu de l'employeur,
+dont DoxAI tire le logo. Il vient, par priorité, de `data/company_domains.csv` (corrections),
+de la colonne `domain` de `data/companies.csv`, puis de la recherche de marques de logo.dev
+(`LOGO_DEV_SECRET_KEY`, fin de collecte ou `resolve-domains`), mis en cache en base ; l'API ne
+fait que lire ce cache. Contrat complet (paramètres,
 formes des réponses, erreurs) : [docs/integration-doxai.md](docs/integration-doxai.md).
 
 ## Structure

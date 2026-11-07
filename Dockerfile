@@ -12,8 +12,9 @@ COPY pyproject.toml uv.lock README.md ./
 RUN uv sync --frozen --no-dev --no-install-project
 COPY src ./src
 RUN uv sync --frozen --no-dev
-# La liste des employeurs voyage avec le code (le volume ne la masque pas)
-COPY data/companies.csv /app/companies.csv
+# La liste des employeurs et les corrections de leurs domaines voyagent avec le code (le volume
+# ne les masque pas) ; company_domains.csv est lu à côté de --companies
+COPY data/companies.csv data/company_domains.csv /app/
 
 RUN useradd --create-home --uid 1000 app && mkdir -p /srv/data && chown app /srv/data
 USER app

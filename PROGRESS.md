@@ -15,10 +15,28 @@ _Dernière mise à jour : 2026-11-07_
 | M3 · Baseline | code 6/6 ; BM25 en production (`recommend`), nDCG@10 0,779 sur 38 offres notées | 3-4 CV anonymisés de plus, note « mesurer avant d'optimiser », questions de contrôle |
 | M4 → M8 | pas commencé | |
 
-Tests du projet : 345 réussis.
+Tests du projet : 391 réussis.
 
 ## Décisions
 
+- **2026-11-07 · Domaine web de chaque employeur, pour les logos de DoxAI.** DoxAI affiche
+  le logo via `img.logo.dev/<domaine>` : chaque offre des quatre routes gagne
+  `company_domain` (domaine nu, `null` si inconnu), purement additif. Trois sources par
+  priorité : `data/company_domains.csv` (corrections, vide = pas de logo), colonne `domain`
+  de `companies.csv` (remplie à la main pour les **65 sources collectées**, d'après leur site
+  carrière ; vide pour les autres), puis l'API Brand Search de logo.dev
+  (`LOGO_DEV_SECRET_KEY`). Pourquoi la config d'abord : chaque offre porte le nom canonique
+  de `companies.csv` (même Prospective et l'ONU), donc un domaine écrit une fois est sûr ;
+  la recherche ne sert qu'aux entreprises sans domaine (aucune aujourd'hui). Match « sûr »
+  = nom normalisé identique (accents, casse, « SA/AG/Sàrl/GmbH/Ltd… », « & / and / et »
+  ignorés ; « Group » gardé : Swatch Group ≠ Swatch) ; plusieurs domaines pour ce nom → le
+  seul en .ch, sinon `null` (pas de logo plutôt qu'un faux). Cache en base
+  (`company_domains`, une ligne par nom normalisé, `null` revérifié après 30 jours, erreur
+  de l'API non mise en cache) ; résolution en fin de collecte et par `resolve-domains`,
+  jamais dans une requête : l'API lit la table au rechargement. Domaines choisis à vérifier
+  si un logo semble faux : `home.cern` (CERN), `pg.com` (P&G, site carrière
+  pgcareers.com), `pmi.com` (PMI, site carrière pmicareers.com), `helvetia.com` (Helvetia
+  Baloise, site carrière jobs.helvetia.com).
 - **2026-11-07 · Pages publiques d'offres pour DoxAI : routes `/jobs` et annonces en
   Markdown.** DoxAI ajoute une liste cherchable (`/fr/emplois`) et une page par offre ;
   contrat fixé côté DoxAI, construit en parallèle (`docs/integration-doxai.md`). `GET /jobs`
@@ -371,7 +389,8 @@ Tests du projet : 345 réussis.
    ([deploy/README.md](deploy/README.md), « Brancher DoxAI »). Routes `/jobs` : déployer
    l'image (deploy/README.md, « Mise à jour du 07.11.2026 ») puis `backfill-markdown`, sur
    accord du propriétaire du VPS ; relire quelques annonces réelles en Markdown (Coop,
-   SuccessFactors) une fois en ligne.
+   SuccessFactors) une fois en ligne. Logos : déployer l'image (deploy/README.md, « Mise à
+   jour du 07.11.2026 (2) »), puis `resolve-domains` ; regarder quelques logos dans DoxAI.
 6. Interpréter ensemble la première sortie de `uv run job-rec-ai quality` (elle est dans
    `journalctl -u job-rec-ai-crawl` sur le VPS) ; journaliser la collecte source par source
    au fil de l'eau (aujourd'hui : rien pendant 75 min, puis le résumé).
@@ -386,6 +405,9 @@ Tests du projet : 345 réussis.
 
 ## Journal des sessions
 
+- **2026-11-07** (soir) : `company_domain` sur `/jobs`, `/jobs/{id}`, `/jobs/{id}/similar` et
+  `/recommend` (logos de DoxAI) : colonne `domain` de `companies.csv` (65 sources),
+  overrides, recherche logo.dev en cache, commande `resolve-domains` ; 391 tests.
 - **2026-11-07** (suite) : routes `/jobs` pour les pages publiques d'offres de DoxAI
   (liste, détail en Markdown, offres semblables), `id` dans `/recommend`, colonne
   `description_markdown` et commande `backfill-markdown` ; 345 tests.

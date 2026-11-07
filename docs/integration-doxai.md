@@ -28,13 +28,15 @@ sont écartées (la liste peut donc être plus courte que `k`) :
 ```json
 [{ "job_id": "https://…", "id": "3f9c0a7e12b4d5c6", "url": "https://…",
    "title": "Architecte logiciel junior - IA",
-   "company": "Specitec", "canton": "GE", "family": "Data & IA", "seniority": "Junior",
+   "company": "Specitec", "company_domain": "specitec.com", "canton": "GE", "family": "Data & IA", "seniority": "Junior",
    "workload_min": 100, "workload_max": 100, "posted_at": "2026-11-02",
    "publisher_type": "employeur", "score": 288.8 }]
 ```
 
 `id` (ajouté le 07.11.2026, rien d'autre n'a changé) : l'identifiant de l'offre pour les routes
 `/jobs` ci-dessous, donc pour lier une recommandation à sa page publique.
+`company_domain` (ajouté le 07.11.2026, voir « Logo de l'employeur » plus bas) : présent sur
+`/recommend` comme sur les trois routes `/jobs`.
 
 `GET /status` (même jeton) : `{"offers": 1706, "loaded_at": "…"}`, pour vérifier que l'index
 est chargé. `GET /health` répond sans jeton.
@@ -76,12 +78,13 @@ offre expirée disparaît des routes (404). Recherche par `id` en O(1) (dictionn
 
 ```json
 { "id": "3f9c0a7e12b4d5c6", "url": "https://…", "title": "Data Engineer", "company": "Acme",
-  "location": "Genève", "canton": "GE", "workload_min": 80, "workload_max": 100,
+  "company_domain": "acme.ch", "location": "Genève", "canton": "GE", "workload_min": 80, "workload_max": 100,
   "posted_at": "2026-11-02", "language": "fr", "employment_type": "Full time",
   "family": "Data & IA", "snippet": "Python, SQL, dbt et Airflow pour la plateforme…" }
 ```
 
-`canton`, `workload_*`, `posted_at`, `employment_type`, `family` peuvent être `null`.
+`canton`, `workload_*`, `posted_at`, `employment_type`, `family`, `company_domain` peuvent
+être `null`.
 `language` : `fr`, `de`, `en`, `it` ou `null` (indéterminée : texte trop court). `snippet` :
 au plus 240 caractères de texte brut, coupé sur une fin de mot avec « … ».
 
@@ -112,6 +115,34 @@ autorisé** (react-markdown par défaut).
 `k` : 1 à 12 (4 par défaut). `[JobSummary]`, les offres les plus proches de celle-ci (BM25 sur
 son titre et sa description), elle-même exclue, sans offre à score nul (la liste peut être plus
 courte que `k`). `404` si l'offre est inconnue.
+
+## Logo de l'employeur : `company_domain`
+
+Ajouté le 07.11.2026, purement additif (aucun champ renommé ni retiré, classement de
+`/recommend` inchangé). Chaque offre de `GET /jobs`, `GET /jobs/{id}`, `GET /jobs/{id}/similar`
+et `POST /recommend` porte `company_domain` : le domaine nu de l'employeur, en minuscules, sans
+schéma, chemin ni `www.` (`vitol.com`, `coop.ch`, `home.cern`), ou `null` s'il est inconnu.
+
+DoxAI en tire le logo : `https://img.logo.dev/<company_domain>?token=<clé publiable>`, et un
+favicon en repli ; sans domaine, pas de logo (initiale, par exemple). La clé publiable est
+celle de DoxAI ; la clé **secrète** de logo.dev ne sert qu'ici, côté serveur, et jamais dans
+l'API.
+
+D'où vient le domaine, par priorité :
+
+1. `data/company_domains.csv` (`company,domain,reason`) : corrections à la main ; un domaine
+   vide y force `null` (pas de logo plutôt qu'un faux) ;
+2. la colonne `domain` de `data/companies.csv` : remplie pour les 65 sources collectées,
+   d'après leur propre site carrière ou tenant d'ATS ;
+3. sinon la recherche de marques de logo.dev (`GET https://api.logo.dev/v2/search?q=<nom>`,
+   `LOGO_DEV_SECRET_KEY`) : un candidat n'est retenu que si son nom, normalisé (accents,
+   casse, « SA », « AG », « Sàrl », « GmbH », « Ltd »… ignorés), est exactement celui de
+   l'entreprise ; plusieurs domaines pour ce nom : le seul en `.ch`, sinon `null`.
+
+Le résultat est mis en cache en base (table `company_domains`, un appel par entreprise ; un
+`null` est revérifié après 30 jours). La résolution tourne à la fin de la collecte nocturne et
+par `job-rec-ai resolve-domains`, jamais pendant une requête : l'API lit le cache, et le
+recharge comme le reste de la base (au plus 5 minutes après).
 
 ## Côté DoxAI (proposition)
 

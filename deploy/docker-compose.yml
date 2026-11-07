@@ -16,6 +16,7 @@ services:
     container_name: job-rec-ai
     restart: unless-stopped
     env_file: .env            # JOB_REC_TOKEN (le même que dans cv-app.env)
+                              # (LOGO_DEV_SECRET_KEY aussi, inutile à l'API : elle lit le cache)
     volumes:
       - data:/srv/data
     networks:
@@ -32,6 +33,7 @@ services:
     image: *image
     profiles: [crawl]         # jamais démarré par « up » : seulement par « run »
     command: ["job-rec-ai", "--companies", "/app/companies.csv", "crawl"]
+    env_file: .env            # LOGO_DEV_SECRET_KEY : domaines des employeurs (logos de DoxAI)
     volumes:
       - data:/srv/data
     mem_limit: 768m

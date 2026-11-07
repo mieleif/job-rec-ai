@@ -133,3 +133,53 @@ docker exec cv-app wget -qO- --header "Authorization: Bearer $JOB_REC_TOKEN" \
 Retour arrière : remettre l'ancien `JOB_REC_TAG` et `docker compose up -d api`. L'ancienne
 version ignore la colonne ajoutée (elle lit ses colonnes par leur nom) ; rien à défaire dans
 la base.
+
+## Mise à jour du 07.11.2026 (2) : domaine des employeurs, pour les logos de DoxAI
+
+Purement additif : chaque offre de `/jobs`, `/jobs/{id}`, `/jobs/{id}/similar` et `/recommend`
+gagne `company_domain` (« vitol.com », `null` si inconnu) ; rien n'est renommé ni retiré, le
+classement de `/recommend` ne bouge pas (test sur les 13 fixtures). La base gagne une table
+`company_domains` (le cache) et une colonne `companies.domain`, créées par le premier processus
+qui ouvre la base en écriture ; l'API, en lecture seule, répond `null` tant qu'elles n'existent
+pas. La résolution tourne à la fin de chaque collecte : le service `crawl` reçoit donc
+désormais `.env` (`env_file`), pour `LOGO_DEV_SECRET_KEY`. Sans cette clé, la recherche
+logo.dev est sautée en silence ; les domaines de `companies.csv` (les 65 sources collectées)
+sont écrits quand même.
+
+```bash
+cd /opt/job-rec-ai
+# 1. Le fichier Compose (le service crawl gagne env_file: .env) et la clé (déjà là : « 1 »)
+curl -fsSLO https://raw.githubusercontent.com/mieleif/job-rec-ai/main/deploy/docker-compose.yml
+grep -c '^LOGO_DEV_SECRET_KEY=' .env
+
+# 2. L'image du commit de main qui contient la mise à jour
+sed -i 's/^JOB_REC_TAG=.*/JOB_REC_TAG=<sha>/' .env
+docker compose pull api && docker compose up -d api     # recrée le seul conteneur job-rec-ai
+docker exec cv-app wget -qO- http://job-rec-ai:8000/health
+
+# 3. Remplir les domaines tout de suite (sinon : à la fin de la prochaine collecte). Pas
+#    pendant la collecte de 03:17 UTC, qui verrouille la base. --companies est nécessaire :
+#    la commande remplace celle du service.
+systemctl is-active job-rec-ai-crawl            # « inactive » : la voie est libre
+docker compose --profile crawl run --rm crawl \
+  job-rec-ai --companies /app/companies.csv resolve-domains
+
+# 4. Vérifier (l'API relit la base au plus 5 min après)
+set -a; . /opt/job-rec-ai/.env; set +a
+docker exec cv-app wget -qO- --header "Authorization: Bearer $JOB_REC_TOKEN" \
+  "http://job-rec-ai:8000/jobs?per_page=1"     # « company_domain »: "…"
+```
+
+Durée de l'étape 3 : **quelques secondes** aujourd'hui. Les 65 sources collectées ont leur
+domaine dans `companies.csv` : logo.dev n'est appelé pour aucune. Une entreprise sans domaine
+coûte un appel (≈ 1 à 2 s, une pause d'une seconde entre deux appels), une seule fois : le
+résultat est mis en cache (un « pas trouvé » est redemandé après 30 jours, une erreur de l'API
+à la collecte suivante). La commande affiche ce qu'elle a trouvé, pas trouvé, ou raté.
+
+Corriger un mauvais domaine : une ligne dans `data/company_domains.csv`
+(`company,domain,reason` ; domaine vide = pas de logo), ou la colonne `domain` de
+`data/companies.csv`, puis une PR ; une fois la nouvelle image en place, l'étape 3 (ou la
+collecte suivante) applique la correction.
+
+Retour arrière : remettre l'ancien `JOB_REC_TAG` et `docker compose up -d api`. L'ancienne
+version ignore la table et la colonne ajoutées ; `env_file` sur `crawl` est sans effet pour elle.
