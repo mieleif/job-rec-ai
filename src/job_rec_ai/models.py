@@ -32,6 +32,9 @@ class Job(BaseModel):
     # « Collaborateur ») : en texte brut, interprété par families.py
     category: str | None = None
     level: str | None = None
+    # L'annonce avec sa structure (titres, listes, gras), pour la lire : voir markdown.py.
+    # `description` reste le texte brut sur une ligne, celui que lit le moteur (BM25).
+    description_markdown: str | None = None
 
     @field_validator("title", "company")
     @classmethod

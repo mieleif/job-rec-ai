@@ -13,6 +13,7 @@ publication : Helvetia Suisse = 1005736).
 from job_rec_ai.connectors.base import LocationFilter, build_jobs, envelope, paginate
 from job_rec_ai.geo import is_switzerland
 from job_rec_ai.http import PoliteClient
+from job_rec_ai.markdown import html_to_markdown, join_markdown
 from job_rec_ai.models import Job
 from job_rec_ai.text import clean_html
 
@@ -54,6 +55,8 @@ class ProspectiveConnector:
                 "url": f"{JOB_PAGE}/{job['viewkey']}",
                 "location": location_of(szas),
                 "description": " ".join(clean_html(szas[k]) for k in _TEXT if szas.get(k)),
+                "description_markdown": join_markdown(html_to_markdown(szas[k])
+                                                      for k in _TEXT if szas.get(k)),
                 "source_id": str(job["id"]),
                 "employment_type": szas.get("sza_pensum"),
                 "category": szas.get("sza_field_of_activity"),

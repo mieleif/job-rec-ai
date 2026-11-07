@@ -9,6 +9,7 @@ canton, pays), avec une liste « locations » pour les offres multi-sites.
 
 from job_rec_ai.connectors.base import LocationFilter, build_jobs, envelope, parse_date
 from job_rec_ai.http import PoliteClient
+from job_rec_ai.markdown import html_to_markdown
 from job_rec_ai.models import Job
 from job_rec_ai.text import clean_html
 
@@ -40,6 +41,7 @@ class WorkableConnector:
                 "url": job["url"],
                 "location": " / ".join(_places(job)),
                 "description": clean_html(job.get("description")),
+                "description_markdown": html_to_markdown(job.get("description")),
                 "posted_at": parse_date(job.get("published_on") or job.get("created_at")),
                 "source_id": job["shortcode"],
                 "employment_type": job.get("employment_type") or None,

@@ -22,6 +22,7 @@ from job_rec_ai.connectors.base import (
 )
 from job_rec_ai.geo import TARGET_COUNTRY
 from job_rec_ai.http import PoliteClient
+from job_rec_ai.markdown import html_to_markdown, join_markdown
 from job_rec_ai.models import Job
 from job_rec_ai.text import clean_html
 
@@ -94,6 +95,8 @@ class OracleConnector:
                 "location": " / ".join(_locations(detail)),
                 "description": " ".join(clean_html(detail[f]) for f in _TEXT_FIELDS
                                         if detail.get(f)),
+                "description_markdown": join_markdown(html_to_markdown(detail[f])
+                                                      for f in _TEXT_FIELDS if detail.get(f)),
                 "posted_at": parse_date(detail.get("ExternalPostedStartDate")),
                 "source_id": str(detail["Id"]),
                 "employment_type": detail.get("JobSchedule"),

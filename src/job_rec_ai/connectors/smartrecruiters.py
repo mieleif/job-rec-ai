@@ -18,6 +18,7 @@ from bs4 import BeautifulSoup
 from job_rec_ai.connectors.base import LocationFilter, build_jobs, envelope, parse_date
 from job_rec_ai.connectors.schema_org import JobPostingPage
 from job_rec_ai.http import PoliteClient
+from job_rec_ai.markdown import html_to_markdown
 from job_rec_ai.models import Job
 from job_rec_ai.text import clean_html
 
@@ -98,6 +99,8 @@ class SmartRecruitersConnector:
                 "url": posting["url"],
                 "location": ", ".join(p for p in place if p),
                 "description": clean_html(str(description) if description else None),
+                "description_markdown": html_to_markdown(str(description) if description
+                                                         else None),
                 "posted_at": parse_date(page.prop("datePosted")),
                 "source_id": posting["id"],
                 "employment_type": page.prop("employmentType"),
