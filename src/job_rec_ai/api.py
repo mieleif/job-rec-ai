@@ -119,6 +119,7 @@ def create_app(db_path: Path | str | None = None) -> FastAPI:
 
     @app.get("/status", dependencies=[Depends(authorized)])
     def status() -> dict:
+        index.refresh()  # sinon il montre l'index d'avant la collecte jusqu'au prochain /recommend
         return {"offers": len(index.jobs),
                 "loaded_at": index.loaded_at.isoformat() if index.loaded_at else None}
 

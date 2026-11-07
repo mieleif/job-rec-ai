@@ -90,6 +90,16 @@ def test_rechargement_quand_la_base_change(db, monkeypatch):
     assert len(index.jobs) == 4
 
 
+def test_status_relit_la_base_apres_une_collecte(db, monkeypatch):
+    """Retour du VPS : /status montrait 0 offre jusqu'au premier /recommend."""
+    monkeypatch.delenv("JOB_REC_TOKEN", raising=False)
+    with TestClient(api.create_app(db)) as c:
+        assert c.get("/status").json()["offers"] == 3
+        _write_db(db, OFFERS + [("Juriste", "Genève", "Droit des contrats.")])
+        monkeypatch.setattr(api, "REFRESH", 0)
+        assert c.get("/status").json()["offers"] == 4
+
+
 def test_base_verrouillee_garde_l_index_precedent(db):
     """Pendant la collecte (écriture par un autre accès), l'ancien index reste servi."""
     index = api.Index(db)
