@@ -176,6 +176,43 @@ def replay(con, raw_dir: Path = RAW_DIR) -> int:
     return total
 
 
+def latest_archives(raw_dir: Path = RAW_DIR) -> list[Path]:
+    """La dernière réponse brute archivée de chaque entreprise (une par ATS et entreprise).
+
+    Noms : <jour>/<ats>__<entreprise>__<hhmmss>.json.gz (sans heure avant le 30.10.2026)."""
+    latest: dict[tuple[str, str], tuple[tuple[str, str], Path]] = {}
+    for path in raw_dir.glob("*/*.json.gz"):
+        parts = path.name.removesuffix(".json.gz").split("__")
+        when = (path.parent.name, parts[2] if len(parts) > 2 else "")
+        key = (parts[0], parts[1] if len(parts) > 1 else "")
+        if key not in latest or when > latest[key][0]:
+            latest[key] = (when, path)
+    return sorted(path for _, path in latest.values())
+
+
+def backfill_markdown(con, raw_dir: Path = RAW_DIR) -> tuple[int, int]:
+    """Remplit description_markdown des offres en base depuis les archives brutes, sans
+    réseau : la dernière réponse de chaque entreprise est re-parsée (le parseur produit le
+    Markdown), et seule cette colonne est écrite. Rien n'est inséré, expiré ni recalculé :
+    sans danger pour la base, et rejouable. Renvoie (archives lues, offres mises à jour).
+
+    Les offres actives viennent toutes de la dernière collecte réussie de leur entreprise
+    (une collecte en échec n'archive rien et n'expire rien) : elles sont donc couvertes."""
+    archives, updated = latest_archives(raw_dir), 0
+    for path in archives:
+        try:
+            with gzip.open(path, "rt", encoding="utf-8") as f:
+                payload = json.load(f)
+            jobs = dedupe(REGISTRY[payload["ats"]].parse(payload))
+        except Exception:  # une archive illisible ne doit pas bloquer les autres
+            log.exception("archive ignorée : %s", path)
+            continue
+        updated += storage.update_markdown(
+            con, [{"url": str(j.url), "description_markdown": j.description_markdown}
+                  for j in jobs])
+    return len(archives), updated
+
+
 @dataclass
 class Rederived:
     recalculated: int

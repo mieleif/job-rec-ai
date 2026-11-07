@@ -24,6 +24,7 @@ from job_rec_ai.connectors.base import (
 )
 from job_rec_ai.geo import TARGET_COUNTRY
 from job_rec_ai.http import PoliteClient
+from job_rec_ai.markdown import html_to_markdown
 from job_rec_ai.models import Job
 from job_rec_ai.text import clean_html
 
@@ -119,6 +120,7 @@ class WorkdayConnector:
                 "url": info["externalUrl"],
                 "location": " / ".join(_locations(info)),
                 "description": clean_html(info.get("jobDescription")),
+                "description_markdown": html_to_markdown(info.get("jobDescription")),
                 "posted_at": parse_date(info.get("startDate")),
                 "source_id": info.get("jobReqId") or info.get("id"),
                 "employment_type": info.get("timeType"),

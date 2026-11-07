@@ -8,6 +8,7 @@ import argparse
 import json
 import logging
 import sys
+import time
 from datetime import date
 from pathlib import Path
 
@@ -137,6 +138,13 @@ def _cmd_benchmark(args, con):
 def _cmd_replay(args, con):
     storage.upsert_companies(con, load_companies(args.companies))  # secteur, canton de repli
     print(f"{pipeline.replay(con)} offres rechargées depuis data/raw/")
+
+
+def _cmd_backfill_markdown(args, con):
+    started = time.perf_counter()
+    archives, updated = pipeline.backfill_markdown(con)
+    print(f"{updated} offres avec leur annonce en Markdown, depuis {archives} archives de "
+          f"data/raw/ ({time.perf_counter() - started:.0f} s)")
 
 
 def _cmd_explore(args, con):
@@ -272,6 +280,9 @@ def build_parser() -> argparse.ArgumentParser:
 
     sub.add_parser("replay", help="reconstruire la base depuis data/raw").set_defaults(
         func=_cmd_replay)
+    sub.add_parser("backfill-markdown",
+                   help="annonces en Markdown depuis data/raw (sans réseau ni collecte)"
+                   ).set_defaults(func=_cmd_backfill_markdown)
     p = sub.add_parser("recommend", help="les offres les plus proches d'un CV (BM25)")
     p.add_argument("--cv", default=DEFAULT_CV, type=Path, help="PDF, .txt ou .md")
     p.add_argument("--limit", type=int, default=20)

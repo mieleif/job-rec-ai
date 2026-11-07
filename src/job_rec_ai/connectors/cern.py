@@ -24,6 +24,7 @@ from job_rec_ai.connectors.base import (
 )
 from job_rec_ai.connectors.jsonld import listed_links
 from job_rec_ai.http import PoliteClient
+from job_rec_ai.markdown import html_to_markdown
 from job_rec_ai.models import Job
 from job_rec_ai.text import clean_html
 
@@ -78,11 +79,13 @@ class CernConnector:
     def parse(self, payload: dict) -> list[Job]:
         def to_fields(posting: dict) -> dict:
             article = BeautifulSoup(posting["html"], "html.parser")
+            content = str(article.select_one(".entry-content") or "")
             return {
                 "title": _text(article, "h1"),
                 "url": posting["url"],
                 "location": _text(article, ".job-offer__header-infos .location"),
-                "description": clean_html(str(article.select_one(".entry-content") or "")),
+                "description": clean_html(content),
+                "description_markdown": html_to_markdown(content),
                 "posted_at": parse_date(posting.get("published")),
                 "source_id": _text(article, ".job-offer__header-infos .ref") or None,
             }

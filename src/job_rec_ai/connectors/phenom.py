@@ -23,6 +23,7 @@ from job_rec_ai.connectors.base import (
 )
 from job_rec_ai.geo import TARGET_COUNTRY
 from job_rec_ai.http import PoliteClient
+from job_rec_ai.markdown import html_to_markdown
 from job_rec_ai.models import Job
 from job_rec_ai.text import clean_html
 
@@ -78,6 +79,7 @@ class PhenomConnector:
                 "url": job["url"],
                 "location": " / ".join(_places(job)),
                 "description": clean_html(job.get("description")),
+                "description_markdown": html_to_markdown(job.get("description")),
                 "posted_at": parse_date(job.get("postedDate")),
                 "source_id": str(job["jobId"]),
                 "employment_type": job.get("type"),

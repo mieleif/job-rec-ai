@@ -24,6 +24,7 @@ from job_rec_ai.connectors.base import (
     get_html_or_skip,
 )
 from job_rec_ai.http import PoliteClient
+from job_rec_ai.markdown import html_to_markdown, join_markdown
 from job_rec_ai.models import Job
 from job_rec_ai.text import clean_html
 
@@ -138,13 +139,14 @@ class TaleoConnector:
         def to_fields(row: dict) -> dict:
             # Les textes longs (description, profil…) sont du HTML encodé en URL (%3Cp%3E),
             # précédé du marqueur « !*! » de Taleo
-            texts = [clean_html(unquote(f).replace("!*!", "")) for f in row["fields"]
-                     if "%3C" in f]
+            html = [unquote(f).replace("!*!", "") for f in row["fields"] if "%3C" in f]
+            texts = [clean_html(h) for h in html]
             return {
                 "title": row["column"][row.get("linkedColumn", 0)],
                 "url": row["url"],
                 "location": " / ".join(locations_of(row)),
                 "description": " ".join(texts),
+                "description_markdown": join_markdown(html_to_markdown(h) for h in html),
                 "posted_at": posted_on(row["fields"]),
                 "source_id": row["contestNo"],
             }

@@ -57,6 +57,10 @@ CREATE TABLE IF NOT EXISTS jobs (
 -- touche pas une table déjà là). Le classement déclaré par l'ATS, en texte brut.
 ALTER TABLE jobs ADD COLUMN IF NOT EXISTS category VARCHAR;
 ALTER TABLE jobs ADD COLUMN IF NOT EXISTS level VARCHAR;
+-- L'annonce en Markdown, structure gardée (titres, listes) : pour la page d'une offre.
+-- NULL tant que ni une collecte ni `backfill-markdown` ne l'a remplie ; `description` reste
+-- le texte brut que lit le moteur.
+ALTER TABLE jobs ADD COLUMN IF NOT EXISTS description_markdown VARCHAR;
 
 CREATE TABLE IF NOT EXISTS crawl_runs (
     started_at TIMESTAMP,
@@ -239,6 +243,20 @@ def update_derived(con, rows: list[dict]) -> None:
     con.execute("DROP TABLE _staging")
 
 
+def update_markdown(con, rows: list[dict]) -> int:
+    """Écrit description_markdown ({url, description_markdown}) des offres déjà en base, et
+    seulement cette colonne ; renvoie le nombre d'offres touchées (une URL inconnue est
+    ignorée : rien n'est inséré)."""
+    if not rows:
+        return 0
+    con.execute("CREATE OR REPLACE TEMP TABLE _staging AS SELECT unnest($rows, max_depth := 2)",
+                {"rows": rows})
+    (count,) = con.execute("""UPDATE jobs SET description_markdown = s.description_markdown
+                              FROM _staging s WHERE jobs.url = s.url""").fetchone()
+    con.execute("DROP TABLE _staging")
+    return count
+
+
 # --- lecture : facettes, tri, agrégats ------------------------------------------------------
 
 SORTS = {
@@ -334,6 +352,31 @@ def jobs_for_ranking(con, include: list[str] = ()) -> list[dict]:
                   coalesce(description, '') AS description
            FROM jobs_view WHERE active OR list_contains(?, url) ORDER BY url""",
         [list(include)])
+    names = [d[0] for d in cursor.description]
+    return [dict(zip(names, row)) for row in cursor.fetchall()]
+
+
+def _has_column(con, table: str, column: str) -> bool:
+    return con.execute("SELECT count(*) FROM duckdb_columns() WHERE table_name = ? "
+                       "AND column_name = ?", [table, column]).fetchone()[0] > 0
+
+
+def jobs_for_api(con) -> list[dict]:
+    """Les offres actives pour l'API : le corpus du moteur (mêmes offres, même ordre que
+    `jobs_for_ranking`, donc le même classement) et ce qu'affiche la page d'une offre.
+
+    L'API ouvre la base en lecture seule : elle ne peut pas la migrer. Tant que la collecte
+    (ou `backfill-markdown`) n'a pas ajouté la colonne description_markdown, elle vaut NULL."""
+    markdown = ("description_markdown" if _has_column(con, "jobs_view", "description_markdown")
+                else "NULL")
+    cursor = con.execute(
+        f"""SELECT url, title, company, publisher_type, location, canton, family, seniority,
+                   category, language, source, employment_type, workload_min, workload_max,
+                   CAST(posted_at AS VARCHAR) AS posted_at,
+                   CAST(CAST(first_seen AS DATE) AS VARCHAR) AS first_seen,
+                   coalesce(description, '') AS description,
+                   {markdown} AS description_markdown
+            FROM jobs_view WHERE active ORDER BY url""")
     names = [d[0] for d in cursor.description]
     return [dict(zip(names, row)) for row in cursor.fetchall()]
 

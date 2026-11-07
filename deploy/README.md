@@ -20,7 +20,8 @@ job-rec-ai tourne sur le même VPS que DoxAI, en conteneurs, à côté de la pil
 
 - **Image** : `ghcr.io/mieleif/job-rec-ai:<sha>` et `:latest`, publiques, publiées par
   `.github/workflows/image.yml` à chaque push sur `main` (un tag immuable par commit, comme DoxAI).
-- **API** : `GET /health` (sans jeton), `GET /status` et `POST /recommend` (jeton
+- **API** : `GET /health` (sans jeton), `GET /status`, `POST /recommend` et les pages
+  d'offres `GET /jobs`, `GET /jobs/{id}`, `GET /jobs/{id}/similar` (jeton
   `Authorization: Bearer $JOB_REC_TOKEN`, sinon 401). Voir `src/job_rec_ai/api.py` et
   [docs/integration-doxai.md](../docs/integration-doxai.md). Joignable seulement depuis le réseau
   Docker de DoxAI, sous le nom `job-rec-ai`.
@@ -98,3 +99,37 @@ docker compose pull && docker compose up -d api       # mettre à jour (JOB_REC_
 
 Données à sauvegarder : le volume `job-rec-ai_data` (`jobs.duckdb` et `raw/`). La base se
 reconstruit à partir de `raw/` (`docker compose --profile crawl run --rm crawl job-rec-ai replay`).
+
+## Mise à jour du 07.11.2026 : routes `/jobs` et annonces en Markdown
+
+Purement additif : `/recommend` garde ses entrées, ses champs et son classement (vérifié par un
+test sur les 13 fixtures) et gagne un champ `id`. La base gagne une colonne
+`jobs.description_markdown` (`ALTER TABLE … ADD COLUMN IF NOT EXISTS`, NULL au départ),
+ajoutée par le premier processus qui ouvre la base **en écriture** (collecte ou
+`backfill-markdown`) ; l'API, en lecture seule, fonctionne avant comme après (sans la colonne,
+elle tire le Markdown du texte brut). Ni le fichier Compose, ni les noms de services, ni le timer
+ne changent. Le conteneur `job-rec-ai` sert le staging comme la production de DoxAI : c'est le
+seul redémarrage (quelques secondes, l'index se recharge au démarrage).
+
+```bash
+cd /opt/job-rec-ai
+# 1. L'image du commit de main qui contient la mise à jour (ou « latest »)
+sed -i 's/^JOB_REC_TAG=.*/JOB_REC_TAG=<sha>/' .env
+docker compose pull api && docker compose up -d api     # recrée le seul conteneur job-rec-ai
+docker exec cv-app wget -qO- http://job-rec-ai:8000/health
+
+# 2. Remplir le Markdown tout de suite, depuis les archives raw/ (sans réseau, ~1-2 min ;
+#    pas pendant la collecte de 03:17 UTC, qui verrouille la base). Sinon, la collecte
+#    suivante le remplit d'elle-même pour toutes les offres actives.
+systemctl is-active job-rec-ai-crawl            # « inactive » : la voie est libre
+docker compose --profile crawl run --rm crawl job-rec-ai backfill-markdown
+
+# 3. Vérifier (l'API relit la base au plus 5 min après)
+set -a; . /opt/job-rec-ai/.env; set +a
+docker exec cv-app wget -qO- --header "Authorization: Bearer $JOB_REC_TOKEN" \
+  "http://job-rec-ai:8000/jobs?per_page=1"
+```
+
+Retour arrière : remettre l'ancien `JOB_REC_TAG` et `docker compose up -d api`. L'ancienne
+version ignore la colonne ajoutée (elle lit ses colonnes par leur nom) ; rien à défaire dans
+la base.

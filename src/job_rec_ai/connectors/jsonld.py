@@ -25,6 +25,7 @@ from job_rec_ai.connectors.base import (
 )
 from job_rec_ai.connectors.schema_org import json_ld_job_posting
 from job_rec_ai.http import PoliteClient
+from job_rec_ai.markdown import html_to_markdown, join_markdown
 from job_rec_ai.models import Job
 from job_rec_ai.text import clean_html, normalize
 
@@ -186,6 +187,9 @@ class JsonLdConnector:
                 # clean_html décode une fois ; _clean rattrape les entités échappées deux fois
                 "description": _clean(" ".join(clean_html(job[f]) for f in _TEXT_FIELDS
                                                if isinstance(job.get(f), str))),
+                "description_markdown": join_markdown(html_to_markdown(job[f])
+                                                      for f in _TEXT_FIELDS
+                                                      if isinstance(job.get(f), str)),
                 "posted_at": parse_date(job.get("datePosted")),
                 "source_id": str(identifier or urlsplit(posting["url"]).path.rstrip("/")
                                  .rsplit("/", 1)[-1]),

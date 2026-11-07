@@ -47,15 +47,33 @@ uv run job-rec-ai recommend                    # offres les plus proches du CV (
 uv run job-rec-ai eval --pool                   # offres à noter → data/private/eval/annoter-leif.html
 uv run job-rec-ai eval                          # P@10, MRR, nDCG@10 par méthode
 uv run --env-file .env job-rec-ai benchmark    # couverture comparée à Adzuna
+uv run job-rec-ai backfill-markdown            # annonces en Markdown depuis data/raw (sans réseau)
 ```
 
 Les entreprises suivies sont dans [`data/companies.csv`](data/companies.csv).
 Collecte nocturne sur un VPS : voir [`deploy/`](deploy/README.md).
 
+## API
+
+`uv run uvicorn job_rec_ai.api:app` (base : `JOB_REC_DB`, jeton facultatif : `JOB_REC_TOKEN`,
+envoyé en `Authorization: Bearer …` sur toutes les routes sauf `/health`).
+
+| Route | Rôle |
+|---|---|
+| `GET /health` | le service répond (sans jeton) |
+| `GET /status` | offres indexées, date de chargement de la base |
+| `POST /recommend` | `{cv_text, k, cantons}` → les offres les plus proches du CV (BM25) |
+| `GET /jobs` | liste cherchable : `q` (BM25), `cantons`, taux, ancienneté, pagination, facettes par canton |
+| `GET /jobs/{id}` | une offre, avec l'annonce en Markdown (titres, listes, gras gardés) |
+| `GET /jobs/{id}/similar` | les offres les plus proches de celle-ci |
+
+`id` = 16 caractères hexadécimaux du SHA-256 de l'URL de l'offre. Contrat complet (paramètres,
+formes des réponses, erreurs) : [docs/integration-doxai.md](docs/integration-doxai.md).
+
 ## Structure
 
 ```
-src/job_rec_ai/     le moteur (créé à l'étape M0)
+src/job_rec_ai/     le moteur (créé à l'étape M0) et l'API (api.py, catalog.py, markdown.py)
 checkpoints/        tests d'acceptation de chaque étape de la roadmap
 docs/learnings/     modèle des notes personnelles (les notes vivent dans Notion, privées)
 ```

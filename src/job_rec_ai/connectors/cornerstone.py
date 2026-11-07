@@ -20,6 +20,7 @@ from urllib.parse import urlsplit
 
 from job_rec_ai.connectors.base import LocationFilter, build_jobs, envelope, paginate
 from job_rec_ai.http import PoliteClient
+from job_rec_ai.markdown import html_to_markdown
 from job_rec_ai.models import Job
 from job_rec_ai.text import clean_html
 
@@ -104,6 +105,7 @@ class CornerstoneConnector:
                 "url": f"{origin}/ux/ats/careersite/{site}/home/requisition/{rid}?c={tenant}",
                 "location": " / ".join(_places(job)),
                 "description": clean_html(job.get("externalDescription")),
+                "description_markdown": html_to_markdown(job.get("externalDescription")),
                 "posted_at": posted_on(job.get("postingEffectiveDate"), culture),
                 "source_id": str(rid),
             }
