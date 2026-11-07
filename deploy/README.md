@@ -5,26 +5,40 @@ job-rec-ai tourne sur le même VPS que DoxAI, en conteneurs, à côté de la pil
 
 ```
             réseau Docker n8n-stack_default (pas d'URL publique)
- cv-app-web ──── POST http://job-rec-ai:8000/recommend ────▶ job-rec-ai (API, BM25 en mémoire)
+ staging-web ─┐
+ (cv-app) ────┴── POST http://job-rec-ai:8000/recommend ──▶ job-rec-ai (API, BM25 en mémoire)
                                                                   │ lit (lecture seule)
- timer systemd 03:17 ──▶ docker compose run crawl ──écrit──▶ volume data : jobs.duckdb + raw/
+ timer systemd 03:17 UTC ──▶ docker compose run crawl ──écrit──▶ volume data : jobs.duckdb + raw/
 ```
 
-- **Image** : `ghcr.io/mieleif/job-rec-ai:<sha>`, publiée par `.github/workflows/image.yml` à
-  chaque push sur `main` (même principe que les images DoxAI : un tag immuable par commit).
-- **API** : `GET /health`, `GET /status`, `POST /recommend` (voir `src/job_rec_ai/api.py` et
-  [docs/integration-doxai.md](../docs/integration-doxai.md)). Joignable seulement depuis le
-  réseau Docker de DoxAI, sous le nom `job-rec-ai`. Jeton partagé `JOB_REC_TOKEN`.
+| Quoi | Où |
+|---|---|
+| Fichier Compose, `.env` (jeton, chmod 600) | `/opt/job-rec-ai/` |
+| Collecte nocturne | `/etc/systemd/system/job-rec-ai-crawl.{service,timer}` |
+| Base `jobs.duckdb` et réponses brutes `raw/` | volume Docker `job-rec-ai_data` |
+| Le conteneur | `docker ps` → `job-rec-ai` (un conteneur n'est pas dans un dossier : Docker le gère) |
+
+- **Image** : `ghcr.io/mieleif/job-rec-ai:<sha>` et `:latest`, publiques, publiées par
+  `.github/workflows/image.yml` à chaque push sur `main` (un tag immuable par commit, comme DoxAI).
+- **API** : `GET /health` (sans jeton), `GET /status` et `POST /recommend` (jeton
+  `Authorization: Bearer $JOB_REC_TOKEN`, sinon 401). Voir `src/job_rec_ai/api.py` et
+  [docs/integration-doxai.md](../docs/integration-doxai.md). Joignable seulement depuis le réseau
+  Docker de DoxAI, sous le nom `job-rec-ai`.
 - **Collecte** : le même conteneur, commande `crawl`, lancée chaque nuit par un timer systemd.
-  L'API relit la base quand le fichier a changé (au plus toutes les 5 minutes) ; pendant la
-  collecte, la base est verrouillée en écriture et l'API sert l'index de la veille.
-- **Mémoire** : API ≈ 150-250 Mo (plafond 384 Mo), collecte plafonnée à 768 Mo : le VPS a 4 Go
-  partagés avec la production DoxAI.
+  L'horloge du VPS est en UTC : 03:17 UTC = 04:17 en hiver, 05:17 en été (heure suisse). Une
+  collecte dure **environ 75 minutes** (Coop seul : 10 à 15 min, à cause des pauses entre
+  requêtes). Le journal reste muet jusqu'au résumé final : `journalctl -f` n'est pas bloqué.
+- **Rechargement** : l'API ne relit pas la base d'elle-même. Elle la relit à la requête suivante
+  (`/recommend` ou `/status`) si le fichier a changé, au plus une fois toutes les 5 minutes.
+  Pendant la collecte, la base est verrouillée en écriture et l'API sert l'index de la veille.
+- **Mémoire** (mesurée au premier déploiement, 1 706 offres) : API 157 Mo (plafond 384 Mo),
+  collecte ≈ 125 Mo au pic (plafond 768 Mo) ; il est resté ≥ 1,4 Go libres sur les 4 Go partagés
+  avec la production DoxAI. Volume de données : 11 Mo.
 
 ## Installation (une fois, en SSH)
 
 ```bash
-# 1. Le dossier du projet et ses deux fichiers
+# 1. Le dossier du projet et ses fichiers
 sudo mkdir -p /opt/job-rec-ai && sudo chown "$USER" /opt/job-rec-ai && cd /opt/job-rec-ai
 for f in docker-compose.yml job-rec-ai-crawl.service job-rec-ai-crawl.timer; do
   curl -fsSLO "https://raw.githubusercontent.com/mieleif/job-rec-ai/main/deploy/$f"; done
@@ -33,35 +47,51 @@ printf 'JOB_REC_TOKEN=%s\nJOB_REC_TAG=latest\n' "$(openssl rand -hex 32)" > .env
 # 2. Vérifier le nom du réseau Docker de DoxAI (sinon : DOXAI_NETWORK=… dans .env)
 docker network ls | grep n8n-stack
 
-# 3. La base de départ : copier celle du PC (plus rapide qu'une première collecte)
-#    depuis le PC : scp data/jobs.duckdb vps:/tmp/ puis, sur le VPS :
-docker compose pull api
-docker compose run --rm --no-deps -v /tmp:/import crawl sh -c 'cp /import/jobs.duckdb /srv/data/'
+# 3. L'API (elle répond 503 à /recommend tant qu'il n'y a pas de base : c'est normal)
+docker compose pull api && docker compose up -d api
+docker exec cv-app wget -qO- http://job-rec-ai:8000/health
 
-# 4. L'API, puis un essai depuis le conteneur web de DoxAI
-docker compose up -d api
-docker exec cv-app-web wget -qO- http://job-rec-ai:8000/health
-
-# 5. Le timer de la collecte nocturne (unités systemd du système)
+# 4. Le timer, puis une première collecte tout de suite (≈ 75 min)
 sudo cp job-rec-ai-crawl.{service,timer} /etc/systemd/system/
 sudo systemctl daemon-reload && sudo systemctl enable --now job-rec-ai-crawl.timer
+sudo systemctl start --no-block job-rec-ai-crawl
 ```
 
-Côté DoxAI, ajouter à `/opt/n8n-stack/cv-app.env` (puis recréer `cv-app` avec les fichiers
-Compose habituels, release override compris) :
+Variante plus rapide pour l'étape 4 : copier une base existante (`scp data/jobs.duckdb vps:/tmp/`
+depuis le PC), puis
+`docker compose run --rm --no-deps -v /tmp:/import crawl sh -c 'cp /import/jobs.duckdb /srv/data/'`.
+
+Vérifier après la collecte (le jeton est lu dans `.env`, jamais affiché) :
+
+```bash
+set -a; . /opt/job-rec-ai/.env; set +a
+docker exec cv-app wget -qO- --header "Authorization: Bearer $JOB_REC_TOKEN" http://job-rec-ai:8000/status
+```
+
+## Brancher DoxAI
+
+Le jeton est le même des deux côtés : celui de `/opt/job-rec-ai/.env`. Sans `JOB_REC_URL`, la
+fonctionnalité reste masquée dans DoxAI.
 
 ```
 JOB_REC_URL=http://job-rec-ai:8000
-JOB_REC_TOKEN=<la même valeur que dans /opt/job-rec-ai/.env>
+JOB_REC_TOKEN=<la valeur de /opt/job-rec-ai/.env>
 ```
+
+- **Staging d'abord** : ces deux lignes dans `/opt/n8n-stack/staging/staging.env`. Le conteneur
+  `staging-web` les prend au prochain déploiement staging (`scripts/staging-vps.sh`, label
+  `staging` sur la PR de cv-app-web). `staging-web` est déjà sur `n8n-stack_default`.
+- **Production, sur décision de Leif** : les mêmes lignes dans `/opt/n8n-stack/cv-app.env`, puis
+  depuis `/opt/n8n-stack` :
+  `docker compose -f docker-compose.yml -f docker-compose.cv-app-release.yml up -d --force-recreate --no-deps cv-app`.
 
 ## Au quotidien
 
 ```bash
 cd /opt/job-rec-ai
-systemctl list-timers job-rec-ai-crawl.timer          # prochaine collecte
+systemctl list-timers job-rec-ai-crawl.timer          # prochaine collecte (heure UTC)
 sudo systemctl start job-rec-ai-crawl                 # lancer une collecte maintenant
-journalctl -u job-rec-ai-crawl -n 100                 # sortie de la dernière collecte
+journalctl -u job-rec-ai-crawl -n 100                 # résumé et rapport qualité de la dernière
 docker compose logs --tail 50 api                     # requêtes servies (jamais le texte des CV)
 docker compose pull && docker compose up -d api       # mettre à jour (JOB_REC_TAG dans .env)
 ```

@@ -3,7 +3,7 @@
 Le carnet de bord du projet : où on en est, ce qu'on a décidé et pourquoi, la suite.
 Les tâches cochables restent dans [ROADMAP.md](ROADMAP.md) ; ce fichier ne les recopie pas.
 
-_Dernière mise à jour : 2026-11-04_
+_Dernière mise à jour : 2026-11-07_
 
 ## Où on en est
 
@@ -30,6 +30,12 @@ Tests du projet : 259 réussis.
   systemd ; plafonds mémoire (VPS 4 Go partagé). Contrat côté DoxAI :
   `docs/integration-doxai.md` (route serveur, page, réutilisation de
   `POST /api/v2/opportunities`). Les embeddings (torch, ~1 Go) restent hors de l'image.
+- **2026-11-07 · Déployé sur le VPS, branché sur le staging seulement.** Consigne de Leif :
+  « Les changements UX/UI -> Déployer sur le staging pas sur prod ». L'API tourne
+  (`/opt/job-rec-ai`, conteneur `job-rec-ai`, 1 706 offres, 157 Mo) ; première collecte
+  74 min, 125 Mo au pic ; timer actif (03:17 UTC). Variables dans `staging.env` ; la prod
+  (`cv-app.env`) n'est pas touchée. `/status` relit désormais la base comme `/recommend` (il
+  montrait 0 offre après la collecte jusqu'au premier `/recommend`).
 - **2026-11-06 · Revue de PR #14, 9 corrections.** La requête retire les lignes de
   coordonnées (adresse et NPA 1203, e-mail, téléphone, profils) et les nombres purs
   (dates, « 200+ ») : avec les répétitions gardées, ils matchaient des adresses et des
@@ -282,6 +288,9 @@ Tests du projet : 259 réussis.
 
 ## Contraintes à connaître
 
+- **SuccessFactors, des descriptions maigres** (rapport qualité du VPS, 06.11) : 46 % des
+  offres ont moins de 300 caractères de description et 25 % ne sont ni en français ni en
+  anglais (surtout Coop, en allemand). Peu de mots en commun avec un CV : BM25 les classe mal.
 - **Coop : des annonces sans description** (titre, taux, référence seulement : c'est ce que
   publie Coop). 209 offres sur 1 002, presque toutes classées « Autre » et en langue « other »
   (texte trop court pour la détection). À pondérer, voire à écarter, pour la recommandation.
@@ -336,8 +345,12 @@ Tests du projet : 259 réussis.
    avec l'employeur, client anonyme) pour la recommandation (M6).
 4. Mesurer la couverture par employeur contre un agrégateur (expérience reportée par Leif) ;
    pistes restantes : État de Vaud, CHUV, Ville de Genève, Migros Genève/Vaud, HCR.
-5. Sur le VPS : installer la collecte nocturne ([deploy/README.md](deploy/README.md)).
-6. Interpréter ensemble la première sortie de `uv run job-rec-ai quality`.
+5. DoxAI : voir la page « Offres recommandées » sur le staging (label `staging` sur
+   mieleif/cv-app-web#129, à poser par Leif), puis décider du passage en prod
+   ([deploy/README.md](deploy/README.md), « Brancher DoxAI »).
+6. Interpréter ensemble la première sortie de `uv run job-rec-ai quality` (elle est dans
+   `journalctl -u job-rec-ai-crawl` sur le VPS) ; journaliser la collecte source par source
+   au fil de l'eau (aujourd'hui : rien pendant 75 min, puis le résumé).
 7. M3 : vérifier que BM25 généralise au-delà du profil de Leif. Contrainte (Leif,
    06.11) : il ne peut pas juger la pertinence d'offres pour des métiers qu'il n'a pas.
    Pistes : CV et notes de vrais amis (rejoint « faire tester par 3 amis » de M7), ou un
@@ -349,6 +362,9 @@ Tests du projet : 259 réussis.
 
 ## Journal des sessions
 
+- **2026-11-07** : image publiée (PR #16, YAML du workflow réparé), API déployée sur le VPS,
+  staging DoxAI branché ; README de déploiement corrigé d'après le terrain ; `/status` relit
+  la base.
 - **2026-11-06** (suite) : API FastAPI, Dockerfile, CI et image GHCR, déploiement Docker
   pour le VPS de DoxAI, contrat d'intégration ; checkpoint M8 (API) 3/3.
 - **2026-11-06** : revue de PR #14, 9 corrections (requête sans coordonnées ni nombres,

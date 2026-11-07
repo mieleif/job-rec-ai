@@ -13,5 +13,5 @@ WorkingDirectory=/opt/job-rec-ai
 ExecStart=/usr/bin/docker compose --profile crawl run --rm crawl
 # Le rapport qualité suit chaque collecte réussie : il finit dans le journal, avec le reste
 ExecStartPost=/usr/bin/docker compose --profile crawl run --rm crawl job-rec-ai quality
-# Garde-fou : une collecte normale prend quelques dizaines de minutes
+# Garde-fou : une collecte normale prend environ 75 minutes
 TimeoutStartSec=3h

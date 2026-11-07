@@ -32,14 +32,19 @@ sont écartées (la liste peut donc être plus courte que `k`) :
    "publisher_type": "employeur", "score": 288.8 }]
 ```
 
+`GET /status` (même jeton) : `{"offers": 1706, "loaded_at": "…"}`, pour vérifier que l'index
+est chargé. `GET /health` répond sans jeton.
+
 Erreurs : `401` jeton absent ou faux, `422` entrée invalide, `503` base pas encore chargée.
 `score` n'a pas d'échelle absolue (BM25) : il sert à ordonner, pas à afficher.
 
 ## Côté DoxAI (proposition)
 
-1. **Connexion** : `JOB_REC_URL` + `JOB_REC_TOKEN` dans `cv-app.env`, lus côté serveur
-   seulement (jamais dans le navigateur). Sans `JOB_REC_URL`, la fonctionnalité est masquée
-   (comme le gateway : no-op quand non configuré), donc absente du staging.
+1. **Connexion** : `JOB_REC_URL` + `JOB_REC_TOKEN`, lus côté serveur seulement (jamais dans
+   le navigateur). Sans `JOB_REC_URL`, la fonctionnalité est masquée (comme le gateway : no-op
+   quand non configuré). Consigne de Leif : les changements d'interface passent d'abord par le
+   staging (`/opt/n8n-stack/staging/staging.env`) ; la prod (`cv-app.env`) reste sans ces
+   variables jusqu'à sa décision. Commandes : [deploy/README.md](../deploy/README.md).
 2. **Route serveur** `GET /api/v2/recommendations` (`requireUser`) : charge le profil global,
    en tire un texte (expériences, projets, compétences, formation, profil professionnel ;
    jamais les coordonnées), appelle `/recommend`, renvoie la liste.
