@@ -26,6 +26,7 @@ from job_rec_ai.connectors.base import (
 from job_rec_ai.connectors.schema_org import JobPostingPage
 from job_rec_ai.geo import is_switzerland, mentions_target_place
 from job_rec_ai.http import PoliteClient
+from job_rec_ai.markdown import html_to_markdown, join_markdown
 from job_rec_ai.models import Job
 from job_rec_ai.text import clean_html, normalize
 
@@ -211,6 +212,8 @@ class SuccessFactorsConnector:
                 "url": posting["url"],
                 "location": location_of(page, posting["url"], title),
                 "description": " ".join(clean_html(str(t)) for t in page.tags("description")),
+                "description_markdown": join_markdown(html_to_markdown(str(t))
+                                                      for t in page.tags("description")),
                 "posted_at": posted_on(page.prop("datePosted")) or parse_date(posting["lastmod"]),
                 "source_id": job_id.group(1) if job_id else None,
                 "category": _first(details, CATEGORY_LABELS),

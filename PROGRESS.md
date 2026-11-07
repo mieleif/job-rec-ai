@@ -15,9 +15,30 @@ _Dernière mise à jour : 2026-11-07_
 | M3 · Baseline | code 6/6 ; BM25 en production (`recommend`), nDCG@10 0,779 sur 38 offres notées | 3-4 CV anonymisés de plus, note « mesurer avant d'optimiser », questions de contrôle |
 | M4 → M8 | pas commencé | |
 
-Tests du projet : 259 réussis.
+Tests du projet : 345 réussis.
 
 ## Décisions
+
+- **2026-11-07 · Pages publiques d'offres pour DoxAI : routes `/jobs` et annonces en
+  Markdown.** DoxAI ajoute une liste cherchable (`/fr/emplois`) et une page par offre ;
+  contrat fixé côté DoxAI, construit en parallèle (`docs/integration-doxai.md`). `GET /jobs`
+  (BM25 sur titre + entreprise + description, cantons, taux par recouvrement de plages,
+  ancienneté, pagination, facettes par canton calculées sans le filtre canton), `GET /jobs/{id}`,
+  `GET /jobs/{id}/similar` ; `/recommend` gagne `id`, son classement est figé par un test
+  (relevé sur les 13 fixtures avant le changement). `id` = 16 hex du SHA-256 de l'URL : la
+  clé de la base, raccourcie et stable. Tout reste en mémoire (`catalog.py`, fonctions
+  pures) : l'API doit répondre pendant la collecte, qui verrouille DuckDB ; un second index
+  BM25 (avec l'entreprise) plutôt que de toucher celui de `/recommend`. Le Markdown
+  (`markdown.py`, `html.parser` comme `clean_html`) garde titres, listes, gras et liens
+  http(s), échappe le reste ; deux conventions d'ATS rattrapées : paragraphe court tout en
+  gras = titre, lignes à puces « • » = liste (sections de l'ONU : `<div>` titrés par leur
+  classe, convertis dans le connecteur). Vérifié sur les 13 fixtures : mêmes mots que la
+  description brute, à part les boutons du CERN. Colonne `jobs.description_markdown`
+  (additive) remplie par chaque connecteur ; pour les offres déjà en base,
+  `backfill-markdown` re-parse la dernière archive `raw/` de chaque entreprise (sans réseau,
+  ~1 min pour 1 700 offres), sinon la collecte suivante s'en charge. `language` de l'API
+  précise « other » en `de` / `it` (mots-outils propres à l'API : ceux du moteur ne changent
+  pas, le classement non plus).
 
 - **2026-11-06 · Mise en ligne pour DoxAI (M8 avancé, embeddings en pause).** Décisions de
   Leif : API sur le réseau Docker du VPS seulement (pas d'URL publique), image GHCR comme
@@ -347,7 +368,10 @@ Tests du projet : 259 réussis.
    pistes restantes : État de Vaud, CHUV, Ville de Genève, Migros Genève/Vaud, HCR.
 5. DoxAI : voir la page « Offres recommandées » sur le staging (label `staging` sur
    mieleif/cv-app-web#129, à poser par Leif), puis décider du passage en prod
-   ([deploy/README.md](deploy/README.md), « Brancher DoxAI »).
+   ([deploy/README.md](deploy/README.md), « Brancher DoxAI »). Routes `/jobs` : déployer
+   l'image (deploy/README.md, « Mise à jour du 07.11.2026 ») puis `backfill-markdown`, sur
+   accord du propriétaire du VPS ; relire quelques annonces réelles en Markdown (Coop,
+   SuccessFactors) une fois en ligne.
 6. Interpréter ensemble la première sortie de `uv run job-rec-ai quality` (elle est dans
    `journalctl -u job-rec-ai-crawl` sur le VPS) ; journaliser la collecte source par source
    au fil de l'eau (aujourd'hui : rien pendant 75 min, puis le résumé).
@@ -362,6 +386,9 @@ Tests du projet : 259 réussis.
 
 ## Journal des sessions
 
+- **2026-11-07** (suite) : routes `/jobs` pour les pages publiques d'offres de DoxAI
+  (liste, détail en Markdown, offres semblables), `id` dans `/recommend`, colonne
+  `description_markdown` et commande `backfill-markdown` ; 345 tests.
 - **2026-11-07** : image publiée (PR #16, YAML du workflow réparé), API déployée sur le VPS,
   staging DoxAI branché ; README de déploiement corrigé d'après le terrain ; `/status` relit
   la base.

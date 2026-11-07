@@ -8,6 +8,8 @@ de robots.txt. Le lieu est le « lieu d'affectation » (dutyStation), en majuscu
 Les agences (OMS, HCR, OIT…) ont chacune leur propre site : ce connecteur ne les voit pas.
 """
 
+import re
+
 from job_rec_ai.connectors.base import (
     LocationFilter,
     build_jobs,
@@ -16,12 +18,23 @@ from job_rec_ai.connectors.base import (
     parse_date,
 )
 from job_rec_ai.http import PoliteClient
+from job_rec_ai.markdown import html_to_markdown
 from job_rec_ai.models import Job
 from job_rec_ai.text import clean_html
 
 PAGE_SIZE = 100
 MAX_PAGES = 30
 API = "/api/public/opening/jo/list/filteredV2/en"
+
+
+# Les sections de l'annonce (« Responsibilities », « Competencies »…) sont des <div> titrés par
+# leur classe, pas des <h*> : on les rend explicites pour le Markdown
+_SECTION_TITLE = re.compile(
+    r"<div class=['\"]jobPostingItemTitle['\"]>(.*?)</div>", re.DOTALL | re.IGNORECASE)
+
+
+def _with_headings(html: str | None) -> str | None:
+    return _SECTION_TITLE.sub(r"<h3>\1</h3>", html) if html else html
 
 
 def _stations(job: dict) -> list[str]:
@@ -58,6 +71,7 @@ class UnCareersConnector:
                 "location": " / ".join(_stations(job)),
                 # pas de champ langue : « EN » est la langue du portail, pas celle de l'annonce
                 "description": clean_html(job.get("jobDescription")),
+                "description_markdown": html_to_markdown(_with_headings(job.get("jobDescription"))),
                 "posted_at": parse_date(job.get("startDate")),
                 "source_id": str(job["jobId"]),
                 # « Staff », « Intern », « Temporary »… : le type de recrutement

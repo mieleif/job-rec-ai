@@ -8,6 +8,7 @@ après coup, sur la liste complète.
 
 from job_rec_ai.connectors.base import LocationFilter, build_jobs, envelope, parse_date
 from job_rec_ai.http import PoliteClient
+from job_rec_ai.markdown import html_to_markdown
 from job_rec_ai.models import Job
 from job_rec_ai.text import clean_html
 
@@ -43,6 +44,7 @@ class GreenhouseConnector:
                 "location": _location(job),
                 # HTML échappé (« &lt;p&gt; ») : clean_html sait le dés-échapper
                 "description": clean_html(job.get("content")),
+                "description_markdown": html_to_markdown(job.get("content")),
                 # Greenhouse déclare la langue de l'annonce : elle primera sur la détection
                 "language": job.get("language"),
                 "posted_at": parse_date(job.get("first_published") or job.get("updated_at")),
