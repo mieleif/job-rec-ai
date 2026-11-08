@@ -102,6 +102,7 @@ def test_forme_d_un_job_summary(client):
     job = client.get("/jobs").json()["jobs"][1]
     assert job == {
         "id": _id(0), "url": _url(0), "title": "Data Engineer", "company": "Acme",
+        "company_domain": None,
         "location": "Genève", "canton": "GE", "workload_min": 80, "workload_max": 100,
         "posted_at": (TODAY - timedelta(days=2)).isoformat(), "language": "fr",
         "employment_type": None, "family": job["family"],

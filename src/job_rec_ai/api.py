@@ -12,7 +12,9 @@
 
 Les routes /jobs servent les pages publiques d'offres de DoxAI (liste et page par offre) ;
 contrat détaillé dans docs/integration-doxai.md. `id` = 16 caractères hexadécimaux du
-SHA-256 de l'URL de l'offre (catalog.job_id), stable d'une collecte à l'autre.
+SHA-256 de l'URL de l'offre (catalog.job_id), stable d'une collecte à l'autre. Chaque offre
+porte `company_domain` (« vitol.com »), lu dans la table company_domains : l'API ne cherche
+jamais un domaine elle-même (voir domains.py).
 
 Le service tourne sur le réseau Docker du VPS, sans URL publique : seuls les conteneurs de
 DoxAI l'appellent. Un jeton (JOB_REC_TOKEN) peut quand même être exigé, par précaution.
@@ -89,7 +91,8 @@ class Index:
                 return
             try:
                 with duckdb.connect(str(self.path), read_only=True) as con:
-                    jobs = [catalog.prepare(j) for j in storage.jobs_for_api(con)]
+                    domains = storage.company_domains(con)
+                    jobs = [catalog.prepare(j, domains) for j in storage.jobs_for_api(con)]
             except duckdb.Error as e:  # verrouillée par la collecte : on garde l'ancien index
                 log.warning("base illisible pour l'instant (%s) : index précédent gardé", e)
                 return
@@ -117,6 +120,7 @@ class Recommendation(BaseModel):
     id: str      # l'identifiant des routes /jobs (catalog.job_id)
     title: str
     company: str
+    company_domain: str | None  # « vitol.com » : pour le logo (voir domains.py) ; None : inconnu
     url: str
     canton: str | None
     family: str | None
@@ -133,6 +137,7 @@ class JobSummary(BaseModel):
     url: str
     title: str
     company: str
+    company_domain: str | None  # domaine nu de l'employeur (« coop.ch »), None si inconnu
     location: str
     canton: str | None
     workload_min: int | None

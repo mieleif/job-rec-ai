@@ -6,6 +6,7 @@
 .ruff_cache
 data/*
 !data/companies.csv
+!data/company_domains.csv
 docs/learnings
 notebooks
 tests

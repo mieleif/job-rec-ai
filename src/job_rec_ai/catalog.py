@@ -16,6 +16,7 @@ from dataclasses import dataclass
 from datetime import date, timedelta
 
 from job_rec_ai.bm25 import BM25
+from job_rec_ai.domains import company_key
 from job_rec_ai.markdown import text_to_markdown
 from job_rec_ai.recommend import document
 from job_rec_ai.text import STOPWORDS, tokenize
@@ -79,13 +80,15 @@ def similar_terms(job: dict) -> list[str]:
     return [w for w in document(job) if w not in STOPWORDS and any(c.isalpha() for c in w)]
 
 
-def prepare(job: dict) -> dict:
-    """Une ligne de `storage.jobs_for_api` → l'offre telle que l'API la sert (id, langue,
-    extrait, Markdown de repli). Les clés d'origine restent : /recommend les lit."""
+def prepare(job: dict, domains: dict[str, str] | None = None) -> dict:
+    """Une ligne de `storage.jobs_for_api` → l'offre telle que l'API la sert (id, domaine de
+    l'employeur, langue, extrait, Markdown de repli). Les clés d'origine restent : /recommend
+    les lit. `domains` : `storage.company_domains` (clé normalisée → domaine)."""
     text = job.get("description") or ""
     return {
         **job,
         "id": job_id(job["url"]),
+        "company_domain": (domains or {}).get(company_key(job["company"])),
         "location": job.get("location") or "",
         "language_code": language_code(job.get("language"), f"{job['title']} {text}"),
         "snippet": snippet(text),
@@ -96,7 +99,8 @@ def prepare(job: dict) -> dict:
 
 def summary(job: dict) -> dict:
     return {"id": job["id"], "url": job["url"], "title": job["title"],
-            "company": job["company"], "location": job["location"], "canton": job["canton"],
+            "company": job["company"], "company_domain": job["company_domain"],
+            "location": job["location"], "canton": job["canton"],
             "workload_min": job["workload_min"], "workload_max": job["workload_max"],
             "posted_at": job["posted_at"], "language": job["language_code"],
             "employment_type": job["employment_type"], "family": job["family"],

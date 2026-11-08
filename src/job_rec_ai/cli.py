@@ -9,10 +9,20 @@ import json
 import logging
 import sys
 import time
+from contextlib import nullcontext
 from datetime import date
 from pathlib import Path
 
-from job_rec_ai import annotation, benchmark, evaluation, explorer, pipeline, recommend, storage
+from job_rec_ai import (
+    annotation,
+    benchmark,
+    domains,
+    evaluation,
+    explorer,
+    pipeline,
+    recommend,
+    storage,
+)
 from job_rec_ai.companies import DEFAULT_CSV, find, load_companies
 from job_rec_ai.connectors import REGISTRY
 from job_rec_ai.cv import DEFAULT_CV, read_cv
@@ -32,6 +42,39 @@ def _cmd_crawl(args, con):
         print(f"  ALERTE  {name:<35} {expired} offres disparues d'un coup : panne de l'ATS ?")
     print(f"\n{len(report.ok)} ok, {len(report.errors)} en erreur, "
           f"{len(report.skipped)} ignorées (sans connecteur : voir `boards`)")
+    try:  # les logos ne doivent jamais faire échouer la collecte
+        _resolve_domains(args, con)
+    except Exception as exc:
+        logging.getLogger(__name__).exception("résolution des domaines")
+        print(f"\nDomaines : échec ({type(exc).__name__}: {exc}), réessai à la prochaine collecte")
+
+
+def _resolve_domains(args, con) -> None:
+    """Domaine web de chaque employeur (logos de DoxAI) : overrides, config, puis logo.dev."""
+    started = time.perf_counter()
+    companies = load_companies(args.companies)
+    storage.upsert_companies(con, companies)
+    overrides = domains.load_overrides(
+        args.domains or Path(args.companies).with_name(domains.OVERRIDES_NAME))
+    search = domains.BrandSearch.from_env()  # None sans LOGO_DEV_SECRET_KEY
+    with search or nullcontext():
+        result = domains.resolve(con, companies, overrides, search)
+    print(f"\nDomaines : {result.fixed} de la config et des overrides, {result.reused} déjà "
+          f"en cache, {len(result.found)} trouvés, {len(result.not_found)} sans match sûr, "
+          f"{len(result.errors)} en erreur ({time.perf_counter() - started:.0f} s)")
+    for name, domain in result.found:
+        print(f"  trouvé   {name:<35} {domain}")
+    for name in result.not_found:
+        print(f"  aucun    {name}")
+    for name, error in result.errors:
+        print(f"  ERREUR   {name:<35} {error}")
+    if result.skipped:
+        print(f"  {len(result.skipped)} entreprise(s) sans domaine connu : recherche sautée "
+              f"({domains.ENV_KEY} absente)")
+
+
+def _cmd_resolve_domains(args, con):
+    _resolve_domains(args, con)
 
 
 def _cmd_boards(args, con):
@@ -237,6 +280,9 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="job-rec-ai")
     parser.add_argument("--db", default=storage.DEFAULT_DB, type=Path)
     parser.add_argument("--companies", default=DEFAULT_CSV, type=Path)
+    parser.add_argument("--domains", type=Path,
+                        help=f"overrides des domaines (défaut : {domains.OVERRIDES_NAME} "
+                             "à côté de --companies)")
     parser.add_argument("-v", "--verbose", action="store_true")
     sub = parser.add_subparsers(dest="command", required=True)
 
@@ -280,6 +326,9 @@ def build_parser() -> argparse.ArgumentParser:
 
     sub.add_parser("replay", help="reconstruire la base depuis data/raw").set_defaults(
         func=_cmd_replay)
+    sub.add_parser("resolve-domains",
+                   help="domaine web de chaque employeur (config, overrides, logo.dev)"
+                   ).set_defaults(func=_cmd_resolve_domains)
     sub.add_parser("backfill-markdown",
                    help="annonces en Markdown depuis data/raw (sans réseau ni collecte)"
                    ).set_defaults(func=_cmd_backfill_markdown)

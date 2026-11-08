@@ -31,6 +31,18 @@ CREATE TABLE IF NOT EXISTS companies (
 );
 ALTER TABLE companies ADD COLUMN IF NOT EXISTS publisher_type VARCHAR;
 ALTER TABLE companies ADD COLUMN IF NOT EXISTS blocked VARCHAR;
+ALTER TABLE companies ADD COLUMN IF NOT EXISTS domain VARCHAR;  -- copie de companies.csv
+
+-- Le domaine web de chaque employeur, pour son logo dans DoxAI (voir domains.py). Une ligne
+-- par nom normalisé (domains.company_key). domain NULL : la recherche n'a rien trouvé de sûr
+-- (revérifié après 30 jours). Écrite par la résolution, lue seulement par l'API.
+CREATE TABLE IF NOT EXISTS company_domains (
+    company_key VARCHAR PRIMARY KEY,
+    company     VARCHAR NOT NULL,      -- le nom tel que vu (config, override ou offre)
+    domain      VARCHAR,
+    origin      VARCHAR NOT NULL,      -- override | config | search
+    checked_at  TIMESTAMP NOT NULL
+);
 
 CREATE TABLE IF NOT EXISTS jobs (
     url             VARCHAR PRIMARY KEY,   -- clé naturelle : une offre = une URL
@@ -255,6 +267,42 @@ def update_markdown(con, rows: list[dict]) -> int:
                               FROM _staging s WHERE jobs.url = s.url""").fetchone()
     con.execute("DROP TABLE _staging")
     return count
+
+
+def save_domains(con, rows: list[dict]) -> None:
+    """Écrit (ou remplace) des lignes de company_domains."""
+    _upsert(con, "company_domains", "company_key", rows)
+
+
+def domain_cache(con) -> dict[str, dict]:
+    """company_domains en entier : {clé : {company, domain, origin, checked_at}}."""
+    cursor = con.execute("SELECT company_key, company, domain, origin, checked_at "
+                         "FROM company_domains")
+    return {key: {"company": company, "domain": domain, "origin": origin, "checked_at": checked}
+            for key, company, domain, origin, checked in cursor.fetchall()}
+
+
+def delete_domains(con, keys: list[str]) -> None:
+    if keys:
+        con.execute("DELETE FROM company_domains WHERE company_key IN (SELECT unnest(?))",
+                    [keys])
+
+
+def active_companies(con) -> list[str]:
+    """Les entreprises qui ont au moins une offre active (celles dont DoxAI montre le logo)."""
+    return [name for (name,) in con.execute(
+        "SELECT DISTINCT company FROM jobs WHERE active ORDER BY company").fetchall()]
+
+
+def company_domains(con) -> dict[str, str]:
+    """{clé : domaine} pour l'API, en lecture seule : vide tant qu'aucune résolution n'a créé
+    la table (base d'avant cette version)."""
+    exists = con.execute("SELECT count(*) FROM duckdb_tables() "
+                         "WHERE table_name = 'company_domains'").fetchone()[0]
+    if not exists:
+        return {}
+    return dict(con.execute("SELECT company_key, domain FROM company_domains "
+                            "WHERE domain IS NOT NULL").fetchall())
 
 
 # --- lecture : facettes, tri, agrégats ------------------------------------------------------
