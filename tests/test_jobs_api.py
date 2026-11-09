@@ -135,6 +135,8 @@ def test_filtre_cantons_et_facettes_sans_ce_filtre(client):
     body = client.get("/jobs", params={"q": "python", "cantons": "GE"}).json()
     assert _titles(body) == ["Data Engineer"]
     assert body["facets"]["cantons"] == {"FR": 1, "GE": 1, "VD": 1}
+    # Les employeurs distincts parmi les résultats filtrés, pas parmi toute la base
+    assert body["companies"] == 1
 
 
 def test_filtre_taux_par_recouvrement_des_plages(client):

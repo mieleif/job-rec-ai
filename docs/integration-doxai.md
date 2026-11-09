@@ -66,13 +66,15 @@ offre expirée disparaît des routes (404). Recherche par `id` en O(1) (dictionn
 | `sort` | `relevance` (défaut si `q`) ou `recent` (défaut sinon : `posted_at` décroissant, sans date à la fin) |
 
 ```json
-{ "total": 412, "page": 1, "per_page": 20,
+{ "total": 412, "page": 1, "per_page": 20, "companies": 41,
   "jobs": [JobSummary, …],
   "facets": { "cantons": { "GE": 120, "VD": 98, "FR": 30 } } }
 ```
 
 `facets.cantons` compte les offres qui passent **tous les filtres sauf `cantons`** (pour afficher
 « Vaud (98) » même quand seul Genève est coché), triées par nombre décroissant.
+`companies` est le nombre d'employeurs distincts parmi les `total` résultats (tous les filtres
+appliqués), pour « 412 offres de 41 entreprises ».
 
 `JobSummary` :
 
