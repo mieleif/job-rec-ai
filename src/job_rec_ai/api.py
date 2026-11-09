@@ -6,7 +6,7 @@
                      → [{"job_id", "id", "title", "company", "url", …, "score"}], score décroissant
     GET  /jobs       ?q=&cantons=GE,VD&workload_min=&workload_max=&posted_within_days=
                      &page=1&per_page=20&sort=recent|relevance
-                     → {"total", "page", "per_page", "jobs": [JobSummary], "facets"}
+                     → {"total", "page", "per_page", "companies", "jobs": [JobSummary], "facets"}
     GET  /jobs/{id}  → JobDetail (l'annonce en Markdown, structure gardée) ; 404 sinon
     GET  /jobs/{id}/similar?k=4 → [JobSummary], les offres les plus proches de celle-ci
 
@@ -165,6 +165,7 @@ class JobList(BaseModel):
     total: int
     page: int
     per_page: int
+    companies: int  # employeurs distincts parmi les `total` résultats
     jobs: list[JobSummary]
     facets: Facets
 

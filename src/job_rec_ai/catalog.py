@@ -179,6 +179,8 @@ def search(jobs: list[dict], index: BM25, query: Query, today: date) -> dict:
     start = (query.page - 1) * query.per_page
     return {
         "total": len(hits), "page": query.page, "per_page": query.per_page,
+        # Le nombre d'employeurs distincts parmi les résultats (« 1 701 offres de 65 entreprises »)
+        "companies": len({j["company"] for _, j in hits}),
         "jobs": [summary(j) for _, j in hits[start:start + query.per_page]],
         "facets": {"cantons": dict(sorted(facets.items(), key=lambda kv: (-kv[1], kv[0])))},
     }
