@@ -225,6 +225,13 @@ def test_recommend_porte_l_id(client):
     assert reco["id"] == _id(0) == catalog.job_id(reco["url"])
 
 
+def test_recommend_porte_le_lieu_et_l_extrait(client):
+    """Les cartes « Offres recommandées » de DoxAI n'avaient ni extrait ni lieu."""
+    reco = client.post("/recommend", json={"cv_text": "Python SQL dbt", "k": 1}).json()[0]
+    assert reco["location"] == "Genève"
+    assert reco["snippet"] == "Python, SQL, dbt et Airflow pour la plateforme data."
+
+
 # Classement de /recommend sur une base faite des 13 fixtures réelles, relevé AVANT l'ajout des
 # routes /jobs (main, 53bd813) : les URL des résultats, en id. Il ne doit pas bouger.
 GOLDEN = {

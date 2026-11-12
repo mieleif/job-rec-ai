@@ -28,10 +28,14 @@ sont écartées (la liste peut donc être plus courte que `k`) :
 ```json
 [{ "job_id": "https://…", "id": "3f9c0a7e12b4d5c6", "url": "https://…",
    "title": "Architecte logiciel junior - IA",
-   "company": "Specitec", "company_domain": "specitec.com", "canton": "GE", "family": "Data & IA", "seniority": "Junior",
+   "company": "Specitec", "company_domain": "specitec.com", "location": "Genève", "canton": "GE",
+   "family": "Data & IA", "seniority": "Junior",
    "workload_min": 100, "workload_max": 100, "posted_at": "2026-11-02",
-   "publisher_type": "employeur", "score": 288.8 }]
+   "publisher_type": "employeur", "snippet": "Au sein de notre équipe…", "score": 288.8 }]
 ```
+
+`location` et `snippet` (ajoutés le 12.11.2026) : les mêmes que sur `GET /jobs`, pour le lieu et
+l'extrait des cartes « Offres recommandées ».
 
 `id` (ajouté le 07.11.2026, rien d'autre n'a changé) : l'identifiant de l'offre pour les routes
 `/jobs` ci-dessous, donc pour lier une recommandation à sa page publique.
