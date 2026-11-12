@@ -122,6 +122,7 @@ class Recommendation(BaseModel):
     company: str
     company_domain: str | None  # « vitol.com » : pour le logo (voir domains.py) ; None : inconnu
     url: str
+    location: str          # « Genève » ; vide : inconnu
     canton: str | None
     family: str | None
     seniority: str | None
@@ -129,6 +130,7 @@ class Recommendation(BaseModel):
     workload_max: int | None
     posted_at: str | None
     publisher_type: str | None
+    snippet: str           # ≤ 240 caractères de texte brut, comme sur /jobs
     score: float
 
 
