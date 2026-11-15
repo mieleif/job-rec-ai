@@ -76,10 +76,11 @@ def test_oracle_fetch_et_parse(oracle_client, requested):
     connector = REGISTRY["oracle"]
     payload = connector.fetch(BOARD, "Acme", oracle_client, keep=is_target)
     # 1 : Genève ; 2 : lieu secondaire à Lausanne ; 3 : Paris, détail jamais demandé ;
-    # 4 : « Switzerland » seul, détail demandé, mais à Zurich
-    assert [p["Id"] for p in payload["postings"]] == ["1", "2"]
+    # 4 : « Switzerland » seul, détail demandé et offre à Zurich gardée
+    assert [p["Id"] for p in payload["postings"]] == ["1", "2", "4"]
     assert not any('Id="3"' in f for f in requested)
-    first, second = connector.parse(payload)
+    first, second, third = connector.parse(payload)
+    assert "Zurich" in third.location
     assert first.url.path == "/hcmUI/CandidateExperience/en/sites/CX_1/job/1"
     assert (first.location, second.location) == ("Geneva, Switzerland / Genève",
                                                  "Paris, France / Lausanne, Switzerland")

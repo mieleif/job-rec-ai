@@ -15,7 +15,7 @@ TEMPLATE = r"""<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Offres en Suisse romande</title>
+<title>Offres en Suisse</title>
 <style>
 :root {
   color-scheme: light;
@@ -95,7 +95,7 @@ details.group[open] > summary::before { content: "▾"; }
 </head>
 <body>
 <header>
-  <h1>Offres d'emploi en Suisse romande</h1>
+  <h1>Offres d'emploi en Suisse</h1>
   <p class="sub">__SUMMARY__</p>
 </header>
 <div class="bar"><div class="bar-inner" role="search">

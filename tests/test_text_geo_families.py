@@ -21,7 +21,7 @@ def test_detect_language_allemand_est_other():
 @pytest.mark.parametrize("location, canton", [
     ("Genève", "GE"), ("Geneva, Switzerland", "GE"), ("Meyrin (GE)", "GE"),
     ("Plan-les-Ouates", "GE"), ("Lausanne, VD", "VD"), ("Le Brassus", "VD"),
-    ("Vevey", "VD"), ("Zürich", None), ("Basel / Kaiseraugst", None),
+    ("Vevey", "VD"), ("Zürich", "ZH"), ("Basel / Kaiseraugst", "BS"),
     ("Geneva, IL, United States", None), ("Annemasse, France", None), ("", None),
     # multi-sites réels (Proton, Logitech) : la Suisse citée l'emporte sur le pays étranger
     ("Geneva, Switzerland, Paris, France", "GE"),
@@ -29,18 +29,18 @@ def test_detect_language_allemand_est_other():
     # tirets et espaces équivalents (URL SuccessFactors : « Le-Grand-Saconnex-Stagiaire… »)
     ("Le Grand Saconnex", "GE"), ("Le Grand-Saconnex", "GE"), ("Plan les Ouates", "GE"),
     # veto jugé lieu par lieu : la Suisse d'un segment ne blanchit pas l'homonyme d'un autre
-    ("Geneva, IL, United States / Zurich, Switzerland", None),
+    ("Geneva, IL, United States / Zurich, Switzerland", "ZH"),
     ("Geneva, New York, USA; Lausanne, Switzerland", "VD"),
     # le reste de la Romandie (04.11.2026)
     ("Neuchâtel", "NE"), ("La Chaux-de-Fonds, CH", "NE"), ("Bulle (FR)", "FR"),
     ("Sion", "VS"), ("Delémont", "JU"), ("Biel/Bienne", "BE"),
-    # périmètre linguistique (05.11.2026) : ni Haut-Valais, ni Singine, ni Seeland
-    ("Zermatt, CH-3920", None), ("Visp, Switzerland", None), ("Brig VS, Wallis", None),
-    ("Zermatt (VS)", None), ("Murten, Freiburg, Schweiz", None),
-    ("Guin - Düdingen, Frei", None), ("Tafers, Switzerland", None),
-    ("Grenchen, CH-2545", None), ("Site, CH-1712 Taf", None), ("Bureau, CH-2560 Nida", None),
+    # Toute la Suisse : Haut-Valais, Singine et Seeland inclus
+    ("Zermatt, CH-3920", "VS"), ("Visp, Switzerland", "VS"), ("Brig VS, Wallis", "VS"),
+    ("Zermatt (VS)", "VS"), ("Murten, Freiburg, Schweiz", "FR"),
+    ("Guin - Düdingen, Frei", "FR"), ("Tafers, Switzerland", "FR"),
+    ("Grenchen, CH-2545", "SO"), ("Site, CH-1712 Taf", "FR"), ("Bureau, CH-2560 Nida", "BE"),
     ("Sierre / Visp", "VS"), ("Fribourg, CH-1700", "FR"),
-    ("Bern", None),  # BE = le Jura bernois et Bienne seulement
+    ("Bern", "BE"),
     # codes de pays et homonymes : « FR » et « BE » nus ne sont pas des cantons
     ("Paris, FR", None), ("Bruxelles, BE", None), ("Freiburg, Germany", None),
     ("Freiburg im Breisgau", None), ("Freiburg, DE", None), ("Neuenburg am Rhein", None),
@@ -48,7 +48,7 @@ def test_detect_language_allemand_est_other():
     ("Colombier", None), ("Corcelles-Cormondrèche", "NE"),
     # NPA quand aucun nom ne parle : ville tronquée par l'ATS
     ("Hirslanden Clinique Cecil, CH-1003 Laus", "VD"), ("Clinique, 1870 Mont, Switzerland", "VS"),
-    ("Site, CH-2740 Mout", "BE"), ("Klinik, CH-8032 Zuri", None), ("Bureau 12.1234", None),
+    ("Site, CH-2740 Mout", "BE"), ("Klinik, CH-8032 Zuri", "ZH"), ("Bureau 12.1234", None),
     # sans indice suisse, un code postal à 4 chiffres ne prouve rien
     ("1000 Bruxelles", None), ("Mediclinic Morningside, 2196 Sand", None),
 ])
@@ -145,3 +145,34 @@ def test_taux_activite(title, expected):
 def test_is_switzerland(country, expected):
     from job_rec_ai.geo import is_switzerland
     assert is_switzerland(country) == expected
+
+
+@pytest.mark.parametrize("place, expected", [
+    ("Aarau", "AG"), ("Appenzell", "AI"), ("Herisau", "AR"), ("Bern", "BE"),
+    ("Allschwil", "BL"), ("Basel", "BS"), ("Fribourg", "FR"), ("Genève", "GE"),
+    ("Glarus", "GL"), ("Chur", "GR"), ("Delémont", "JU"), ("Luzern", "LU"),
+    ("Neuchâtel", "NE"), ("Stans", "NW"), ("Alpnach", "OW"), ("St. Gallen", "SG"),
+    ("Schaffhausen", "SH"), ("Solothurn", "SO"), ("Schwyz", "SZ"), ("Frauenfeld", "TG"),
+    ("Lugano", "TI"), ("Altdorf", "UR"), ("Lausanne", "VD"), ("Visp", "VS"),
+    ("Zug", "ZG"), ("Zürich", "ZH"),
+    ("Site, Basel-Landschaft", "BL"), ("Site, Appenzell Ausserrhoden", "AR"),
+    ("Bellinzona, Ticino", "TI"), ("Site, TI, CH", "TI"),
+])
+def test_tous_les_cantons(place, expected):
+    from job_rec_ai.geo import is_target
+    assert is_target(place)
+    assert canton_of(place) == expected
+    assert canton_of(f"Site ({expected})") == expected
+
+
+@pytest.mark.parametrize("place, expected", [
+    ("Switzerland", True), ("Remote, Schweiz", True), ("Suisse", True),
+    ("Comune sconosciuto, Svizzera", True), ("Site inconnu, CH", True),
+    ("Site inconnu, CH-6500", True), ("Unknown, CHE", True),
+    ("Remote", False), ("Paris, FR", False), ("Bruxelles, BE", False),
+    ("Zurich, Germany", False), ("Geneva, IL, United States", False),
+    ("Switzerlandish", False), (None, False),
+])
+def test_perimetre_suisse_sans_canton_obligatoire(place, expected):
+    from job_rec_ai.geo import is_target
+    assert is_target(place) is expected

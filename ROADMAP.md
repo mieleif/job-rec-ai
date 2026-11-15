@@ -68,7 +68,7 @@ Lancer un checkpoint : `uv run pytest checkpoints/test_m1_collecte.py -v`
 - [x] Upsert idempotent (relancer = zéro doublon)
 - [x] Commande `uv run job-rec-ai crawl`
 - [x] Contrôles qualité (champs vides, anomalies)
-- [ ] Planification nocturne sur le VPS (timer systemd, voir `deploy/`)
+- [x] Planification nocturne sur le VPS (timer systemd, voir `deploy/`)
 
 🖼️ Notebook « Le marché de l'emploi genevois en 5 graphiques ».
 
@@ -193,7 +193,7 @@ Lancer un checkpoint : `uv run pytest checkpoints/test_m1_collecte.py -v`
 - [x] API FastAPI : `GET /health`, `POST /recommend`
 - [x] CI GitHub Actions : ruff + pytest à chaque push
 - [x] Dockerfile
-- [ ] Déploiement (Hugging Face Spaces, Fly.io, Render…)
+- [x] Déploiement sur le VPS de DoxAI (API Docker + timer systemd)
 - [ ] Logs structurés + métriques de base
 - [ ] README vitrine : GIF de démo, architecture, résultats
 - [ ] Article ou post sur ce que j'ai appris

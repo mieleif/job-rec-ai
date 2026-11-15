@@ -35,6 +35,8 @@ WORKDAY_LIST = [
      "locationsText": "2 Locations"},
 ]
 WORKDAY_DETAILS = {
+    "/job/Basel/Plant-Manager_R2": workday_detail("/job/Basel/Plant-Manager_R2",
+                                                 "Plant Manager", "Basel", req="R2"),
     "/job/Geneva/Data-Engineer_R1": workday_detail("/job/Geneva/Data-Engineer_R1",
                                                    "Data Engineer", "Geneva", req="R1"),
     "/job/Multi/Comptable_R3": workday_detail("/job/Multi/Comptable_R3", "Comptable 80-100%",
@@ -91,7 +93,7 @@ def sr_ad(title, city, region):
 
 # Liste sur deux pages, groupées des deux façons rencontrées en vrai : page 1 par service
 # (le lieu est sur l'offre, comme HUG), page 2 par lieu (le lieu est l'en-tête, comme Vitol).
-# Zurich est écarté par le filtre de lieu sans télécharger l'annonce.
+# Zurich fait partie du périmètre suisse.
 SR_PAGES = {
     "/ACME": '<div data-groups-pages="2">' + sr_group(
         "Data", sr_link("1", "Ingénieur de données", "Meyrin, GE", "Full-time")) + "</div>",

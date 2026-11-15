@@ -2,7 +2,8 @@
 
 **Un moteur open-source de recommandation d'emplois à partir d'un CV.**
 
-Collecte d'offres réelles (Genève d'abord, puis toute la Suisse), embeddings multilingues FR/EN,
+Collecte d'offres réelles dans toute la Suisse, recommandation BM25 déjà en ligne sur le VPS
+de DoxAI. La suite du projet : embeddings multilingues FR/EN,
 recherche sémantique, re-ranking et apprentissage à partir de swipes : un « Tinder des jobs »
 construit étape par étape, comme projet d'apprentissage en data engineering et data science.
 
@@ -15,16 +16,16 @@ Où on en est, et les décisions prises : **[PROGRESS.md](PROGRESS.md)**.
 | Étape | Statut |
 |---|---|
 | M0 · Setup | 🚧 en cours |
-| M1 · Collecte | 🚧 1 692 offres réelles en Suisse romande francophone ; notes et questions de contrôle restantes |
-| M2 · Pipeline | 🚧 collecte nocturne sur le VPS à installer |
-| M3 · Baseline et évaluation | ⏳ |
+| M1 · Collecte | 🚧 périmètre étendu aux 26 cantons ; volume national à mesurer après déploiement |
+| M2 · Pipeline | ✅ collecte nocturne active sur le VPS (03:17 UTC) ; notes restantes |
+| M3 · Baseline et évaluation | 🚧 BM25 en service ; nDCG@10 0,779 sur 38 offres notées |
 | M4 · Embeddings et recherche sémantique | ⏳ |
 | M5 · Enrichissement par LLM | ⏳ |
 | M6 · Re-ranking | ⏳ |
 | M7 · Feedback et swipe | ⏳ |
-| M8 · Production | ⏳ |
+| M8 · Production | 🚧 API Docker en ligne sur le VPS de DoxAI ; étapes restantes dans la roadmap |
 
-## Le marché romand en images
+## Le marché romand en images (instantané historique)
 
 1 884 offres actives collectées chez 59 employeurs de Suisse romande et une agence
 (5 novembre 2026 ; Genève et Vaud seulement jusque-là). Les graphiques et leur lecture :
@@ -38,7 +39,7 @@ Où on en est, et les décisions prises : **[PROGRESS.md](PROGRESS.md)**.
 
 ```bash
 uv run job-rec-ai boards                       # quels ATS couvrent quelles entreprises
-uv run job-rec-ai crawl                        # collecte en Suisse romande → data/jobs.duckdb
+uv run job-rec-ai crawl                        # collecte dans toute la Suisse → data/jobs.duckdb
 uv run job-rec-ai stats company family         # répartition des offres actives
 uv run job-rec-ai quality                      # champs vides, collectes en échec
 uv run job-rec-ai search --canton GE --family "Data & IA" --sort recent --urls
@@ -54,7 +55,19 @@ uv run --env-file .env job-rec-ai resolve-domains  # domaine web des employeurs 
 Les entreprises suivies sont dans [`data/companies.csv`](data/companies.csv), avec leur domaine
 web (colonne `domain`) ; les corrections de domaine dans
 [`data/company_domains.csv`](data/company_domains.csv).
-Collecte nocturne sur un VPS : voir [`deploy/`](deploy/README.md).
+La collecte accepte les offres suisses de ces entreprises, dans les 26 cantons et sans filtre
+linguistique. Lonza est de nouveau collectable (Viège n'est plus hors périmètre). Cela élargit
+la géographie des sources existantes ; le catalogue d'employeurs n'est pas exhaustif.
+
+Un pays suisse explicite suffit même si la commune n'est pas reconnue. Le canton reste une
+inférence partielle (noms, codes, certains NPA ; repli sur l’employeur pour JSON-LD) ;
+les offres multi-sites gardent un seul canton,
+celui du premier site suisse reconnu. Les filtres de canton de la CLI et de l'API restent
+facultatifs. BM25 ne traduit pas les métiers entre langues : l'élargissement du corpus ne
+résout pas la recherche multilingue, prévue en M4.
+
+Collecte nocturne déjà active sur le VPS : voir [`deploy/`](deploy/README.md), notamment la
+procédure du **15.11.2026** pour appliquer le périmètre suisse à l'installation existante.
 
 ## API
 

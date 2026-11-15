@@ -235,10 +235,10 @@ def test_lieu_avec_canton_tronque():
     ("Colombier-Assistant-du-commerce-de-detail-AFP-Neuc", True),
     ("Fully-Stage-d'orientation-professionnelle-Vala", True),
     ("Lausanne-Vendeur-Vaud", True),
-    ("Basel-Verkaufer-Base", False), ("Thun-Verkaufer-Bern", False),
+    ("Basel-Verkaufer-Base", True), ("Thun-Verkaufer-Bern", True),
     # Mediclinic : ville tronquée, NPA en fin d'URL ; une année n'est pas un NPA
     ("Hirslanden-Clinique-Cecil-Secretaire-medicale-Laus-1003", True),
-    ("Hirslanden-Klinik-Hirslanden-Pflegefachperson-Zuri-8032", False),
+    ("Hirslanden-Klinik-Hirslanden-Pflegefachperson-Zuri-8032", True),
     ("Graduate-Programme-Audit-2026", False),
 ])
 def test_prefiltre_canton_tronque(slug, expected):
@@ -270,3 +270,14 @@ def test_board_avec_chemin(sleeps):
     (job,) = connector.parse(payload)
     # « Schweiz » suffit pour préfixer le NPA : la ville tronquée est quand même située
     assert job.location == "Clinique Cecil, CH-1003 Laus"
+
+
+@pytest.mark.parametrize("city", ["Zürich", "Basel", "Lugano", "Visp", "St. Gallen"])
+def test_gros_sitemap_garde_toute_la_suisse(city, sf_client, requested, monkeypatch):
+    path = f"/job/{city}-Ingenieur/106/"
+    monkeypatch.setitem(PAGES, path, CLASSIC.replace("Meyrin, CH", f"{city}, CH"))
+    monkeypatch.setattr(successfactors, "FULL_SCAN_MAX", 1)
+    monkeypatch.setitem(globals(), "SITEMAP", SITEMAP.replace(
+        "</urlset>", f"<url><loc>{SITE}{path}</loc></url></urlset>"))
+    jobs = REGISTRY["successfactors"].fetch(SITE, "Acme", sf_client, keep=is_target)
+    assert any(p["url"] == f"{SITE}{path}" for p in jobs["postings"])

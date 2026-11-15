@@ -43,7 +43,8 @@ def pro_client(sleeps, monkeypatch):
 def test_prospective_fetch_pagine_filtre_et_parse(pro_client):
     connector = REGISTRY["prospective"]
     payload = connector.fetch(BOARD, "Helvetia", pro_client, keep=is_target)
-    first, second = connector.parse(payload)  # 2 pages ; Zurich écarté
+    first, zurich, second = connector.parse(payload)  # 2 pages ; Zurich incluse
+    assert zurich.location == "Zürich, CH-8001"
     assert (first.location, second.location) == ("Genève, CH-1204", "Bioley-Magnoux, CH-1407")
     assert str(first.url) == "https://ohws.prospective.ch/public/v1/jobs/vk-1"
     assert first.description == "Bienvenue Conseiller CFC" and first.source_id == "1"

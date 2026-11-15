@@ -73,7 +73,7 @@ class OracleConnector:
         postings = []
         for item in paginate(page, PAGE_SIZE, MAX_PAGES):
             # Un pays seul (« Switzerland », sans virgule) ne situe rien : le détail dira la
-            # ville (workLocation). Une ville hors cible (« Zurich, Switzerland ») : inutile
+            # ville (workLocation). Une ville hors cible (« Paris, France ») : inutile
             if not (any(keep(loc) for loc in _locations(item))
                     or "," not in (item.get("PrimaryLocation") or "")):
                 continue

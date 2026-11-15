@@ -3,21 +3,35 @@
 Le carnet de bord du projet : où on en est, ce qu'on a décidé et pourquoi, la suite.
 Les tâches cochables restent dans [ROADMAP.md](ROADMAP.md) ; ce fichier ne les recopie pas.
 
-_Dernière mise à jour : 2026-11-07_
+_Dernière mise à jour : 2026-11-15_
 
 ## Où on en est
 
 | Étape | Checkpoint | Ce qui reste |
 |---|---|---|
 | M0 · Setup | 9/9 (avec une note locale, voir « Contraintes ») | règles perso dans `CLAUDE.md`, Milestones GitHub, questions de contrôle |
-| M1 · Collecte | **8/8** (fixtures réelles pour les 13 connecteurs) | **1 692 offres réelles** en Suisse romande francophone (GE 681, VD 511, FR 214, NE 106, BE 83, VS 72, JU 25 ; 58 employeurs et 1 agence). Restent : note HTTP, questions de contrôle |
-| M2 · Pipeline | 7/7 (livrable : [notebook « 5 graphiques »](notebooks/marche-emploi.ipynb)) | installer le timer sur le VPS, note ETL/ELT, questions de contrôle |
+| M1 · Collecte | **8/8** (fixtures réelles pour les 13 connecteurs) | **Périmètre : toute la Suisse, volume national à mesurer sur le VPS.** Dernier relevé romand : **1 692 offres réelles** (GE 681, VD 511, FR 214, NE 106, BE 83, VS 72, JU 25 ; 58 employeurs et 1 agence). Restent : note HTTP, questions de contrôle |
+| M2 · Pipeline | 7/7 (livrable : [notebook « 5 graphiques »](notebooks/marche-emploi.ipynb)) | timer actif sur le VPS (03:17 UTC) ; note ETL/ELT, questions de contrôle |
 | M3 · Baseline | code 6/6 ; BM25 en production (`recommend`), nDCG@10 0,779 sur 38 offres notées | 3-4 CV anonymisés de plus, note « mesurer avant d'optimiser », questions de contrôle |
-| M4 → M8 | pas commencé | |
+| M4 → M7 | embeddings en pause ; intégration DoxAI en service | voir ROADMAP.md |
+| M8 · Production | API déployée sur le VPS, checkpoint API 3/3 lors de sa préparation | suivi et livrables restants dans ROADMAP.md |
 
-Tests du projet : 391 réussis.
+Tests du projet : 447 réussis (2026-11-15) ; Ruff valide.
 
 ## Décisions
+
+- **2026-11-15 · Toute la Suisse, à la demande de Leif.** Remplace le périmètre
+  linguistique du 05.11 : 26 cantons, Haut-Valais, Singine, Seeland et Tessin inclus.
+  `geo` reconnaît les cantons et principales communes ; pays suisse explicite accepté même
+  sans canton connu, sans généraliser les plages NPA approximatives. Pré-filtre
+  SuccessFactors élargi, JSON-LD garde le contexte pays/région, Lonza réactivée. Aucun
+  changement du contrat API, du schéma ou des dépendances. Les employeurs restent ceux du
+  catalogue ; les offres multi-sites n'ont toujours qu'un canton. Documentation actualisée
+  pour le VPS déjà en ligne : nouvelle image + collecte complète, anciens chiffres de durée
+  et mémoire clairement historiques. Déploiement et volume national non vérifiés ici.
+  Clone synchronisé avec `origin/main` (8 commits, jusqu'à `c280f60`) avant modification ;
+  branches distantes non fusionnées `m1-m2-livrables`, `m3-notes`, `m4-embeddings` conservées.
+  `/karpthy_guidelines` introuvable dans les consignes locales installées.
 
 - **2026-11-07 · Domaine web de chaque employeur, pour les logos de DoxAI.** DoxAI affiche
   le logo via `img.logo.dev/<domaine>` : chaque offre des quatre routes gagne
@@ -376,6 +390,10 @@ Tests du projet : 391 réussis.
 
 ## Prochaines étapes
 
+- Publier l'image contenant le périmètre suisse, appliquer la mise à jour documentée sur le
+  VPS et lancer une collecte complète. Mesurer offres/cantons, durée, mémoire et qualité ;
+  les anciens chiffres romands et nDCG@10 ne valent pas mesure du corpus national.
+
 1. Familles de métiers : 667 offres sur 1 884 dans « Autre » (Coop, Lonza, État de
    Fribourg) : enrichir `families.py` (allemand surtout) ou attendre l'extraction par LLM (M5).
 2. Romandie : identifier l'ATS des États de Neuchâtel, du Valais et du Jura et de l'Hôpital
@@ -404,6 +422,12 @@ Tests du projet : 391 réussis.
 8. Finir M0 : règles perso dans `CLAUDE.md`, Milestones GitHub.
 
 ## Journal des sessions
+
+- **2026-11-15** : synchronisation GitHub ; périmètre de collecte étendu aux 26 cantons,
+  Lonza réactivée, tests géographiques/connecteurs adaptés, documentation et roadmap
+  alignées sur le VPS déjà déployé. Ruff valide, 447 tests réussis. Copie locale :
+  1 692 offres actives (dernière collecte le 05.11), aucun nouveau volume national mesuré.
+  Nouvelle collecte nationale à lancer après publication.
 
 - **2026-11-07** (soir) : `company_domain` sur `/jobs`, `/jobs/{id}`, `/jobs/{id}/similar` et
   `/recommend` (logos de DoxAI) : colonne `domain` de `companies.csv` (65 sources),

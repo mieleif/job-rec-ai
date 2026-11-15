@@ -19,8 +19,8 @@ def test_workday_fetch_filtre_et_pagine(client):
     payload = REGISTRY["workday"].fetch("https://acme.wd3.myworkdayjobs.com/Acme_Careers",
                                         "Acme", client, keep=is_target)
     titles = [p["jobPostingInfo"]["title"] for p in payload["postings"]]
-    # Basel écarté sans télécharger le détail ; « 2 Locations » gardé car Lausanne en fait partie
-    assert titles == ["Data Engineer", "Comptable 80-100%"]
+    # Basel et les deux sites Zürich / Lausanne sont dans le périmètre suisse.
+    assert titles == ["Data Engineer", "Plant Manager", "Comptable 80-100%"]
 
 
 def test_workday_parse(client):
@@ -32,15 +32,16 @@ def test_workday_parse(client):
     assert first.company == "Acme"  # notre nom canonique, pas « Acme Holding SA »
     assert first.description == "We are looking for an engineer to join our team."
     assert first.posted_at == date(2026, 10, 1) and first.source_id == "R1"
-    assert jobs[1].location == "Zürich / Lausanne"
+    assert jobs[1].location == "Basel"
+    assert jobs[2].location == "Zürich / Lausanne"
 
 
 def test_smartrecruiters_fetch_et_parse(client):
     connector = REGISTRY["smartrecruiters"]
     payload = connector.fetch("ACME", "Acme", client, keep=is_target)
-    # Les deux pages de la liste lues ; l'annonce de Zurich n'est pas téléchargée, celle de
-    # Lausanne l'est bien que son lieu ne figure que dans l'en-tête de son groupe
-    assert [p["id"] for p in payload["postings"]] == ["1", "3"]
+    # Les deux pages lues : Zurich et Lausanne sont gardées même quand le lieu
+    # ne figure que dans l'en-tête du groupe.
+    assert [p["id"] for p in payload["postings"]] == ["1", "2", "3"]
     archive = payload["postings"][0]["html"]
     assert "gabarit" not in archive  # seul <main> est archivé
     assert "st-videos" not in archive  # sans vidéos ni carte (clé Google Maps embarquée)
@@ -84,7 +85,7 @@ def _facets(*leaves, parameter="locationCountry"):
     (_facets(("fr", "France")), None),
     (_facets(("ch", "Suisse")), None),
     (_facets(("ge", "Genève"), ("zh", "Zürich"), ("nyon", "Nyon, Vaud"), parameter="locations"),
-     {"locations": ["ge", "nyon"]}),
+     {"locations": ["ge", "zh", "nyon"]}),
     ([], None),  # pas de facette de lieu : on parcourt tout
 ])
 def test_workday_facettes_de_lieu(facets, expected):

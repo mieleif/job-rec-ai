@@ -114,7 +114,7 @@ def skip_reason(company: dict) -> str | None:
 
 
 def fetch_company(company: dict, client: PoliteClient) -> dict:
-    """Rapporte le payload brut d'une entreprise, limité à la Suisse romande."""
+    """Rapporte le payload brut d'une entreprise, limité à la Suisse."""
     return REGISTRY[company["ats"]].fetch(company["board"], company["company"], client,
                                           keep=is_target)
 
@@ -216,23 +216,24 @@ def backfill_markdown(con, raw_dir: Path = RAW_DIR) -> tuple[int, int]:
 @dataclass
 class Rederived:
     recalculated: int
-    out_of_scope: int  # offres qui avaient un canton romand et n'en ont plus : désactivées
+    out_of_scope: int  # offres auparavant situées en Suisse, désormais hors périmètre
 
 
 def rederive(con) -> Rederived:
     """Recalcule langue, canton, famille, séniorité et taux pour toutes les offres (après
     un changement de règles), sans rien re-télécharger.
 
-    Une offre qui perd son canton romand est sortie du périmètre : la prochaine collecte la
-    filtrerait (keep=is_target) puis l'expirerait ; on la désactive dès maintenant. Les offres
-    sans canton dès le départ (JSON-LD sans ville, canton de l'employeur) ne sont pas touchées.
+    Une offre dont le lieu n’est plus reconnu en Suisse sort du périmètre : la prochaine
+    collecte la filtrerait (keep=is_target) puis l'expirerait ; on la désactive dès maintenant.
+    Les offres sans canton dès le départ (JSON-LD sans ville, canton de l'employeur)
+    ne sont pas touchées.
     """
     rows, out = [], []
     for fields in storage.jobs_for_derivation(con):
         url, before = fields.pop("url"), fields.pop("canton")
         derived = derive(**fields)
         rows.append({"url": url, **derived})
-        if before and not derived["canton"]:
+        if before and not is_target(fields["location"]):
             out.append(url)
     storage.update_derived(con, rows)
     storage.deactivate(con, out)

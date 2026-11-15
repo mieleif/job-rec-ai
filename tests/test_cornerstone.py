@@ -53,7 +53,7 @@ def test_cornerstone_fetch_pagine_filtre_et_parse(csod_client):
     connector = REGISTRY["cornerstone"]
     payload = connector.fetch(BOARD, "Acme", csod_client, keep=is_target)
     jobs = connector.parse(payload)
-    assert [j.title for j in jobs] == ["Analyste", "Juriste"]  # 2 pages ; Zoug écarté
+    assert [j.title for j in jobs] == ["Analyste", "Planner", "Juriste"]  # 2 pages ; Zoug inclus
     first = jobs[0]
     assert str(first.url) == f"{BOARD}/requisition/1?c=acme"
     assert first.location == "Geneva, CH" and first.description == "Logistique & douane"
