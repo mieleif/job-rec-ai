@@ -27,7 +27,7 @@ job-rec-ai tourne sur le même VPS que DoxAI, en conteneurs, à côté de la pil
   Docker de DoxAI, sous le nom `job-rec-ai`.
 - **Collecte** : le même conteneur, commande `crawl`, lancée chaque nuit par un timer systemd.
   L'horloge du VPS est en UTC : 03:17 UTC = 04:17 en hiver, 05:17 en été (heure suisse). Une
-  collecte dure **environ 75 minutes** (Coop seul : 10 à 15 min, à cause des pauses entre
+  collecte romande durait **environ 75 minutes** au premier déploiement (Coop seul : 10 à 15 min, à cause des pauses entre
   requêtes). Le journal reste muet jusqu'au résumé final : `journalctl -f` n'est pas bloqué.
 - **Rechargement** : l'API ne relit pas la base d'elle-même. Elle la relit à la requête suivante
   (`/recommend` ou `/status`) si le fichier a changé, au plus une fois toutes les 5 minutes.
@@ -183,3 +183,87 @@ collecte suivante) applique la correction.
 
 Retour arrière : remettre l'ancien `JOB_REC_TAG` et `docker compose up -d api`. L'ancienne
 version ignore la table et la colonne ajoutées ; `env_file` sur `crawl` est sans effet pour elle.
+
+
+## Mise à jour du 15.11.2026 : collecte dans toute la Suisse
+
+Le filtre géographique couvre désormais les **26 cantons**, y compris les régions
+alémaniques, le Tessin et le Haut-Valais. Lonza est réactivée ; les pré-filtres SuccessFactors
+acceptent aussi les lieux et NPA hors Romandie. Aucune migration de schéma, aucune nouvelle
+dépendance, aucun changement du contrat API. Le catalogue d'employeurs reste celui de
+`companies.csv` ; les noms de communes et correspondances NPA/canton restent partiels.
+
+**L'installation existe déjà** : ne pas refaire l'installation ni régénérer `.env`. Après
+fusion et publication de l'image GHCR, choisir le SHA complet de ce commit de `main` pour
+`JOB_REC_TAG`. Le push GitHub publie une image ; il ne met pas à jour le VPS automatiquement.
+L'API et le prochain conteneur de collecte doivent utiliser cette même version.
+
+1. Attendre la fin de toute collecte en cours (`systemctl status job-rec-ai-crawl`).
+2. Dans `/opt/job-rec-ai/.env`, conserver l'ancien `JOB_REC_TAG` pour le retour arrière,
+   puis mettre le nouveau SHA. Conserver les jetons existants.
+3. Exécuter le bloc suivant sur le VPS. Il suspend le timer pendant la mise à jour et le
+   réactive en sortie ; si une collecte est encore active, il s'arrête avant de toucher l'API.
+
+```bash
+(
+  set -e
+  cd /opt/job-rec-ai
+  sudo systemctl stop job-rec-ai-crawl.timer
+  trap 'sudo systemctl start job-rec-ai-crawl.timer' EXIT
+  if systemctl is-active --quiet job-rec-ai-crawl; then
+    echo 'Une collecte tourne encore : attendre sa fin, puis relancer.'
+    exit 1
+  fi
+  docker compose pull api
+  docker compose up -d api
+  docker exec cv-app wget -qO- http://job-rec-ai:8000/health
+  sudo systemctl start --no-block job-rec-ai-crawl
+)
+```
+
+Une **nouvelle collecte complète** est nécessaire : `rederive` ne télécharge rien, et `replay`
+ne retrouve pas les annonces rejetées avant leur archivage. Les offres déjà présentes gardent
+leur URL et leur identifiant ; les anciennes offres Lonza encore publiées sont réactivées par
+l'upsert. Pendant la collecte, l'API conserve son dernier index disponible. À la fin, une
+requête recharge la base au plus tard après le délai de rafraîchissement (5 minutes).
+
+```bash
+cd /opt/job-rec-ai
+journalctl -u job-rec-ai-crawl -n 100
+# Après la fin de la collecte : répartition par canton et rapport qualité
+# (jamais un second processus d'écriture en parallèle).
+docker compose --profile crawl run --rm crawl job-rec-ai stats canton
+docker compose --profile crawl run --rm crawl job-rec-ai quality
+set -a; . /opt/job-rec-ai/.env; set +a
+docker exec cv-app wget -qO- --header "Authorization: Bearer $JOB_REC_TOKEN" \
+  "http://job-rec-ai:8000/jobs?cantons=ZH,BS,TI&per_page=3"
+docker stats --no-stream job-rec-ai
+```
+
+Vérifier les nouvelles facettes, les erreurs et les expirations suspectes. Les **75 minutes,
+157 Mo d'API et 125 Mo de collecte** ci-dessus sont les mesures du corpus romand, pas une
+prévision nationale. Les plafonds restent 384 Mo (API), 768 Mo (collecte), 3 h (service) :
+mesurer le premier passage avant de les ajuster sur ce VPS partagé. Si le service atteint 3 h,
+le journal et `quality` signalent la collecte interrompue ; le périmètre national n'est alors
+pas encore entièrement collecté. BM25 conserve son algorithme, mais ses scores et son
+classement peuvent changer avec la taille et les langues du corpus.
+
+Retour arrière : remettre l'ancien tag, tirer l'image et recréer l'API. Les nouvelles offres
+restent dans la base jusqu'à une nouvelle collecte avec l'ancien périmètre ; revenir à
+l'ancienne image seule ne restaure donc pas le corpus romand. Lonza, ignorée par l'ancienne
+configuration, conserve ses lignes : restaurer une sauvegarde d'avant la mise à jour si un
+retour exact aux anciennes données est nécessaire.
+
+
+### Mesure locale et correctif du 16.11.2026
+
+La collecte locale compte désormais **5 046 offres actives dans les 26 cantons**. Le premier
+passage a duré **3 h 14**, dont 87 min sur EY avant une déconnexion. Le pré-filtre
+SuccessFactors téléchargeait trop d'annonces étrangères à cause des codes postaux à quatre
+chiffres ; un code postal seul n'est maintenant admis que sur le board suisse Hirslanden.
+La reprise d'EY avec le correctif a réussi en **2 min 17** (123 offres).
+
+Déployer la version incluant ce correctif. Le cycle complet corrigé n'a pas été remesuré,
+et les limites de mémoire restent à valider sur le VPS : conserver la surveillance du délai
+systemd de 3 h et du rapport qualité. Le nombre local ne prouve pas le nombre actuellement
+servi par le VPS. [Bilan détaillé](../docs/crawl-suisse-2026-11-15.md).

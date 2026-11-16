@@ -33,7 +33,7 @@ def test_crawl_isole_les_pannes(con, client, tmp_path):
     assert [name for name, *_ in report.ok] == ["Acme", "Acme Recherche"]
     assert [name for name, _ in report.errors] == ["Panne SA"]
     assert report.skipped == [("Inconnue SA", "pas de connecteur « icims »")]
-    assert _count(con) == 4
+    assert _count(con) == 6
     assert len(list(tmp_path.glob("*/*.json.gz"))) == 2  # bronze archivé
 
 
@@ -52,7 +52,7 @@ def test_enrichissement(con, client, tmp_path):
     assert row["canton"] == "GE" and row["language"] == "fr"
     assert row["family"] == "Data & IA" and row["sector"] == "Recherche"
     compta = storage.search(con, text="comptable")[0]
-    assert (compta["canton"], compta["workload_min"], compta["workload_max"]) == ("VD", 80, 100)
+    assert (compta["canton"], compta["workload_min"], compta["workload_max"]) == ("ZH", 80, 100)
 
 
 def _job(n, title="Data Engineer"):
@@ -102,8 +102,8 @@ def test_search_facettes_et_tri(con):
 def test_replay_reconstruit_la_base(con, client, tmp_path):
     pipeline.crawl(con, [dict(c) for c in COMPANIES[:2]], client, raw_dir=tmp_path)
     fresh = storage.connect(":memory:")
-    assert pipeline.replay(fresh, raw_dir=tmp_path) == 4
-    assert _count(fresh) == 4
+    assert pipeline.replay(fresh, raw_dir=tmp_path) == 6
+    assert _count(fresh) == 6
 
 
 def test_rederive(con):
@@ -115,11 +115,11 @@ def test_rederive(con):
 
 
 def test_rederive_desactive_les_offres_sorties_du_perimetre(con):
-    """Zermatt était classée VS : avec le périmètre linguistique, elle sort des offres actives."""
-    zermatt = _job(2, "Data Analyst").model_copy(update={"location": "Zermatt, CH-3920"})
-    storage.upsert_jobs(con, [pipeline.enrich(j) for j in (_job(1, "Data Engineer"), zermatt)],
+    """Une ancienne attribution erronée de canton ne doit pas garder une offre étrangère."""
+    abroad = _job(2, "Data Analyst").model_copy(update={"location": "Paris, France"})
+    storage.upsert_jobs(con, [pipeline.enrich(j) for j in (_job(1, "Data Engineer"), abroad)],
                         datetime(2026, 10, 1))
-    con.execute("UPDATE jobs SET canton = 'VS' WHERE location LIKE 'Zermatt%'")  # anciennes règles
+    con.execute("UPDATE jobs SET canton = 'VS' WHERE location LIKE 'Paris%'")  # anciennes règles
     assert pipeline.rederive(con).out_of_scope == 1
     assert storage.counts(con, "canton") == [("GE", 1)]
 
@@ -264,3 +264,17 @@ def test_entreprise_exclue():
     company = {**COMPANIES[0], "blocked": "robots.txt interdit le site"}
     assert pipeline.skip_reason(company) == "exclue : robots.txt interdit le site"
     assert pipeline.skip_reason(COMPANIES[0]) is None  # pas de colonne blocked : collectable
+
+
+def test_rederive_garde_une_offre_suisse_sans_canton(con):
+    job = _job(1).model_copy(update={"location": "Remote, Switzerland"})
+    storage.upsert_jobs(con, [pipeline.enrich(job)], datetime(2026, 10, 1))
+    con.execute("UPDATE jobs SET canton = 'GE'")
+    assert pipeline.rederive(con).out_of_scope == 0
+    assert con.execute("SELECT canton, active FROM jobs").fetchone() == (None, True)
+
+
+def test_lonza_collectable():
+    from job_rec_ai.companies import load_companies
+    lonza = next(c for c in load_companies() if c["company"] == "Lonza")
+    assert pipeline.skip_reason(lonza) is None

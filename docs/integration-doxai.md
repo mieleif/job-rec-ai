@@ -167,3 +167,18 @@ recharge comme le reste de la base (au plus 5 minutes après).
 
 Mesures connues (jeu d'évaluation de Leif, 38 offres notées) : nDCG@10 = 0,779. C'est une
 baseline lexicale : « IA » et « AI » ne se rejoignent pas encore (embeddings en M4).
+
+
+## Périmètre géographique (15.11.2026)
+
+La collecte passe de la Suisse romande à toute la Suisse pour les employeurs configurés.
+Les routes et paramètres ne changent pas : sans `cantons`, les offres suisses de toutes les
+régions sont éligibles ; `GET /jobs?cantons=ZH,BS,TI` ou `POST /recommend` avec
+`"cantons": ["ZH", "BS", "TI"]` restreignent toujours les résultats. Les facettes de `/jobs`
+sont calculées depuis le corpus : utiliser leurs codes plutôt qu'une liste fixe de cantons
+romands. Une offre peut avoir un canton inconnu ou plusieurs sites (un seul canton conservé).
+
+L'élargissement devient visible après publication de l'image, mise à jour du VPS et nouvelle
+collecte, selon [la procédure de déploiement](../deploy/README.md). Les graphiques historiques
+et le score d'évaluation BM25 sur le corpus romand ne mesurent pas la couverture ou la qualité
+du nouveau corpus national.

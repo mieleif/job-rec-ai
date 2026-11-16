@@ -134,7 +134,8 @@ def _is_place_name(text: str) -> bool:
 
 def named_localities(job: dict) -> list[str]:
     """Les lieux donnés en champ structuré : la ville (addressLocality), à défaut la région
-    (Vaudoise : « -, Zürich, Schweiz »). Vide pour une adresse texte : rien n'y est nommé."""
+    (Vaudoise : « -, Zürich, Schweiz »), avec le pays et la région pour le filtre.
+    Vide pour une adresse texte : rien n'y est nommé."""
     places = job.get("jobLocation") or []
     found = []
     for place in places if isinstance(places, list) else [places]:
@@ -148,7 +149,13 @@ def named_localities(job: dict) -> list[str]:
                 if re.fullmatch(r"[A-Z]{2}", value):  # code de canton nu : geo le veut entre ()
                     value = f"({value})"
                 if _is_place_name(value):
-                    found.append(value)
+                    context = [value]
+                    for key in ("addressRegion", "addressCountry"):
+                        part = address.get(key) or ""
+                        part = part.get("name", "") if isinstance(part, dict) else part
+                        if part and key != field:
+                            context.append(_clean(part))
+                    found.append(", ".join(context))
                     break
     return found
 
@@ -159,8 +166,8 @@ class JsonLdConnector:
     def fetch(self, board: str, company: str, client: PoliteClient,
               keep: LocationFilter) -> dict:
         # Filtre de lieu (keep) seulement quand l'annonce NOMME sa ville (addressLocality) :
-        # un employeur multi-sites (CSEM : Neuchâtel, Alpnach, Allschwil) publie aussi hors de
-        # Suisse romande. Une adresse texte sans ville (État de Genève : « Place du
+        # un employeur multi-sites peut aussi publier hors de Suisse.
+        # Une adresse texte sans ville (État de Genève : « Place du
         # Bourg-de-Four 1 ») est gardée : le canton viendra de l'employeur (vue jobs_view).
         postings = []
         for url in listed_links(client, board):

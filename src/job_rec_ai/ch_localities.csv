@@ -1,0 +1,7510 @@
+kind,key,canton
+name,aadorf,TG
+name,aarau,AG
+name,aarau rohr,AG
+name,aarberg,BE
+name,aarburg,AG
+name,aarwangen,BE
+name,aathal seegraben,ZH
+name,aawangen,TG
+name,ablandschen,BE
+name,abtwil,AG
+name,abtwil ag,AG
+name,abtwil sg,SG
+name,achseten,BE
+name,aclens,VD
+name,acquarossa,TI
+name,adelboden,BE
+name,adetswil,ZH
+name,adligenswil,LU
+name,adlikon b. andelfingen,ZH
+name,adlikon b. regensdorf,ZH
+name,adliswil,ZH
+name,aedermannsdorf,SO
+name,aefligen,BE
+name,aegerten,BE
+name,aesch (neftenbach),ZH
+name,aesch bl,BL
+name,aesch lu,LU
+name,aesch zh,ZH
+name,aeschau,BE
+name,aeschi,SO
+name,aeschi b. spiez,BE
+name,aeschi bei spiez,BE
+name,aeschi so,SO
+name,aeschiried,BE
+name,aeschlen b. oberdiessbach,BE
+name,aeschlen ob gunten,BE
+name,aetigkofen,SO
+name,aetingen,SO
+name,aettenschwil,AG
+name,aeugst am albis,ZH
+name,aeugstertal,ZH
+name,affeltrangen,TG
+name,affoltern am albis,ZH
+name,affoltern im emmental,BE
+name,agarn,VS
+name,agarone,TI
+name,agasul,ZH
+name,agiez,VD
+name,agno,TI
+name,agra,TI
+name,agriswil,FR
+name,aigle,VD
+name,aire,GE
+name,aire la ville,GE
+name,airolo,TI
+name,alberswil,LU
+name,albeuve,FR
+name,albinen,VS
+name,albligen,BE
+name,albula/alvra,GR
+name,alchenfluh,BE
+name,alchenstorf,BE
+name,aldesago,TI
+name,algetshausen,SG
+name,alikon,AG
+name,allaman,VD
+name,alle,JU
+name,allens,VD
+name,allenwinden,ZG
+name,allerheiligenberg,SO
+name,allmendingen,BE
+name,allmendingen b. bern,BE
+name,allschwil,BL
+name,almens,GR
+name,alosen,ZG
+name,alp grum,GR
+name,alpnach,OW
+name,alpnach dorf,OW
+name,alpnachstad,OW
+name,alpthal,SZ
+name,alt st. johann,SG
+name,altburon,LU
+name,altdorf sh,SH
+name,altdorf ur,UR
+name,alten,ZH
+name,altendorf,SZ
+name,altenrhein,SG
+name,alterswil,FR
+name,alterswil fr,FR
+name,alterswilen,TG
+name,altikon,ZH
+name,altishausen,TG
+name,altishofen,LU
+name,altnau,TG
+name,alto malcantone,TI
+name,altstatten,SG
+name,altstatten sg,SG
+name,altwis,LU
+name,alvaneu bad,GR
+name,alvaneu dorf,GR
+name,alvaschein,GR
+name,ambri,TI
+name,amden,SG
+name,aminona,VS
+name,amlikon bissegg,TG
+name,ammerswil,AG
+name,ammerswil ag,AG
+name,ammerzwil,BE
+name,ammerzwil be,BE
+name,amriswil,TG
+name,amsoldingen,BE
+name,amsteg,UR
+name,andeer,GR
+name,andelfingen,ZH
+name,andermatt,UR
+name,andhausen,TG
+name,andiast,GR
+name,andwil sg,SG
+name,andwil tg,TG
+name,anglikon,AG
+name,anieres,GE
+name,anniviers,VS
+name,anwil,BL
+name,anzere,VS
+name,anzonico,TI
+name,appenzell,AI
+name,appenzell eggerstanden,AI
+name,appenzell enggenhutten,AI
+name,appenzell meistersrute,AI
+name,appenzell schlatt,AI
+name,appenzell steinegg,AI
+name,apples,VD
+name,aproz (nendaz),VS
+name,aquila,TI
+name,aran,VD
+name,aranno,TI
+name,arbaz,VS
+name,arbedo,TI
+name,arbedo castione,TI
+name,arboldswil,BL
+name,arbon,TG
+name,arcegno,TI
+name,arch,BE
+name,arconciel,FR
+name,ardez,GR
+name,ardon,VS
+name,areuse,NE
+name,argnou (ayent),VS
+name,arisdorf,BL
+name,aristau,AG
+name,arlesheim,BL
+name,arnegg,SG
+name,arnex sur nyon,VD
+name,arnex sur orbe,VD
+name,arni ag,AG
+name,arni be,BE
+name,arogno,TI
+name,arolla,VS
+name,arosa,GR
+name,arosio,TI
+name,arth,SZ
+name,arveyes,VD
+name,arvigo,GR
+name,arvillard (salins),VS
+name,arzier le muids,VD
+name,arzo,TI
+name,ascharina,GR
+name,ascona,TI
+name,asp,AG
+name,assens,VD
+name,astano,TI
+name,asuel,JU
+name,athenaz (avusy),GE
+name,attalens,FR
+name,attelwil,AG
+name,attikon,ZH
+name,attinghausen,UR
+name,attiswil,BE
+name,au sg,SG
+name,au tg,TG
+name,au zh,ZH
+name,aubonne,VD
+name,auboranges,FR
+name,auddes sur riddes,VS
+name,auenstein,AG
+name,augio,GR
+name,augst,BL
+name,augst bl,BL
+name,aumont,FR
+name,auressio,TI
+name,aurigeno,TI
+name,auslikon,ZH
+name,ausserberg,VS
+name,ausserbinn,VS
+name,ausserferrera,GR
+name,auswil,BE
+name,autafond,FR
+name,autavaux,FR
+name,autigny,FR
+name,auvernier,NE
+name,auw,AG
+name,avegno,TI
+name,avegno gordevio,TI
+name,aven,VS
+name,avenches,VD
+name,avers,GR
+name,avry,FR
+name,avry devant pont,FR
+name,avry sur matran,FR
+name,avully,GE
+name,avusy,GE
+name,axalp,BE
+name,ayent,VS
+name,ayer,VS
+name,azmoos,SG
+name,baar,ZG
+name,baar (nendaz),VS
+name,bach,SZ
+name,bach sz,SZ
+name,bachenbulach,ZH
+name,bachli (hemberg),SG
+name,bachs,ZH
+name,bad ragaz,SG
+name,bad zurzach,AG
+name,baden,AG
+name,baldegg,LU
+name,baldingen,AG
+name,balerna,TI
+name,balgach,SG
+name,ballaigues,VD
+name,ballens,VD
+name,ballmoos,BE
+name,ballwil,LU
+name,balm b. gunsberg,SO
+name,balm b. messen,SO
+name,balm bei gunsberg,SO
+name,balmberg,SO
+name,balsthal,SO
+name,balterswil,TG
+name,baltschieder,VS
+name,banco,TI
+name,bangerten b. dieterswil,BE
+name,bank (dagerlen),ZH
+name,bannwil,BE
+name,barau,BE
+name,barbengo,TI
+name,barbereche,FR
+name,bardonnex,GE
+name,baretswil,ZH
+name,bargen be,BE
+name,bargen sh,SH
+name,bariswil,BE
+name,bariswil be,BE
+name,barschwil,SO
+name,barzheim,SH
+name,bas intyamon,FR
+name,basadingen,TG
+name,basadingen schlattingen,TG
+name,basel,BS
+name,basse allaine,JU
+name,basse nendaz,VS
+name,basse vendline,JU
+name,bassecourt,JU
+name,bassersdorf,ZH
+name,bassins,VD
+name,batterkinden,BE
+name,battwil,SO
+name,bauen,UR
+name,baulmes,VD
+name,bauma,ZH
+name,bavois,VD
+name,bazenheid,SG
+name,beatenberg,BE
+name,beckenried,NW
+name,bedano,TI
+name,bedigliora,TI
+name,bedretto,TI
+name,beggingen,SH
+name,begnins,VD
+name,beinwil,SO
+name,beinwil (freiamt),AG
+name,beinwil am see,AG
+name,beinwil so,SO
+name,belalp,VS
+name,belfaux,FR
+name,bellach,SO
+name,bellelay,BE
+name,bellerive,VD
+name,bellerive vd,VD
+name,bellevue,GE
+name,bellikon,AG
+name,bellinzona,TI
+name,bellmund,BE
+name,bellwald,VS
+name,belmont broye,FR
+name,belmont sur lausanne,VD
+name,belmont sur yverdon,VD
+name,belp,BE
+name,belpberg,BE
+name,belprahon,BE
+name,benglen,ZH
+name,benken sg,SG
+name,benken zh,ZH
+name,bennau,SZ
+name,bennwil,BL
+name,benzenschwil,AG
+name,bercher,VD
+name,berg (dagerlen),ZH
+name,berg am irchel,ZH
+name,berg sg,SG
+name,berg tg,TG
+name,bergdietikon,AG
+name,bergun filisur,GR
+name,bergun/bravuogn,GR
+name,beride di bedigliora,TI
+name,berikon,AG
+name,beringen,SH
+name,berken,BE
+name,berlens,FR
+name,berlingen,TG
+name,bern,BE
+name,berneck,SG
+name,bernex,GE
+name,bernhardzell,SG
+name,berolle,VD
+name,beromunster,LU
+name,berschis,SG
+name,bertschikon,ZH
+name,bertschikon (gossau,ZH
+name,bertschikon (gossau zh,ZH
+name,berzona,TI
+name,besazio,TI
+name,besenburen,AG
+name,besencens,FR
+name,betschwanden,GL
+name,betten,VS
+name,bettenhausen,BE
+name,bettens,VD
+name,bettingen,BS
+name,bettlach,SO
+name,bettmeralp,VS
+name,bettwiesen,TG
+name,bettwil,AG
+name,beurnevesin,JU
+name,beuson (nendaz),VS
+name,bevaix,NE
+name,bever,GR
+name,bevilard,BE
+name,bex,VD
+name,biasca,TI
+name,biberen,BE
+name,biberist,SO
+name,bibern sh,SH
+name,bibern so,SO
+name,biberstein,AG
+name,bichelsee,TG
+name,bichelsee balterswil,TG
+name,bichwil,SG
+name,bidogno,TI
+name,biel,VS
+name,biel benken,BL
+name,biel benken bl,BL
+name,biel vs,VS
+name,biel/bienne,BE
+name,biembach im emmental,BE
+name,biere,VD
+name,biessenhofen,TG
+name,bieudron (nendaz),VS
+name,biezwil,SO
+name,bigenthal,BE
+name,biglen,BE
+name,bignasco,TI
+name,bigorio,TI
+name,billens,FR
+name,billens hennens,FR
+name,bilten,GL
+name,binn,VS
+name,binningen,BL
+name,binz,ZH
+name,bioggio,TI
+name,bioley magnoux,VD
+name,bioley orjulaz,VD
+name,bionnens,FR
+name,birgisch,VS
+name,birmensdorf,ZH
+name,birmensdorf zh,ZH
+name,birmenstorf,AG
+name,birmenstorf ag,AG
+name,bironico,TI
+name,birr,AG
+name,birrhard,AG
+name,birrwil,AG
+name,birsfelden,BL
+name,birwinken,TG
+name,bischofszell,TG
+name,bissone,TI
+name,bister,VS
+name,bitsch,VS
+name,bivio,GR
+name,blankenburg,BE
+name,blatten,VS
+name,blatten (lotschen),VS
+name,blatten b. naters,VS
+name,blauen,BL
+name,blausee mitholz,BE
+name,bleienbach,BE
+name,bleiken b. oberdiessbach,BE
+name,blenio,TI
+name,blessens,FR
+name,blignou (ayent),VS
+name,blitzingen,VS
+name,blonay,VD
+name,blonay saint legier,VD
+name,blumenstein,BE
+name,bobikon,AG
+name,bockten,BL
+name,bodio,TI
+name,bodio ti,TI
+name,boecourt,JU
+name,bofflens,VD
+name,bogis bossey,VD
+name,bogno,TI
+name,bois d'amont,FR
+name,bole,NE
+name,bolken,SO
+name,boll,BE
+name,bolligen,BE
+name,bollingen,SG
+name,bollion,FR
+name,bollodingen,BE
+name,boltigen,BE
+name,bombinasco,TI
+name,bonaduz,GR
+name,bonau,TG
+name,boncourt,JU
+name,bondo,GR
+name,bonfol,JU
+name,bonigen,BE
+name,bonigen b. interlaken,BE
+name,boningen,SO
+name,boniswil,AG
+name,bonnefontaine,FR
+name,bonstetten,ZH
+name,bonvillars,VD
+name,boppelsen,ZH
+name,borex,VD
+name,borgnone,TI
+name,borgonovo,GR
+name,bosco luganese,TI
+name,bosco/gurin,TI
+name,bosingen,FR
+name,bossonnens,FR
+name,boswil,AG
+name,bottens,VD
+name,bottenwil,AG
+name,botterens,FR
+name,bottighofen,TG
+name,bottmingen,BL
+name,bottstein,AG
+name,botyre (ayent),VS
+name,boudevilliers,NE
+name,boudry,NE
+name,bougy villars,VD
+name,boulens,VD
+name,bouloz,FR
+name,bourg en lavaux,VD
+name,bourg saint pierre,VS
+name,bourg st pierre,VS
+name,bourguillon,FR
+name,bournens,VD
+name,bourrignon,JU
+name,boussens,VD
+name,bouveret,VS
+name,boveresse,NE
+name,bovernier,VS
+name,bowil,BE
+name,bozberg,AG
+name,bozen,AG
+name,boztal,AG
+name,braggio,GR
+name,brail,GR
+name,bramboden,LU
+name,bramois,VS
+name,bratsch,VS
+name,braunau,TG
+name,braunwald,GL
+name,bre sopra lugano,TI
+name,bregaglia,GR
+name,breganzona,TI
+name,breggia,TI
+name,breil/brigels,GR
+name,breitenbach,SO
+name,bremblens,VD
+name,bremgarten,AG
+name,bremgarten ag,AG
+name,bremgarten b. bern,BE
+name,bremgarten bei bern,BE
+name,brenles,VD
+name,breno,TI
+name,brent,VD
+name,brenzikofen,BE
+name,bressaucourt,JU
+name,bretigny sur morrens,VD
+name,bretonnieres,VD
+name,bretzwil,BL
+name,brienz,BE
+name,brienz be,BE
+name,brienz/brinzauls,GR
+name,brienz/brinzauls gr,GR
+name,brienzwiler,BE
+name,brig,VS
+name,brig glis,VS
+name,brigerbad,VS
+name,brignon (nendaz),VS
+name,brione (verzasca),TI
+name,brione sopra minusio,TI
+name,brislach,BL
+name,brissago,TI
+name,bristen,UR
+name,brittern,SO
+name,brittnau,AG
+name,broc,FR
+name,broglio,TI
+name,bronschhofen,SG
+name,brontallo,TI
+name,brot dessous,NE
+name,brot plamboz,NE
+name,bruderholz,BL
+name,brugg ag,AG
+name,brugg be,BE
+name,brugglen,SO
+name,brulisau,AI
+name,brunegg,AG
+name,brunig,BE
+name,brunisried,FR
+name,brunnadern,SG
+name,brunnen,SZ
+name,brunnenthal,SO
+name,brusino arsizio,TI
+name,brusio,GR
+name,bruson,VS
+name,bruttelen,BE
+name,brutten,ZH
+name,bruttisellen,ZH
+name,bruzella,TI
+name,bubendorf,BL
+name,bubikon,ZH
+name,buch,SH
+name,buch am irchel,ZH
+name,buch b. frauenfeld,TG
+name,buch b. kummertshausen,TG
+name,buch b. marwil,TG
+name,buch sh,SH
+name,buchackern,TG
+name,buchberg,SH
+name,buchegg,SO
+name,buchen,BE
+name,buchen be,BE
+name,buchen im prattigau,GR
+name,buchholterberg,BE
+name,buchillon,VD
+name,buchrain,LU
+name,buchs ag,AG
+name,buchs lu,LU
+name,buchs sg,SG
+name,buchs zh,ZH
+name,buchslen,FR
+name,buckten,BL
+name,buetigen,BE
+name,buhl,BE
+name,buhl b. aarberg,BE
+name,buhler,AR
+name,buhwil,TG
+name,buix,JU
+name,bulach,ZH
+name,bulle,FR
+name,bullet,VD
+name,bunzen,AG
+name,buochs,NW
+name,buonas,ZG
+name,burchen,VS
+name,bure,JU
+name,buren an der aare,BE
+name,buren nw,NW
+name,buren so,SO
+name,buren zum hof,BE
+name,burg,AG
+name,burg ag,AG
+name,burg im leimental,BL
+name,burgaschi,SO
+name,burgdorf,BE
+name,burgenstock,NW
+name,burgistein,BE
+name,burglauenen,BE
+name,burglen ow,OW
+name,burglen tg,TG
+name,burglen ur,UR
+name,buriswilen,AI
+name,buron,LU
+name,bursinel,VD
+name,bursins,VD
+name,burtigny,VD
+name,buseno,GR
+name,busserach,SO
+name,bussigny,VD
+name,bussigny sur oron,VD
+name,bussnang,TG
+name,busswil b. melchnau,BE
+name,busswil be,BE
+name,busswil bei melchnau,BE
+name,busswil tg,TG
+name,bussy,FR
+name,bussy chardonney,VD
+name,bussy fr,FR
+name,bussy sur moudon,VD
+name,butschwil,SG
+name,butschwil ganterschwil,SG
+name,buttenhardt,SH
+name,buttes,NE
+name,buttikon,AG
+name,buttikon ag,AG
+name,buttikon sz,SZ
+name,buttisholz,LU
+name,buttwil,AG
+name,butzberg,BE
+name,buus,BL
+name,cabbio,TI
+name,cademario,TI
+name,cadempino,TI
+name,cadenazzo,TI
+name,cadro,TI
+name,cagiallo,TI
+name,calanca,GR
+name,calfreisen,GR
+name,calonico,TI
+name,calpiogna,TI
+name,cama,GR
+name,camedo,TI
+name,camignolo,TI
+name,camischolas,GR
+name,camorino,TI
+name,campascio,GR
+name,campello,TI
+name,camperio,TI
+name,campo (blenio),TI
+name,campo (vallemaggia),TI
+name,campocologno,GR
+name,campora,TI
+name,camuns,GR
+name,caneggio,TI
+name,canobbio,TI
+name,capolago,TI
+name,capriasca,TI
+name,carabbia,TI
+name,carabietta,TI
+name,carena,TI
+name,cari,TI
+name,carona,TI
+name,carouge,GE
+name,carouge ge,GE
+name,carrouge,VD
+name,carrouge vd,VD
+name,cartigny,GE
+name,casaccia,GR
+name,casima,TI
+name,caslano,TI
+name,cassina d'agno,TI
+name,castagnola,TI
+name,castaneda,GR
+name,castasegna,GR
+name,castel san pietro,TI
+name,castelrotto,TI
+name,castiel,GR
+name,castione,TI
+name,castrisch,GR
+name,castro,TI
+name,cauco,GR
+name,caux,VD
+name,cavagnago,TI
+name,cavardiras,GR
+name,cavergno,TI
+name,caviano,TI
+name,cavigliano,TI
+name,cazis,GR
+name,celerina/schlarigna,GR
+name,celigny,GE
+name,centovalli,TI
+name,cerentino,TI
+name,cerniat,FR
+name,cerniat fr,FR
+name,cerniaz,VD
+name,cerniaz vd,VD
+name,cernier,NE
+name,certara,TI
+name,cevio,TI
+name,chables,FR
+name,chables fr,FR
+name,chabrey,VD
+name,chailly montreux,VD
+name,chalais,VS
+name,cham,ZG
+name,chambesy,GE
+name,chamblon,VD
+name,chambrelien,NE
+name,chamby,VD
+name,chamoille (sembrancher),VS
+name,chamoson,VS
+name,champ du moulin,NE
+name,champagne,VD
+name,champery,VS
+name,champex lac,VS
+name,champfer,GR
+name,champlan (grimisuat),VS
+name,champoussin,VS
+name,champoz,BE
+name,champsec,VS
+name,champtauroz,VD
+name,champvent,VD
+name,champzabe,VS
+name,chancy,GE
+name,chandolin,VS
+name,chandon,FR
+name,chandonne (liddes),VS
+name,chaneaz,VD
+name,chapella,GR
+name,chapelle (broye),FR
+name,chapelle (glane),FR
+name,chapelle sur moudon,VD
+name,chardonne,VD
+name,charmey (gruyere),FR
+name,charmoille,JU
+name,charrat,VS
+name,chateau d'oex,VD
+name,chatel saint denis,FR
+name,chatel st denis,FR
+name,chatel sur montsalvens,FR
+name,chatelaine,GE
+name,chatelat,BE
+name,chatillens,VD
+name,chatillon fr,FR
+name,chatillon ju,JU
+name,chatonnaye,FR
+name,chaumont,NE
+name,chavannes de bogis,VD
+name,chavannes des bois,VD
+name,chavannes le chene,VD
+name,chavannes le veyron,VD
+name,chavannes les forts,FR
+name,chavannes pres renens,VD
+name,chavannes sous orsonnens,FR
+name,chavannes sur moudon,VD
+name,chavornay,VD
+name,cheiry,FR
+name,chemin,VS
+name,chenaux,VD
+name,chene bougeries,GE
+name,chene bourg,GE
+name,chene paquier,VD
+name,chenens,FR
+name,chermignon,VS
+name,chermignon d'en bas,VS
+name,chernex,VD
+name,chesalles sur moudon,VD
+name,chesalles sur oron,VD
+name,cheseaux noreaz,VD
+name,cheseaux sur lausanne,VD
+name,cheserex,VD
+name,chesieres,VD
+name,chesopelloz,FR
+name,chessel,VD
+name,chevenez,JU
+name,chevilly,VD
+name,chevroux,VD
+name,chexbres,VD
+name,cheyres,FR
+name,cheyres chables,FR
+name,chez le bart,NE
+name,chez petit (liddes),VS
+name,chezard st martin,NE
+name,chiasso,TI
+name,chiggiogna,TI
+name,chigny,VD
+name,chippis,VS
+name,chironico,TI
+name,choex,VS
+name,choulex,GE
+name,chur,GR
+name,churwalden,GR
+name,cimadera,TI
+name,cimalmotto,TI
+name,cimo,TI
+name,cinuos chel,GR
+name,clarens,VD
+name,clarmont,VD
+name,claro,TI
+name,clavaleyres,FR
+name,clebes (nendaz),VS
+name,clos du doubs,JU
+name,clugin,GR
+name,coeuve,JU
+name,coffrane,NE
+name,coglio,TI
+name,coinsins,VD
+name,cointrin,GE
+name,coldrerio,TI
+name,colla,TI
+name,collex,GE
+name,collex bossy,GE
+name,collina d'oro,TI
+name,collombey,VS
+name,collombey muraz,VS
+name,collonge bellerive,GE
+name,collonges,VS
+name,cologny,GE
+name,colombier ne,NE
+name,colombier vd,VD
+name,comano,TI
+name,combremont le grand,VD
+name,combremont le petit,VD
+name,commugny,VD
+name,comologno,TI
+name,comunanza cadenazzo/monteceneri,TI
+name,conches,GE
+name,concise,VD
+name,condemines (nendaz),VS
+name,confignon,GE
+name,constantine,VD
+name,conters im prattigau,GR
+name,conthey,VS
+name,contone,TI
+name,contra,TI
+name,coppet,VD
+name,corban,JU
+name,corbeyrier,VD
+name,corbieres,FR
+name,corcelles be,BE
+name,corcelles le jorat,VD
+name,corcelles ne,NE
+name,corcelles pres concise,VD
+name,corcelles pres payerne,VD
+name,corcelles sur chavornay,VD
+name,cordast,FR
+name,corgemont,BE
+name,corin de la crete,VS
+name,corippo,TI
+name,corjolens,FR
+name,cormagens,FR
+name,cormerod,FR
+name,corminboeuf,FR
+name,cormondreche,NE
+name,cormoret,BE
+name,cornaux,NE
+name,cornaux ne,NE
+name,cornol,JU
+name,corpataux,FR
+name,correvon,VD
+name,corseaux,VD
+name,corserey,FR
+name,corsier,GE
+name,corsier ge,GE
+name,corsier sur vevey,VD
+name,cortaillod,NE
+name,cortebert,BE
+name,corteglia,TI
+name,corticiasca,TI
+name,corzoneso,TI
+name,cossonay,VD
+name,cossonay ville,VD
+name,cottens fr,FR
+name,cottens vd,VD
+name,cotterd,VD
+name,courcelon,JU
+name,courchapoix,JU
+name,courchavon,JU
+name,courfaivre,JU
+name,courgenay,JU
+name,courgevaux,FR
+name,courlevon,FR
+name,cournillens,FR
+name,courrendlin,JU
+name,courroux,JU
+name,court,BE
+name,courtaman,FR
+name,courtedoux,JU
+name,courtelary,BE
+name,courtemaiche,JU
+name,courtemautruy,JU
+name,courtepin,FR
+name,courtetelle,JU
+name,courtion,FR
+name,cousset,FR
+name,couvet,NE
+name,cozzo,TI
+name,crana,TI
+name,crans montana,VS
+name,crans vd,VD
+name,crans vs,VS
+name,crassier,VD
+name,cremin,VD
+name,cremines,BE
+name,cresciano,TI
+name,cressier fr,FR
+name,cressier ne,NE
+name,cresuz,FR
+name,crete a l'oeil (les agettes),VS
+name,cries (volleges),VS
+name,crissier,VD
+name,cronay,VD
+name,croy,VD
+name,cuarnens,VD
+name,cuarny,VD
+name,cudrefin,VD
+name,cugnasco,TI
+name,cugnasco gerra,TI
+name,cugy fr,FR
+name,cugy vd,VD
+name,cully,VD
+name,cumbel,GR
+name,cumpadials,GR
+name,cunter,GR
+name,curaglia,GR
+name,cureggia,TI
+name,cureglia,TI
+name,curio,TI
+name,curtilles,VD
+name,curtina,TI
+name,dachsen,ZH
+name,dagerlen,ZH
+name,dagmersellen,LU
+name,daillens,VD
+name,daillon,VS
+name,daiwil,LU
+name,dalin,GR
+name,dallenwil,NW
+name,dallikon,ZH
+name,dalpe,TI
+name,damphreux,JU
+name,damphreux lugnez,JU
+name,damvant,JU
+name,dangio,TI
+name,daniken,SO
+name,daniken so,SO
+name,danikon,ZH
+name,danikon zh,ZH
+name,danis,GR
+name,dardagny,GE
+name,dardin,GR
+name,darligen,BE
+name,darstetten,BE
+name,dattlikon,ZH
+name,dattwil,AG
+name,dattwil ag,AG
+name,davesco soragno,TI
+name,davos,GR
+name,davos clavadel,GR
+name,davos dorf,GR
+name,davos frauenkirch,GR
+name,davos glaris,GR
+name,davos monstein,GR
+name,davos platz,GR
+name,davos wiesen,GR
+name,davos wolfgang,GR
+name,degen,GR
+name,degersheim,SG
+name,deisswil b. munchenbuchsee,BE
+name,deisswil bei munchenbuchsee,BE
+name,deitingen,SO
+name,delemont,JU
+name,delley,FR
+name,delley portalban,FR
+name,demoret,VD
+name,denens,VD
+name,denezy,VD
+name,denges,VD
+name,densburen,AG
+name,derendingen,SO
+name,detligen,BE
+name,dettighofen,TG
+name,dettighofen (lengwil),TG
+name,develier,JU
+name,dickbuch,ZH
+name,dicken,SG
+name,diegten,BL
+name,dielsdorf,ZH
+name,diemerswil,BE
+name,diemtigen,BE
+name,diepflingen,BL
+name,diepoldsau,SG
+name,dierikon,LU
+name,diesbach,GL
+name,diesbach gl,GL
+name,diessbach b. buren,BE
+name,diessbach bei buren,BE
+name,diesse,BE
+name,diessenhofen,TG
+name,dieterswil,BE
+name,dietfurt,SG
+name,dietikon,ZH
+name,dietlikon,ZH
+name,dietschwil,SG
+name,dietwil,AG
+name,dinhard,ZH
+name,dino,TI
+name,dintikon,AG
+name,disentis/muster,GR
+name,dittingen,BL
+name,dizy,VD
+name,domat/ems,GR
+name,dombresson,NE
+name,domdidier,FR
+name,domleschg,GR
+name,dommartin,VD
+name,dompierre fr,FR
+name,dompierre vd,VD
+name,donat,GR
+name,donatyre,VD
+name,dongio,TI
+name,donneloye,VD
+name,donzhausen,TG
+name,doppleschwand,LU
+name,dorenaz,VS
+name,dorf,ZH
+name,dorflingen,SH
+name,dornach,SO
+name,dotnacht,TG
+name,dottikon,AG
+name,dottingen,AG
+name,dotzigen,BE
+name,dozwil,TG
+name,dranse (liddes),VS
+name,drei hofe,SO
+name,dreien,SG
+name,dubendorf,ZH
+name,dudingen,FR
+name,duggingen,BL
+name,dugny (leytron),VS
+name,duillier,VD
+name,dulliken,SO
+name,dully,VD
+name,durnten,ZH
+name,durrenasch,AG
+name,durrenroth,BE
+name,dussnang,TG
+name,duvin,GR
+name,ebersecken,LU
+name,ebersol,SG
+name,ebertswil,ZH
+name,ebikon,LU
+name,ebmatingen,ZH
+name,ebnat kappel,SG
+name,ebnet,LU
+name,echallens,VD
+name,echandens,VD
+name,echarlens,FR
+name,echichens,VD
+name,eclagnens,VD
+name,eclepens,VD
+name,ecoteaux,VD
+name,ecublens fr,FR
+name,ecublens vd,VD
+name,ecuvillens,FR
+name,ederswiler,JU
+name,edlibach,ZG
+name,effingen,AG
+name,effretikon,ZH
+name,egerkingen,SO
+name,egg,ZH
+name,egg (flawil),SG
+name,egg b. zurich,ZH
+name,egg sz,SZ
+name,eggenwil,AG
+name,eggerberg,VS
+name,eggersriet,SG
+name,eggiwil,BE
+name,eglisau,ZH
+name,egliswil,AG
+name,egnach,TG
+name,egolzwil,LU
+name,ehrendingen,AG
+name,ehrikon,ZH
+name,eich,LU
+name,eichberg,SG
+name,eigenthal,LU
+name,eigergletscher,BE
+name,eiken,AG
+name,einigen,BE
+name,einsiedeln,SZ
+name,eischoll,VS
+name,eison (st martin),VS
+name,eisten,VS
+name,elfingen,AG
+name,elgg,ZH
+name,ellighausen,TG
+name,ellikon am rhein,ZH
+name,ellikon an der thur,ZH
+name,elm,GL
+name,elsau,ZH
+name,embd,VS
+name,embrach,ZH
+name,emdthal,BE
+name,emmen,LU
+name,emmenbrucke,LU
+name,emmenmatt,BE
+name,emmetten,NW
+name,endingen,AG
+name,engelberg,OW
+name,engelburg,SG
+name,enges,NE
+name,enggistein,BE
+name,engi,GL
+name,engishofen,TG
+name,englisberg,BE
+name,engollon,NE
+name,engwang,TG
+name,engwilen,TG
+name,ennenda,GL
+name,ennetaach,TG
+name,ennetbaden,AG
+name,ennetbuhl,SG
+name,ennetburgen,NW
+name,ennetmoos,NW
+name,enney,FR
+name,entlebuch,LU
+name,epagny,FR
+name,epalinges,VD
+name,epautheyres,VD
+name,epauvillers,JU
+name,ependes fr,FR
+name,ependes vd,VD
+name,epesses,VD
+name,epiquerez,JU
+name,eppenberg,SO
+name,eppenberg woschnau,SO
+name,epsach,BE
+name,eptingen,BL
+name,erde,VS
+name,ergisch,VS
+name,eriswil,BE
+name,eriz,BE
+name,erlach,BE
+name,erlen,TG
+name,erlenbach,ZH
+name,erlenbach im simmental,BE
+name,erlenbach zh,ZH
+name,erlinsbach,AG
+name,erlinsbach ag,AG
+name,erlinsbach so,SO
+name,ermatingen,TG
+name,ermensee,LU
+name,ermenswil,SG
+name,ernen,VS
+name,ernetschwil,SG
+name,erschmatt,VS
+name,erschwil,SO
+name,ersigen,BE
+name,erstfeld,UR
+name,eschenbach lu,LU
+name,eschenbach sg,SG
+name,eschenz,TG
+name,eschert,BE
+name,eschikofen,TG
+name,eschlikon,TG
+name,eschlikon tg,TG
+name,escholzmatt,LU
+name,escholzmatt marbach,LU
+name,esmonts,FR
+name,essert,FR
+name,essert fr,FR
+name,essert pittet,VD
+name,essert sous champvent,VD
+name,essertes,VD
+name,essertines sur rolle,VD
+name,essertines sur yverdon,VD
+name,esslingen,ZH
+name,estavannens,FR
+name,estavayer,FR
+name,estavayer le gibloux,FR
+name,estavayer le lac,FR
+name,estevenens,FR
+name,etagnieres,VD
+name,etoy,VD
+name,ettenhausen,TG
+name,ettenhausen tg,TG
+name,ettingen,BL
+name,ettiswil,LU
+name,etzelkofen,BE
+name,etzgen,AG
+name,etziken,SO
+name,etzwilen,TG
+name,euseigne,VS
+name,euthal,SZ
+name,evilard,BE
+name,evionnaz,VS
+name,evolene,VS
+name,eyholz,VS
+name,eysins,VD
+name,fahrni,BE
+name,fahrni b. thun,BE
+name,fahrwangen,AG
+name,fahrweid,ZH
+name,fahy,JU
+name,faido,TI
+name,fajauna,GR
+name,falera,GR
+name,fallanden,ZH
+name,fanas,GR
+name,fankhaus (trub),BE
+name,faoug,VD
+name,farnern,BE
+name,farvagny le grand,FR
+name,farvagny le petit,FR
+name,faulensee,BE
+name,fechy,VD
+name,fehraltorf,ZH
+name,fehren,SO
+name,felben wellhausen,TG
+name,feldbach,ZH
+name,feldbrunnen,SO
+name,feldbrunnen st. niklaus,SO
+name,feldis/veulden,GR
+name,felsberg,GR
+name,fenalet sur bex,VD
+name,fenil sur corsier,VD
+name,fenin,NE
+name,fenkrieden,AG
+name,ferden,VS
+name,ferenbalm,BE
+name,ferlens,VD
+name,ferlens vd,VD
+name,ferpicloz,FR
+name,ferrera,GR
+name,ferreyres,VD
+name,fescoggia,TI
+name,fetigny,FR
+name,fetigny menieres,FR
+name,feuerthalen,ZH
+name,feusisberg,SZ
+name,feutersoey,BE
+name,fex,GR
+name,fey,VD
+name,fey (nendaz),VS
+name,fiaugeres,FR
+name,fidaz,GR
+name,fideris,GR
+name,fiesch,VS
+name,fieschertal,VS
+name,fiez,VD
+name,figino,TI
+name,filet,VS
+name,filisur,GR
+name,filzbach,GL
+name,finhaut,VS
+name,finsterhennen,BE
+name,finstersee,ZG
+name,finsterwald b. entlebuch,LU
+name,fionnay,VS
+name,fischbach,LU
+name,fischbach goslikon,AG
+name,fischbach lu,LU
+name,fischenthal,ZH
+name,fischingen,TG
+name,fisibach,AG
+name,fislisbach,AG
+name,flaach,ZH
+name,flamatt,FR
+name,flanthey,VS
+name,flasch,GR
+name,flawil,SG
+name,flendruz,VD
+name,flerden,GR
+name,fleurier,NE
+name,flims,GR
+name,flims dorf,GR
+name,flims waldhaus,GR
+name,flond,GR
+name,fluelen,UR
+name,flueli ranft,OW
+name,fluh,SO
+name,fluhli,LU
+name,fluhli lu,LU
+name,flumenthal,SO
+name,flums,SG
+name,flums hochwiese,SG
+name,flumserberg bergheim,SG
+name,flumserberg portels,SG
+name,flumserberg saxli,SG
+name,flumserberg tannenbodenalp,SG
+name,flumserberg tannenheim,SG
+name,flurlingen,ZH
+name,font,FR
+name,fontaine dessous (liddes),VS
+name,fontaine dessus (liddes),VS
+name,fontainemelon,NE
+name,fontaines,NE
+name,fontaines ne,NE
+name,fontaines sur grandson,VD
+name,fontanezier,VD
+name,fontannen b. wolhusen,LU
+name,fontenais,JU
+name,fontnas,SG
+name,forch,ZH
+name,forel,FR
+name,forel (lavaux),VD
+name,forel fr,FR
+name,forel sur lucens,VD
+name,formangueires,FR
+name,fornet dessous,BE
+name,fornet dessus,JU
+name,fornex (liddes),VS
+name,forst b. langenbuhl,BE
+name,forst langenbuhl,BE
+name,fortunau (ayent),VS
+name,founex,VD
+name,fraschels,FR
+name,frasco,TI
+name,frasnacht,TG
+name,frasses,FR
+name,fraubrunnen,BE
+name,frauenfeld,TG
+name,frauenkappelen,BE
+name,fregiecourt,JU
+name,freidorf,TG
+name,freidorf tg,TG
+name,freienbach,SZ
+name,freienstein,ZH
+name,freienstein teufen,ZH
+name,freienwil,AG
+name,freimettigen,BE
+name,frenieres sur bex,VD
+name,frenkendorf,BL
+name,fresens,NE
+name,fretereules,NE
+name,freudwil,ZH
+name,fribourg,FR
+name,frick,AG
+name,frieswil,BE
+name,friltschen,TG
+name,frinvillier,BE
+name,froideville,VD
+name,frumsen,SG
+name,fruthwilen,TG
+name,frutigen,BE
+name,ftan,GR
+name,fuldera,GR
+name,fulenbach,SO
+name,full reuenthal,AG
+name,fullinsdorf,BL
+name,fully,VS
+name,furigen,NW
+name,furna,GR
+name,furstenau,GR
+name,furstenaubruck,GR
+name,fusio,TI
+name,gabi (simplon),VS
+name,gachlingen,SH
+name,gachliwil,SO
+name,gachnang,TG
+name,gadenstatt,GR
+name,gadmen,BE
+name,gahwil,SG
+name,gais,AR
+name,gaiserwald,SG
+name,galgenen,SZ
+name,galmiz,FR
+name,gals,BE
+name,gambarogno,TI
+name,gammen,BE
+name,gampel,VS
+name,gampel bratsch,VS
+name,gampelen,BE
+name,gams,SG
+name,gamsen,VS
+name,gandria,TI
+name,gansbrunnen,SO
+name,gansingen,AG
+name,ganterschwil,SG
+name,gasel,BE
+name,gattikon,ZH
+name,gebenstorf,AG
+name,gebertingen,SG
+name,geiss,LU
+name,gelfingen,LU
+name,gelterfingen,BE
+name,gelterkinden,BL
+name,geltwil,AG
+name,gempen,SO
+name,gempenach,FR
+name,genestrerio,TI
+name,geneve,GE
+name,genolier,VD
+name,genthod,GE
+name,gentilino,TI
+name,gerlafingen,SO
+name,gerlikon,TG
+name,geroldswil,ZH
+name,gerolfingen,BE
+name,gerra (gambarogno),TI
+name,gerra (verzasca),TI
+name,gersau,SZ
+name,gerzensee,BE
+name,geschinen,VS
+name,gettnau,LU
+name,geuensee,LU
+name,ghirone,TI
+name,gibloux,FR
+name,gibswil,ZH
+name,giebenach,BL
+name,giez,VD
+name,giffers,FR
+name,gillarens,FR
+name,gilly,VD
+name,gimel,VD
+name,gimmelwald,BE
+name,gingins,VD
+name,giornico,TI
+name,gipf oberfrick,AG
+name,gisikon,LU
+name,giswil,OW
+name,giubiasco,TI
+name,giumaglio,TI
+name,givisiez,FR
+name,givrins,VD
+name,gland,VD
+name,glarus,GL
+name,glarus nord,GL
+name,glarus sud,GL
+name,glashutten,AG
+name,glattbrugg,ZH
+name,glattfelden,ZH
+name,glattpark (opfikon),ZH
+name,gletterens,FR
+name,glion,VD
+name,glis,VS
+name,glovelier,JU
+name,gluringen,VS
+name,gnosca,TI
+name,gockhausen,ZH
+name,gohl,BE
+name,golaten,BE
+name,goldach,SG
+name,goldau,SZ
+name,goldingen,SG
+name,goldiwil (thun),BE
+name,goldswil b. interlaken,BE
+name,golino,TI
+name,gollion,VD
+name,gommiswald,SG
+name,goms,VS
+name,gondiswil,BE
+name,gondo,VS
+name,gonten,AI
+name,gontenbad,AI
+name,gontenschwil,AG
+name,goppenstein,VS
+name,goppisberg,VS
+name,gordevio,TI
+name,gordola,TI
+name,gorduno,TI
+name,gorgier,NE
+name,goschenen,UR
+name,gossau sg,SG
+name,gossau zh,ZH
+name,gossens,VD
+name,gossliwil,SO
+name,gotighofen,TG
+name,gottlieben,TG
+name,goumoens,VD
+name,goumoens la ville,VD
+name,goumoens le jux,VD
+name,goumois,JU
+name,graben,BE
+name,grabs,SG
+name,grabserberg,SG
+name,grachen,VS
+name,grafenried,BE
+name,grafstal,ZH
+name,graltshausen,TG
+name,grancia,TI
+name,grancy,VD
+name,grand lancy,GE
+name,grandcour,VD
+name,grandevent,VD
+name,grandfontaine,JU
+name,grandsivaz,FR
+name,grandson,VD
+name,grandval,BE
+name,grandvaux,VD
+name,grandvillard,FR
+name,granges,VS
+name,granges (veveyse),FR
+name,granges de vesin,FR
+name,granges paccot,FR
+name,granges pres marnand,VD
+name,granges vs,VS
+name,grangettes,FR
+name,grangettes pres romont,FR
+name,granichen,AG
+name,graslikon,ZH
+name,grasswil,BE
+name,grattavache,FR
+name,gravesano,TI
+name,greich,VS
+name,greifensee,ZH
+name,grellingen,BL
+name,grenchen,SO
+name,greng,FR
+name,grengiols,VS
+name,grenilles,FR
+name,grens,VD
+name,greppen,LU
+name,gresso,TI
+name,gressy,VD
+name,gretschins,SG
+name,gretzenbach,SO
+name,grimentz,VS
+name,grimisuat,VS
+name,grindel,SO
+name,grindelwald,BE
+name,grolley,FR
+name,grolley ponthaux,FR
+name,grone,VS
+name,grono,GR
+name,gross,SZ
+name,grossaffoltern,BE
+name,grossdietwil,LU
+name,grosshochstetten,BE
+name,grosswangen,LU
+name,grub ar,AR
+name,grub sg,SG
+name,gruben,VS
+name,grugnay (chamoson),VS
+name,grund b. gstaad,BE
+name,grunen,BE
+name,grunenmatt,BE
+name,gruningen,ZH
+name,grusch,GR
+name,grut (gossau,ZH
+name,grut (gossau zh,ZH
+name,gruyeres,FR
+name,gryon,VD
+name,gstaad,BE
+name,gsteig,BE
+name,gsteig b. gstaad,BE
+name,gsteigwiler,BE
+name,guarda,GR
+name,gudo,TI
+name,guggisberg,BE
+name,gumefens,FR
+name,gumligen,BE
+name,gummenen,BE
+name,gundetswil,ZH
+name,gundisau,ZH
+name,gundlischwand,BE
+name,gunsberg,SO
+name,guntalingen,ZH
+name,gunten,BE
+name,guntershausen b. aadorf,TG
+name,guntershausen b. berg,TG
+name,gunterswilen,TG
+name,guntmadingen,SH
+name,gunzgen,SO
+name,gunzwil,LU
+name,gurbru,BE
+name,gurmels,FR
+name,gurtnellen,UR
+name,gurzelen,BE
+name,guschelmuth,FR
+name,gutenburg,BE
+name,gutenswil,ZH
+name,guttannen,BE
+name,guttet feschel,VS
+name,guttingen,TG
+name,gwatt (thun),BE
+name,gysenstein,BE
+name,haag (rheintal),SG
+name,habkern,BE
+name,habsburg,AG
+name,hafelfingen,BL
+name,hagenbuch,ZH
+name,hagenbuch zh,ZH
+name,hagendorf,SO
+name,hagendorn,ZG
+name,hagenwil b. amriswil,TG
+name,haggenschwil,SG
+name,hagglingen,AG
+name,hagneck,BE
+name,halden,TG
+name,haldenstein,GR
+name,haldi b. schattdorf,UR
+name,hallau,SH
+name,hallwil,AG
+name,halten,SO
+name,hamikon,LU
+name,happerswil,TG
+name,harenwilen,TG
+name,harkingen,SO
+name,hasle,LU
+name,hasle b. burgdorf,BE
+name,hasle bei burgdorf,BE
+name,hasle lu,LU
+name,haslen ai,AI
+name,haslen gl,GL
+name,hasliberg,BE
+name,hasliberg goldern,BE
+name,hasliberg hohfluh,BE
+name,hasliberg reuti,BE
+name,hasliberg wasserwendi,BE
+name,hattenhausen,TG
+name,hatzingen,GL
+name,hauenstein,SO
+name,hauenstein ifenthal,SO
+name,hauptikon,ZH
+name,hauptwil,TG
+name,hauptwil gottshaus,TG
+name,hausen,AG
+name,hausen ag,AG
+name,hausen am albis,ZH
+name,hausernmoos im emmental,BE
+name,hauslenen,TG
+name,haut intyamon,FR
+name,haute ajoie,JU
+name,haute nendaz,VS
+name,haute sorne,JU
+name,hautemorges,VD
+name,hauterive fr,FR
+name,hauterive ne,NE
+name,hauteville,FR
+name,hautligen,BE
+name,hedingen,ZH
+name,heerbrugg,SG
+name,hefenhausen,TG
+name,hefenhofen,TG
+name,heiden,AR
+name,heiligenschwendi,BE
+name,heiligkreuz (mels),SG
+name,heimberg,BE
+name,heimenhausen,BE
+name,heimenschwand,BE
+name,heimisbach,BE
+name,heimiswil,BE
+name,heinrichswil,SO
+name,heitenried,FR
+name,heldswil,TG
+name,helgisried rohrbach,BE
+name,hellbuhl,LU
+name,hellikon,AG
+name,hellsau,BE
+name,hemberg,SG
+name,hemishofen,SH
+name,hemmental,SH
+name,hemmiken,BL
+name,henau,SG
+name,hendschiken,AG
+name,henggart,ZH
+name,hennens,FR
+name,henniez,VD
+name,herbetswil,SO
+name,herbligen,BE
+name,herbriggen,VS
+name,herdern,TG
+name,heremence,VS
+name,hergiswil,NW
+name,hergiswil b. willisau,LU
+name,hergiswil bei willisau,LU
+name,hergiswil nw,NW
+name,herisau,AR
+name,herlisberg,LU
+name,hermance,GE
+name,hermenches,VD
+name,hermetschwil staffeln,AG
+name,hermiswil,BE
+name,hermrigen,BE
+name,herrenhof,TG
+name,herrenschwanden,BE
+name,herrliberg,ZH
+name,hersberg,BL
+name,hersiwil,SO
+name,hertenstein,AG
+name,hertenstein ag,AG
+name,herznach,AG
+name,herznach ueken,AG
+name,herzogenbuchsee,BE
+name,hessigkofen,SO
+name,hettenschwil,AG
+name,hettiswil b. hindelbank,BE
+name,hettlingen,ZH
+name,hildisrieden,LU
+name,hilfikon,AG
+name,hilterfingen,BE
+name,himmelried,SO
+name,hindelbank,BE
+name,hinteregg,ZH
+name,hinterforst,SG
+name,hinterfultigen,BE
+name,hinterkappelen,BE
+name,hintermoos,LU
+name,hinterrhein,GR
+name,hinwil,ZH
+name,hirschthal,AG
+name,hirzel,ZH
+name,hittnau,ZH
+name,hitzkirch,LU
+name,hochdorf,LU
+name,hochfelden,ZH
+name,hochstetten,BE
+name,hochwald,SO
+name,hofen,SH
+name,hofen b. thun,BE
+name,hofen sh,SH
+name,hoffeld,SG
+name,hofstatt,LU
+name,hofstetten b. brienz,BE
+name,hofstetten bei brienz,BE
+name,hofstetten fluh,SO
+name,hofstetten so,SO
+name,hofstetten zh,ZH
+name,hohenrain,LU
+name,hohentannen,TG
+name,hohtenn,VS
+name,holderbank ag,AG
+name,holderbank so,SO
+name,holstein,BL
+name,holzhausern,ZG
+name,holzhausern zg,ZG
+name,holziken,AG
+name,homberg,BE
+name,homberg b. thun,BE
+name,hombrechtikon,ZH
+name,homburg,TG
+name,honau,LU
+name,hondrich,BE
+name,horboden,BE
+name,horgen,ZH
+name,horgenberg,ZH
+name,horhausen,TG
+name,hori,ZH
+name,horn,TG
+name,hornussen,AG
+name,horrenbach,BE
+name,horrenbach buchen,BE
+name,horriwil,SO
+name,horw,LU
+name,hosenruck,TG
+name,hospental,UR
+name,hottwil,AG
+name,hubersdorf,SO
+name,huemoz,VD
+name,hugelshofen,TG
+name,humlikon,ZH
+name,hundwil,AR
+name,hunenberg,ZG
+name,hunenberg see,ZG
+name,hunibach,BE
+name,huniken,SO
+name,hunikon (neftenbach),ZH
+name,huntwangen,ZH
+name,hunzenschwil,AG
+name,hurden,SZ
+name,huswil,LU
+name,hutten,ZH
+name,huttikon,ZH
+name,huttlingen,TG
+name,huttwil,BE
+name,huttwilen,TG
+name,ibach,SZ
+name,ichertswil,SO
+name,icogne,VS
+name,iffwil,BE
+name,igis,GR
+name,ilanz,GR
+name,ilanz/glion,GR
+name,illgau,SZ
+name,illhart,TG
+name,illighausen,TG
+name,illnau,ZH
+name,illnau effretikon,ZH
+name,im fang,FR
+name,immensee,SZ
+name,indemini,TI
+name,inden,VS
+name,ingenbohl,SZ
+name,inkwil,BE
+name,innerberg,BE
+name,innerferrera,GR
+name,innerthal,SZ
+name,innertkirchen,BE
+name,ins,BE
+name,insone,TI
+name,interlaken,BE
+name,intragna,TI
+name,intschi,UR
+name,inwil,LU
+name,ipsach,BE
+name,iragna,TI
+name,iseltwald,BE
+name,isenfluh,BE
+name,isenthal,UR
+name,iseo,TI
+name,iserables,VS
+name,islikon,TG
+name,islisberg,AG
+name,isole di brissago,TI
+name,isone,TI
+name,istighofen,TG
+name,itingen,BL
+name,ittenthal,AG
+name,ittigen,BE
+name,jaberg,BE
+name,jakobsbad,AI
+name,jaun,FR
+name,jegenstorf,BE
+name,jenaz,GR
+name,jenins,GR
+name,jens,BE
+name,jeuss,FR
+name,jona,SG
+name,jonen,AG
+name,jongny,VD
+name,jonschwil,SG
+name,jorat menthue,VD
+name,jorat mezieres,VD
+name,jouxtens mezery,VD
+name,juf,GR
+name,juriens,VD
+name,jussy,GE
+name,kagiswil,OW
+name,kaiseraugst,AG
+name,kaiserstuhl,AG
+name,kaiserstuhl ag,AG
+name,kaisten,AG
+name,kallern,AG
+name,kallnach,BE
+name,kalpetran,VS
+name,kaltacker,BE
+name,kaltbach,LU
+name,kaltbrunn,SG
+name,kaltenbach,TG
+name,kammersrohr,SO
+name,kandergrund,BE
+name,kandersteg,BE
+name,kanerkinden,BL
+name,kappel,SO
+name,kappel am albis,ZH
+name,kappel so,SO
+name,kappelen,BE
+name,kastanienbaum,LU
+name,kaufdorf,BE
+name,kefikon tg,TG
+name,kefikon zh,ZH
+name,kehrsatz,BE
+name,kehrsiten,NW
+name,kemmental,TG
+name,kemptthal,ZH
+name,kernenried,BE
+name,kerns,OW
+name,kerzers,FR
+name,kesswil,TG
+name,kestenholz,SO
+name,kienberg,SO
+name,kiental,BE
+name,kiesen,BE
+name,kilchberg bl,BL
+name,kilchberg zh,ZH
+name,killwangen,AG
+name,kippel,VS
+name,kirchberg be,BE
+name,kirchberg sg,SG
+name,kirchdorf ag,AG
+name,kirchdorf be,BE
+name,kirchenthurnen,BE
+name,kirchleerau,AG
+name,kirchlindach,BE
+name,klarsreuti,TG
+name,kleinandelfingen,ZH
+name,kleinbosingen,FR
+name,kleindietwil,BE
+name,kleindottingen,AG
+name,kleine scheidegg,BE
+name,kleingurmels,FR
+name,kleinlutzel,SO
+name,kleinwangen,LU
+name,klingnau,AG
+name,klontal,GL
+name,kloster fahr,AG
+name,klosters,GR
+name,klosters dorf,GR
+name,kloten,ZH
+name,knonau,ZH
+name,knutwil,LU
+name,koblenz,AG
+name,kollbrunn,ZH
+name,kolliken,AG
+name,koniz,BE
+name,konolfingen,BE
+name,koppigen,BE
+name,kottwil,LU
+name,kradolf,TG
+name,kradolf schonenberg,TG
+name,krailigen,BE
+name,krattigen,BE
+name,krauchthal,BE
+name,kreuzlingen,TG
+name,kriechenwil,BE
+name,kriegstetten,SO
+name,kriens,LU
+name,kriessern,SG
+name,krinau,SG
+name,krummenau,SG
+name,kublis,GR
+name,kulmerau,LU
+name,kummertshausen,TG
+name,kunten,AG
+name,kusnacht,ZH
+name,kusnacht zh,ZH
+name,kussnacht,SZ
+name,kussnacht am rigi,SZ
+name,kussnacht sz,SZ
+name,kuttigen,AG
+name,kuttigkofen,SO
+name,kyburg,ZH
+name,kyburg buchegg,SO
+name,l'abbaye,VD
+name,l'abergement,VD
+name,l'auberson,VD
+name,l'etivaz,VD
+name,l'isle,VD
+name,l'orient,VD
+name,la baroche,JU
+name,la brevine,NE
+name,la brillaz,FR
+name,la chatagne,NE
+name,la chaux (cossonay),VD
+name,la chaux de fonds,NE
+name,la chaux des breuleux,JU
+name,la chaux du milieu,NE
+name,la comballaz,VD
+name,la conversion,VD
+name,la corbaz,FR
+name,la cote aux fees,NE
+name,la coudre,VD
+name,la croix (lutry),VD
+name,la croix de rozon,GE
+name,la cure,VD
+name,la ferriere,BE
+name,la forclaz vd,VD
+name,la forclaz vs,VS
+name,la fouly,VS
+name,la fouly vs,VS
+name,la garde (sembrancher),VS
+name,la grande beroche,NE
+name,la heutte,BE
+name,la joux,FR
+name,la joux fr,FR
+name,la lecherette,VD
+name,la magne,FR
+name,la neirigue,FR
+name,la neuveville,BE
+name,la place (ayent),VS
+name,la plaine,GE
+name,la praz,VD
+name,la punt chamues ch,GR
+name,la rippe,VD
+name,la roche,FR
+name,la roche fr,FR
+name,la rosa,GR
+name,la russille,VD
+name,la sage,VS
+name,la sagne,NE
+name,la sagne (ste croix),VD
+name,la sagne ne,NE
+name,la sarraz,VD
+name,la sonnaz,FR
+name,la tanne,BE
+name,la tine,VD
+name,la tour,VS
+name,la tour de peilz,VD
+name,la tour de treme,FR
+name,la tour vs,VS
+name,la tzoumaz,VS
+name,la vernaz (les agettes),VS
+name,la verrerie,FR
+name,la vraconnaz,VD
+name,la vue des alpes,NE
+name,laax,GR
+name,laax gr,GR
+name,lachen,SZ
+name,lachen sz,SZ
+name,laconnex,GE
+name,ladir,GR
+name,lajoux,JU
+name,lajoux ju,JU
+name,lalden,VS
+name,lamboing,BE
+name,lamone,TI
+name,lampenberg,BL
+name,lamperswil,TG
+name,lamperswil tg,TG
+name,lancy,GE
+name,landiswil,BE
+name,landquart,GR
+name,landschlacht,TG
+name,langenbruck,BL
+name,langenbuhl,BE
+name,langendorf,SO
+name,langenthal,BE
+name,langnau am albis,ZH
+name,langnau b. reiden,LU
+name,langnau im emmental,BE
+name,langrickenbach,TG
+name,langwies,GR
+name,langwiesen,ZH
+name,lanna,VS
+name,lanterswil,TG
+name,lantsch/lenz,GR
+name,lanzenhausern,BE
+name,lanzenneunforn,TG
+name,largario,TI
+name,latena,NE
+name,latsch,GR
+name,latterbach,BE
+name,latti,BE
+name,lauenen,BE
+name,lauenen b. gstaad,BE
+name,lauerz,SZ
+name,laufelfingen,BL
+name,laufen,BL
+name,laufen uhwiesen,ZH
+name,laufenburg,AG
+name,laupen,BE
+name,laupen be,BE
+name,laupen zh,ZH
+name,laupersdorf,SO
+name,lauperswil,BE
+name,laura,GR
+name,lausanne,VD
+name,lausen,BL
+name,lauterbrunnen,BE
+name,lauwil,BL
+name,lavertezzo,TI
+name,lavey les bains,VD
+name,lavey morcles,VD
+name,lavey village,VD
+name,lavigny,VD
+name,lavin,GR
+name,lavizzara,TI
+name,lavorgo,TI
+name,lax,VS
+name,le bemont,JU
+name,le bemont ju,JU
+name,le brassus,VD
+name,le brouillet,NE
+name,le bry,FR
+name,le cerneux pequignot,NE
+name,le chable,VS
+name,le chable vs,VS
+name,le chateau de ste croix,VD
+name,le chatelard,FR
+name,le chatelard pres romont,FR
+name,le chatelard vs,VS
+name,le chenit,VD
+name,le cret du locle,NE
+name,le cret pres semsales,FR
+name,le flon,FR
+name,le fuet,BE
+name,le grand saconnex,GE
+name,le landeron,NE
+name,le lieu,VD
+name,le lignon,GE
+name,le locle,NE
+name,le mont pelerin,VD
+name,le mont sur lausanne,VD
+name,le mouret,FR
+name,le noirmont,JU
+name,le paquier fr,FR
+name,le paquier montbarry,FR
+name,le paquier ne,NE
+name,le peuchapatte,JU
+name,le pont,VD
+name,le predame,JU
+name,le prese,GR
+name,le prevoux,NE
+name,le sechey,VD
+name,le sentier,VD
+name,le sepey,VD
+name,le solliat,VD
+name,le tretien,VS
+name,le vaud,VD
+name,lechelles,FR
+name,leggia,GR
+name,leibstadt,AG
+name,leimbach ag,AG
+name,leimbach tg,TG
+name,leimiswil,BE
+name,leissigen,BE
+name,lema,TI
+name,lenggenwil,SG
+name,lengnau ag,AG
+name,lengnau be,BE
+name,lengwil,TG
+name,lenk,BE
+name,lenk im simmental,BE
+name,lens,VS
+name,lentigny,FR
+name,lenzburg,AG
+name,lenzerheide/lai,GR
+name,leontica,TI
+name,les acacias,GE
+name,les agettes,VS
+name,les avanchets,GE
+name,les avants,VD
+name,les bayards,NE
+name,les bioux,VD
+name,les bois,JU
+name,les brenets,NE
+name,les breuleux,JU
+name,les charbonnieres,VD
+name,les clees,VD
+name,les collons,VS
+name,les crosets,VS
+name,les cullayes,VD
+name,les diablerets,VD
+name,les ecasseys,FR
+name,les emibois,JU
+name,les enfers,JU
+name,les evouettes,VS
+name,les friques,FR
+name,les geneveys sur coffrane,NE
+name,les genevez,JU
+name,les genevez ju,JU
+name,les giettes,VS
+name,les granges (salvan),VS
+name,les hauderes,VS
+name,les hauts geneveys,NE
+name,les marecottes,VS
+name,les mayens de sion,VS
+name,les montets,FR
+name,les monts de corsier,VD
+name,les monts de pully,VD
+name,les mosses,VD
+name,les moulins,VD
+name,les moulins vs (liddes),VS
+name,les paccots,FR
+name,les planchettes,NE
+name,les plans sur bex,VD
+name,les pommerats,JU
+name,les pontins,BE
+name,les ponts de martel,NE
+name,les posses sur bex,VD
+name,les pres d'orvin,BE
+name,les rasses,VD
+name,les reussilles,BE
+name,les sagnettes,NE
+name,les sciernes d'albeuve,FR
+name,les tailleres,NE
+name,les tavernes,VD
+name,les thioleyres,VD
+name,les valettes (bovernier),VS
+name,les verines (chamoson),VS
+name,les verrieres,NE
+name,les vieux pres,NE
+name,lessoc,FR
+name,leuggelbach,GL
+name,leuggern,AG
+name,leuk,VS
+name,leuk stadt,VS
+name,leukerbad,VS
+name,leutwil,AG
+name,leuzigen,BE
+name,levron,VS
+name,leysin,VD
+name,leytron,VS
+name,li curt,GR
+name,libingen,SG
+name,lichtensteig,SG
+name,liddes,VS
+name,liebefeld,BE
+name,liebistorf,FR
+name,liedertswil,BL
+name,lieffrens,FR
+name,lieli,LU
+name,lieli lu,LU
+name,lienz,SG
+name,liesberg,BL
+name,liesberg dorf,BL
+name,liestal,BL
+name,liez (st martin),VS
+name,ligerz,BE
+name,lignerolle,VD
+name,lignieres,NE
+name,ligornetto,TI
+name,limpach,BE
+name,lindau,ZH
+name,linden,BE
+name,linescio,TI
+name,linthal,GL
+name,lipperswil,TG
+name,lippoldswilen,TG
+name,littenheid,TG
+name,litziruti,GR
+name,lobsigen,BE
+name,loc,VS
+name,locarno,TI
+name,loco,TI
+name,lodano,TI
+name,lodrino,TI
+name,lohn ammannsegg,SO
+name,lohn gr,GR
+name,lohn sh,SH
+name,lohningen,SH
+name,lohnstorf,BE
+name,lommenschwil,SG
+name,lommis,TG
+name,lommiswil,SO
+name,lonay,VD
+name,longirod,VD
+name,lopagno,TI
+name,losone,TI
+name,lossy,FR
+name,lostallo,GR
+name,lostorf,SO
+name,lottigna,TI
+name,lotzwil,BE
+name,lourtier,VS
+name,lovatens,VD
+name,lovens,FR
+name,loveresse,BE
+name,luc (ayent),VS
+name,lucelle,JU
+name,lucens,VD
+name,luchingen,SG
+name,luchsingen,GL
+name,ludiano,TI
+name,luen,GR
+name,lufingen,ZH
+name,lugaggia,TI
+name,lugano,TI
+name,lugnez,JU
+name,lugnorre,FR
+name,luins,VD
+name,lully fr,FR
+name,lully vd,VD
+name,lumbrein,GR
+name,lumino,TI
+name,lumnezia,GR
+name,lunden,GR
+name,lungern,OW
+name,lupfig,AG
+name,lupsingen,BL
+name,lurtigen,FR
+name,luscherz,BE
+name,lussery villars,VD
+name,lusslingen,SO
+name,lusslingen nennigkofen,SO
+name,lussy,FR
+name,lussy fr,FR
+name,lussy sur morges,VD
+name,lustdorf,TG
+name,lustmuhle,AR
+name,luterbach,SO
+name,luterkofen,SO
+name,luterkofen ichertswil,SO
+name,luterswil,SO
+name,luthern,LU
+name,luthern bad,LU
+name,lutisburg,SG
+name,lutisburg station,SG
+name,lutry,VD
+name,lutschental,BE
+name,lutzelfluh,BE
+name,lutzelfluh goldbach,BE
+name,lutzenberg,AR
+name,luven,GR
+name,luzein,GR
+name,luzern,LU
+name,lyss,BE
+name,lyssach,BE
+name,madetswil,ZH
+name,madiswil,BE
+name,madonna del piano,TI
+name,madris vermol,SG
+name,madulain,GR
+name,magadino,TI
+name,magden,AG
+name,magenwil,AG
+name,maggia,TI
+name,magglingen/macolin,BE
+name,magliaso,TI
+name,maglio di colla,TI
+name,magnedens,FR
+name,maienfeld,GR
+name,mairengo,TI
+name,maisprach,BL
+name,maladers,GR
+name,malans,GR
+name,malans gr,GR
+name,malans sg,SG
+name,malix,GR
+name,malleray,BE
+name,maloja,GR
+name,malters,LU
+name,malvaglia,TI
+name,mamishaus,BE
+name,mammern,TG
+name,mandach,AG
+name,mannedorf,ZH
+name,mannenbach salenstein,TG
+name,mannens,FR
+name,manno,TI
+name,maracon,VD
+name,marbach lu,LU
+name,marbach sg,SG
+name,marchissy,VD
+name,mariastein,SO
+name,marin epagnier,NE
+name,marly,FR
+name,marmorera,GR
+name,marnand,VD
+name,maroggia,TI
+name,marolta,TI
+name,marsens,FR
+name,marstetten,TG
+name,marthalen,ZH
+name,martherenges,VD
+name,martigny,VS
+name,martigny combe,VS
+name,martigny croix,VS
+name,martina,GR
+name,martisberg,VS
+name,marwil,TG
+name,maschwanden,ZH
+name,mase,VS
+name,masein,GR
+name,maseltrangen,SG
+name,massagno,TI
+name,massongex,VS
+name,massonnens,FR
+name,mastrils,GR
+name,mathod,VD
+name,mathon,GR
+name,matran,FR
+name,matt,GL
+name,matten (st. stephan),BE
+name,matten b. interlaken,BE
+name,matten bei interlaken,BE
+name,mattstetten,BE
+name,mattwil,TG
+name,matzendorf,SO
+name,matzingen,TG
+name,mauborget,VD
+name,mauensee,LU
+name,maules,FR
+name,maur,ZH
+name,mauraz,VD
+name,mauren,TG
+name,mauren tg,TG
+name,mayens de chamoson,VS
+name,medeglia,TI
+name,medel (lucmagn),GR
+name,medels im rheinwald,GR
+name,meggen,LU
+name,mehlsecken,LU
+name,meien,UR
+name,meienberg,AG
+name,meienried,BE
+name,meierskappel,LU
+name,meikirch,BE
+name,meilen,ZH
+name,meinier,GE
+name,meinisberg,BE
+name,meiringen,BE
+name,meisterschwanden,AG
+name,melano,TI
+name,melchnau,BE
+name,melchsee frutt,OW
+name,melchtal,OW
+name,melide,TI
+name,mellikon,AG
+name,mellingen,AG
+name,mels,SG
+name,meltingen,SO
+name,mendrisio,TI
+name,menieres,FR
+name,menzberg,LU
+name,menzengrut,ZH
+name,menziken,AG
+name,menzingen,ZG
+name,menznau,LU
+name,menzonio,TI
+name,merenschwand,AG
+name,mergoscia,TI
+name,meride,TI
+name,merishausen,SH
+name,merligen,BE
+name,merlischachen,SZ
+name,mervelier,JU
+name,merzligen,BE
+name,mesocco,GR
+name,messen,SO
+name,mettau,AG
+name,mettauertal,AG
+name,mettembert,JU
+name,mettendorf,TG
+name,mettendorf tg,TG
+name,mettlen,TG
+name,mettmenstetten,ZH
+name,metzerlen,SO
+name,metzerlen mariastein,SO
+name,mex vd,VD
+name,mex vs,VS
+name,meyriez,FR
+name,meyrin,GE
+name,mezery pres donneloye,VD
+name,mezieres fr,FR
+name,mezieres vd,VD
+name,mezzovico,TI
+name,mezzovico vira,TI
+name,middes,FR
+name,miecourt,JU
+name,miege,VS
+name,mies,VD
+name,miex,VS
+name,miglieglia,TI
+name,milken,BE
+name,milvignes,NE
+name,minusio,TI
+name,miralago,GR
+name,mirchel,BE
+name,miseriez (salins),VS
+name,misery,FR
+name,misery courtion,FR
+name,mission,VS
+name,missy,VD
+name,mitlodi,GL
+name,mittelhausern,BE
+name,mogelsberg,SG
+name,moghegno,TI
+name,mohlin,AG
+name,moiry,VD
+name,moiry vd,VD
+name,molare,TI
+name,moleno,TI
+name,moleson sur gruyeres,FR
+name,molinis,GR
+name,mollens vd,VD
+name,mollens vs,VS
+name,mollie margot,VD
+name,mollis,GL
+name,molondin,VD
+name,mols,SG
+name,mon,GR
+name,monchaltorf,ZH
+name,moneto,TI
+name,monible,BE
+name,monnaz,VD
+name,mont crosin,BE
+name,mont de buttes,NE
+name,mont la ville,VD
+name,mont noble,VS
+name,mont soleil,BE
+name,mont sur rolle,VD
+name,mont tramelan,BE
+name,mont vully,FR
+name,montagne de courtelary,BE
+name,montagne de sonvilier,BE
+name,montagnola,TI
+name,montagnon (leytron),VS
+name,montagny,FR
+name,montagny fr,FR
+name,montagny la ville,FR
+name,montagny les monts,FR
+name,montagny pres yverdon,VD
+name,montalchez,NE
+name,montana,VS
+name,montanaire,VD
+name,montaubion chardonney,VD
+name,montavon,JU
+name,montbovon,FR
+name,montbrelloz,FR
+name,montcherand,VD
+name,monte,TI
+name,monte carasso,TI
+name,monteceneri,TI
+name,monteggio,TI
+name,montenol,JU
+name,montet (broye),FR
+name,montet (glane),FR
+name,montevraz,FR
+name,montezillon,NE
+name,montfaucon,JU
+name,montfavergier,JU
+name,monthal,AG
+name,montherod,VD
+name,monthey,VS
+name,montignez,JU
+name,montilliez,VD
+name,montlingen,SG
+name,montmagny,VD
+name,montmelon,JU
+name,montmollin,NE
+name,montpreveyres,VD
+name,montreux,VD
+name,montricher,VD
+name,montsevelier,JU
+name,moosleerau,AG
+name,moosseedorf,BE
+name,morbio inferiore,TI
+name,morbio superiore,TI
+name,morcles,VD
+name,morcote,TI
+name,morel,VS
+name,morel filet,VS
+name,morens,FR
+name,morens fr,FR
+name,morgarten,ZG
+name,morges,VD
+name,morgins,VS
+name,morigen,BE
+name,moriken,AG
+name,moriken ag,AG
+name,moriken wildegg,AG
+name,morissen,GR
+name,morlens,FR
+name,morlon,FR
+name,morrens,VD
+name,morrens vd,VD
+name,morschach,SZ
+name,morschwil,SG
+name,mosen,LU
+name,mosnang,SG
+name,mosogno,TI
+name,mossel,FR
+name,motier (vully),FR
+name,motiers,NE
+name,motiers ne,NE
+name,motschwil,BE
+name,motto (blenio),TI
+name,moudon,VD
+name,moutier,JU
+name,movelier,JU
+name,mugena,TI
+name,muggio,TI
+name,muhen,AG
+name,muhlau,AG
+name,muhlebach (goms),VS
+name,muhleberg,BE
+name,muhledorf be,BE
+name,muhledorf so,SO
+name,muhlehorn,GL
+name,muhlethal,AG
+name,muhlethurnen,BE
+name,muhlruti,SG
+name,mulchi,BE
+name,mulegns,GR
+name,mulenen,BE
+name,mullheim,TG
+name,mullheim dorf,TG
+name,mullheim wigoltingen,TG
+name,mulligen,AG
+name,mumliswil,SO
+name,mumliswil ramiswil,SO
+name,mumpe medel,GR
+name,mumpf,AG
+name,munchenbuchsee,BE
+name,munchenstein,BL
+name,munchenwiler,BE
+name,munchringen,BE
+name,munchwilen ag,AG
+name,munchwilen tg,TG
+name,mund,VS
+name,munsingen,BE
+name,munster,VS
+name,munster vs,VS
+name,munsterlingen,TG
+name,muntelier,FR
+name,muntogna da schons,GR
+name,muntschemier,BE
+name,muolen,SG
+name,muotathal,SZ
+name,mur (vully) fr,FR
+name,mur (vully) vd,VD
+name,muralto,TI
+name,muraz (collombey),VS
+name,muraz (sierre),VS
+name,murg,SG
+name,murgenthal,AG
+name,muri,AG
+name,muri ag,AG
+name,muri b. bern,BE
+name,muri bei bern,BE
+name,muriaux,JU
+name,murist,FR
+name,murren,BE
+name,murten,FR
+name,murzelen,BE
+name,muselbach,SG
+name,mustair,GR
+name,muswangen,LU
+name,mutrux,VD
+name,mutten,GR
+name,muttenz,BL
+name,muzzano,TI
+name,nafels,GL
+name,nanikon,ZH
+name,nassen,SG
+name,nassenwil,ZH
+name,naters,VS
+name,nax,VS
+name,naz,VD
+name,nebikon,LU
+name,necker,SG
+name,neckertal,SG
+name,neerach,ZH
+name,neftenbach,ZH
+name,neggio,TI
+name,neirivue,FR
+name,nemiaz (chamoson),VS
+name,nendaz,VS
+name,nennigkofen,SO
+name,nenzlingen,BL
+name,neschwil,ZH
+name,nesselnbach,AG
+name,nesslau,SG
+name,netstal,GL
+name,neu st. johann,SG
+name,neuageri,ZG
+name,neuchatel,NE
+name,neudorf,LU
+name,neuendorf,SO
+name,neuenegg,BE
+name,neuenhof,AG
+name,neuenkirch,LU
+name,neuhaus,SG
+name,neuhaus sg,SG
+name,neuhausen am rheinfall,SH
+name,neuheim,ZG
+name,neukirch (egnach),TG
+name,neukirch an der thur,TG
+name,neunforn,TG
+name,neunkirch,SH
+name,neuwilen,TG
+name,neyruz,FR
+name,neyruz fr,FR
+name,neyruz sur moudon,VD
+name,nidau,BE
+name,nidfurn,GL
+name,niederbipp,BE
+name,niederbuchsiten,SO
+name,niederburen,SG
+name,niederdorf,BL
+name,niedergampel,VS
+name,niedergesteln,VS
+name,niederglatt,ZH
+name,niederglatt sg,SG
+name,niederglatt zh,ZH
+name,niedergosgen,SO
+name,niederhasli,ZH
+name,niederhelfenschwil,SG
+name,niederhunigen,BE
+name,niederlenz,AG
+name,niedermuhlern,BE
+name,niederneunforn,TG
+name,niederonz,BE
+name,niederosch,BE
+name,niederrickenbach,NW
+name,niederried b. interlaken,BE
+name,niederried b. kallnach,BE
+name,niederried bei interlaken,BE
+name,niederrohrdorf,AG
+name,niederscherli,BE
+name,niederstetten,SG
+name,niederstocken,BE
+name,niederteufen,AR
+name,niederurnen,GL
+name,niederuzwil,SG
+name,niederwald,VS
+name,niederwangen b. bern,BE
+name,niederweningen,ZH
+name,niederwil ag,AG
+name,niederwil sg,SG
+name,niederwil so,SO
+name,nierlet les bois,FR
+name,niouc,VS
+name,niva (vallemaggia),TI
+name,nivo,TI
+name,noble contree,VS
+name,nods,BE
+name,noes,VS
+name,noflen,BE
+name,noflen be,BE
+name,nohl,ZH
+name,noiraigue,NE
+name,noreaz,FR
+name,nottwil,LU
+name,novaggio,TI
+name,novalles,VD
+name,novazzano,TI
+name,noville,VD
+name,nufenen,GR
+name,nuglar,SO
+name,nuglar st. pantaleon,SO
+name,nunningen,SO
+name,nurensdorf,ZH
+name,nussbaumen ag,AG
+name,nussbaumen tg,TG
+name,nusshof,BL
+name,nuvilly,FR
+name,nyon,VD
+name,obburgen,NW
+name,oberaach,TG
+name,oberageri,ZG
+name,oberarth,SZ
+name,oberbalm,BE
+name,oberbalmberg,SO
+name,oberbipp,BE
+name,oberbuchsiten,SO
+name,oberburen,SG
+name,oberburg,BE
+name,oberbussnang,TG
+name,oberbutschel,BE
+name,oberdiessbach,BE
+name,oberdorf bl,BL
+name,oberdorf nw,NW
+name,oberdorf so,SO
+name,oberegg,AI
+name,oberembrach,ZH
+name,oberems,VS
+name,oberengstringen,ZH
+name,oberentfelden,AG
+name,oberflachs,AG
+name,oberfrittenbach,BE
+name,obergerlafingen,SO
+name,obergesteln,VS
+name,oberglatt,ZH
+name,oberglatt zh,ZH
+name,obergoldbach,BE
+name,obergoms,VS
+name,obergosgen,SO
+name,oberhallau,SH
+name,oberhasli,ZH
+name,oberhelfenschwil,SG
+name,oberhof,AG
+name,oberhofen ag,AG
+name,oberhofen am thunersee,BE
+name,oberhofen tg,TG
+name,oberhunigen,BE
+name,oberiberg,SZ
+name,oberkirch,LU
+name,oberkirch lu,LU
+name,oberkulm,AG
+name,oberlangenegg,BE
+name,oberlunkhofen,AG
+name,obermumpf,AG
+name,obermutten,GR
+name,obernau,LU
+name,oberneunforn,TG
+name,oberohringen,ZH
+name,oberonz,BE
+name,oberosch,BE
+name,oberramsern,SO
+name,oberrickenbach,NW
+name,oberried,FR
+name,oberried am brienzersee,BE
+name,oberried fr,FR
+name,oberrieden,ZH
+name,oberriet,SG
+name,oberriet sg,SG
+name,oberrindal,SG
+name,oberrohrdorf,AG
+name,oberruti,AG
+name,obersaxen,GR
+name,obersaxen mundaun,GR
+name,oberschan,SG
+name,oberschrot,FR
+name,obersiggenthal,AG
+name,oberstammheim,ZH
+name,obersteckholz,BE
+name,oberstetten,SG
+name,oberstocken,BE
+name,oberterzen,SG
+name,oberthal,BE
+name,oberurnen,GL
+name,oberuzwil,SG
+name,oberwald,VS
+name,oberwangen,TG
+name,oberwangen b. bern,BE
+name,oberwangen tg,TG
+name,oberweningen,ZH
+name,oberwil,BL
+name,oberwil (dagerlen),ZH
+name,oberwil b. buren,BE
+name,oberwil b. zug,ZG
+name,oberwil bei buren,BE
+name,oberwil bl,BL
+name,oberwil im simmental,BE
+name,oberwil lieli,AG
+name,obfelden,ZH
+name,obstalden,GL
+name,ochlenberg,BE
+name,ocourt,JU
+name,odogno,TI
+name,oekingen,SO
+name,oensingen,SO
+name,oerlingen,ZH
+name,oeschenbach,BE
+name,oeschgen,AG
+name,oeschseite,BE
+name,oetwil am see,ZH
+name,oetwil an der limmat,ZH
+name,oey,BE
+name,oftringen,AG
+name,ogens,VD
+name,oggio,TI
+name,ohmstal,LU
+name,olivone,TI
+name,ollon,VD
+name,ollon vd,VD
+name,ollon vs,VS
+name,olsberg,AG
+name,olten,SO
+name,oltingen,BL
+name,onex,GE
+name,onnens fr,FR
+name,onnens vd,VD
+name,onsernone,TI
+name,opfershofen,TG
+name,opfershofen tg,TG
+name,opfertshofen,SH
+name,opfertshofen sh,SH
+name,opfikon,ZH
+name,oppens,VD
+name,oppikon,TG
+name,oppligen,BE
+name,orbe,VD
+name,orges,VD
+name,origlio,TI
+name,ormalingen,BL
+name,ormont dessous,VD
+name,ormont dessus,VD
+name,orny,VD
+name,oron,VD
+name,oron la ville,VD
+name,oron le chatel,VD
+name,orpund,BE
+name,orselina,TI
+name,orsieres,VS
+name,orsonnens,FR
+name,ortschwaben,BE
+name,orvin,BE
+name,orzens,VD
+name,oschwand,BE
+name,osco,TI
+name,osogna,TI
+name,ospizio bernina,GR
+name,ossingen,ZH
+name,osterfingen,SH
+name,ostermundigen,BE
+name,otelfingen,ZH
+name,othmarsingen,AG
+name,ottenbach,ZH
+name,ottikon (gossau,ZH
+name,ottikon (gossau zh,ZH
+name,ottikon b. kemptthal,ZH
+name,ottoberg,TG
+name,oulens sous echallens,VD
+name,oulens sur lucens,VD
+name,ovronnaz,VS
+name,pagig,GR
+name,pailly,VD
+name,palagnedra,TI
+name,palasuit (liddes),VS
+name,palezieux,VD
+name,palezieux village,VD
+name,pambio noranco,TI
+name,pampigny,VD
+name,panex,VD
+name,pany,GR
+name,paradiso,TI
+name,parpan,GR
+name,parsonz,GR
+name,paspels,GR
+name,passugg,GR
+name,paudex,VD
+name,payerne,VD
+name,pazzallo,TI
+name,peccia,TI
+name,pedrinate,TI
+name,peiden,GR
+name,peist,GR
+name,peney le jorat,VD
+name,pensier,FR
+name,penthalaz,VD
+name,penthaz,VD
+name,penthereaz,VD
+name,perlen,LU
+name,perly,GE
+name,perly certoux,GE
+name,perrefitte,BE
+name,perroy,VD
+name,personico,TI
+name,pery,BE
+name,pery la heutte,BE
+name,peseux,NE
+name,petit lancy,GE
+name,petit martel,NE
+name,petit val,BE
+name,petit vicheres (liddes),VS
+name,peyres possens,VD
+name,pfafers,SG
+name,pfaffhausen,ZH
+name,pfaffikon,ZH
+name,pfaffikon sz,SZ
+name,pfaffikon zh,ZH
+name,pfaffnau,LU
+name,pfeffikon,LU
+name,pfeffikon lu,LU
+name,pfeffingen,BL
+name,pfungen,ZH
+name,pfyn,TG
+name,piandera paese,TI
+name,pianezzo,TI
+name,piano di peccia,TI
+name,piazzogna,TI
+name,pierrafortscha,FR
+name,pieterlen,BE
+name,pignia,GR
+name,pigniu,GR
+name,pilatus kulm,OW
+name,piotta,TI
+name,pitasch,GR
+name,pizy,VD
+name,plaffeien,FR
+name,plagne,BE
+name,plan les ouates,GE
+name,plasselb,FR
+name,plateau de diesse,BE
+name,platta,GR
+name,plaun da lej,GR
+name,pleigne,JU
+name,pleujouse,JU
+name,plons,SG
+name,pohlern,BE
+name,poliez le grand,VD
+name,poliez pittet,VD
+name,pollegio,TI
+name,pompaples,VD
+name,pomy,VD
+name,pont (veveyse),FR
+name,pont de la morge (sion),VS
+name,pont en ogoz,FR
+name,pont la ville,FR
+name,ponte capriasca,TI
+name,ponte tresa,TI
+name,pontenet,BE
+name,ponthaux,FR
+name,ponto valentino,TI
+name,pontresina,GR
+name,porrentruy,JU
+name,porsel,FR
+name,port,BE
+name,port valais,VS
+name,portalban,FR
+name,portein,GR
+name,porto ronco,TI
+name,porza,TI
+name,posat,FR
+name,poschiavo,GR
+name,posieux,FR
+name,praden,GR
+name,pragg jenaz,GR
+name,prahins,VD
+name,prangins,VD
+name,praratoud,FR
+name,prato (leventina),TI
+name,prato sornico,TI
+name,pratteln,BL
+name,pratval,GR
+name,pravidondaz (salins),VS
+name,praz,GR
+name,praz (vully),FR
+name,praz de fort,VS
+name,preda,GR
+name,pregassona,TI
+name,pregny chambesy,GE
+name,preles,BE
+name,premier,VD
+name,preonzo,TI
+name,presinge,GE
+name,preverenges,VD
+name,prevondavaux,FR
+name,prevonloup,VD
+name,prez,FR
+name,prez vers noreaz,FR
+name,prez vers siviriez,FR
+name,prilly,VD
+name,pringy,FR
+name,produit (leytron),VS
+name,progens,FR
+name,promasens,FR
+name,promontogno,GR
+name,prosito,TI
+name,provence,VD
+name,prugiasco,TI
+name,pugerna,TI
+name,puidoux,VD
+name,pully,VD
+name,puplinge,GE
+name,pura,TI
+name,purasca,TI
+name,pusserein,GR
+name,putz,GR
+name,quarten,SG
+name,quartino,TI
+name,quinten,SG
+name,quinto,TI
+name,rabius,GR
+name,radelfingen,BE
+name,radelfingen b. aarberg,BE
+name,rafz,ZH
+name,rain,LU
+name,ramersberg,OW
+name,ramismuhle,ZH
+name,ramiswil,SO
+name,ramlinsburg,BL
+name,ramosch,GR
+name,ramsei,BE
+name,ramsen,SH
+name,rancate,TI
+name,rances,VD
+name,randa,VS
+name,randogne,VS
+name,ranfluh,BE
+name,ranzo,TI
+name,raperswilen,TG
+name,rapperswil be,BE
+name,rapperswil jona,SG
+name,rapperswil sg,SG
+name,raron,VS
+name,rasa,TI
+name,ravoire,VS
+name,realp,UR
+name,rebeuvelier,JU
+name,rebevelier,BE
+name,rebstein,SG
+name,recherswil,SO
+name,rechthalten,FR
+name,rechy,VS
+name,reckingen,VS
+name,reckingen vs,VS
+name,reclere,JU
+name,reconvilier,BE
+name,regensberg,ZH
+name,regensdorf,ZH
+name,rehetobel,AR
+name,reichenbach im kandertal,BE
+name,reichenburg,SZ
+name,reiden,LU
+name,reidermoos,LU
+name,reigoldswil,BL
+name,reinach ag,AG
+name,reinach bl,BL
+name,reisiswil,BE
+name,reitnau,AG
+name,rekingen,AG
+name,rekingen ag,AG
+name,remaufens,FR
+name,remetschwil,AG
+name,remigen,AG
+name,renan,BE
+name,renan be,BE
+name,renens,VD
+name,renens vd,VD
+name,rengg,LU
+name,rennaz,VD
+name,retschwil,LU
+name,reute,AR
+name,reute ar,AR
+name,reutigen,BE
+name,reutlingen (winterthur),ZH
+name,reverolle,VD
+name,rhazuns,GR
+name,rheinau,ZH
+name,rheineck,SG
+name,rheinfelden,AG
+name,rheinklingen,TG
+name,rheinsulz,AG
+name,rheinwald,GR
+name,riaz,FR
+name,riazzino,TI
+name,richenthal,LU
+name,richigen,BE
+name,richterswil,ZH
+name,ricken,SG
+name,ricken sg,SG
+name,rickenbach b. schwyz,SZ
+name,rickenbach b. wil,TG
+name,rickenbach bl,BL
+name,rickenbach lu,LU
+name,rickenbach so,SO
+name,rickenbach sulz,ZH
+name,rickenbach tg,TG
+name,rickenbach zh,ZH
+name,ricketwil (winterthur),ZH
+name,riddes,VS
+name,ried (frutigen),BE
+name,ried (muotathal),SZ
+name,ried b. kerzers,FR
+name,ried bei kerzers,FR
+name,ried brig,VS
+name,ried morel,VS
+name,rieden ag,AG
+name,rieden sg,SG
+name,riederalp,VS
+name,riedern,GL
+name,riedholz,SO
+name,riedikon,ZH
+name,riedstatt,BE
+name,riedt b. erlen,TG
+name,riedtwil,BE
+name,riehen,BS
+name,riein,GR
+name,riet (neftenbach),ZH
+name,rietheim,AG
+name,riex,VD
+name,riffenmatt,BE
+name,rifferswil,ZH
+name,riggisberg,BE
+name,rigi klosterli,SZ
+name,rigi kulm,SZ
+name,rigi scheidegg,SZ
+name,rigi staffel,SZ
+name,riken,AG
+name,riken ag,AG
+name,rikon im tosstal,ZH
+name,ringgenberg,BE
+name,ringgenberg be,BE
+name,ringoldswil,BE
+name,riniken,AG
+name,riom,GR
+name,risch,ZG
+name,ritzingen,VS
+name,riva san vitale,TI
+name,rivaz,VD
+name,rive haute (liddes),VS
+name,riveo,TI
+name,rivera,TI
+name,riviera,TI
+name,rizenbach,BE
+name,robasacco,TI
+name,roche,VD
+name,roche d'or,JU
+name,roche vd,VD
+name,rochefort,NE
+name,roches,BE
+name,roches be,BE
+name,rocourt,JU
+name,rodels,GR
+name,rodersdorf,SO
+name,rodi fiesso,TI
+name,roggenburg,BL
+name,roggliswil,LU
+name,roggwil be,BE
+name,roggwil tg,TG
+name,rohr b. olten,SO
+name,rohrbach,BE
+name,rohrbachgraben,BE
+name,rohrmatt,LU
+name,rolle,VD
+name,romainmotier,VD
+name,romainmotier envy,VD
+name,romairon,VD
+name,romanel sur lausanne,VD
+name,romanel sur morges,VD
+name,romanens,FR
+name,romanshorn,TG
+name,rombach,AG
+name,romerswil,LU
+name,romerswil lu,LU
+name,romont be,BE
+name,romont fr,FR
+name,romoos,LU
+name,rona,GR
+name,ronco sopra ascona,TI
+name,rongellen,GR
+name,root,LU
+name,root d4,LU
+name,ropraz,VD
+name,rorbas,ZH
+name,rorschach,SG
+name,rorschacherberg,SG
+name,roschenz,BL
+name,rosenlaui,BE
+name,rossa,GR
+name,rossemaison,JU
+name,rossenges,VD
+name,rossens fr,FR
+name,rossens vd,VD
+name,rosshausern,BE
+name,rossiniere,VD
+name,rossruti,SG
+name,rossura,TI
+name,rosswald,VS
+name,rothenbach herzogenbuchsee,BE
+name,rothenbach im emmental,BE
+name,rothenbrunnen,GR
+name,rothenburg,LU
+name,rothenfluh,BL
+name,rothenhausen,TG
+name,rothenthurm,SZ
+name,rothrist,AG
+name,rothwald,VS
+name,rotkreuz,ZG
+name,rottenschwil,AG
+name,rougemont,VD
+name,roveredo gr,GR
+name,roveredo ti,TI
+name,rovio,TI
+name,rovray,VD
+name,rubigen,BE
+name,ruderswil,BE
+name,rudlingen,SH
+name,rudolfingen,ZH
+name,rudolfstetten,AG
+name,rudolfstetten friedlisberg,AG
+name,rudtligen,BE
+name,rudtligen alchenfluh,BE
+name,rue,FR
+name,ruedisbach,BE
+name,rueggisberg,BE
+name,ruegsau,BE
+name,ruegsauschachen,BE
+name,ruegsbach,BE
+name,rueras,GR
+name,rueterswil,SG
+name,rueun,GR
+name,rueyres,VD
+name,rueyres les pres,FR
+name,rueyres st laurent,FR
+name,rueyres treyfayes,FR
+name,rufenach,AG
+name,rufenach ag,AG
+name,rufenacht,BE
+name,rufenacht be,BE
+name,rufi,SG
+name,rumendingen,BE
+name,rumikon,AG
+name,rumikon ag,AG
+name,rumisberg,BE
+name,rumlang,ZH
+name,rumligen,BE
+name,rumlikon,ZH
+name,rumlingen,BL
+name,runenberg,BL
+name,rupperswil,AG
+name,ruppoldsried,BE
+name,ruschegg,BE
+name,ruschegg gambach,BE
+name,ruschegg heubach,BE
+name,ruschein,GR
+name,ruschlikon,ZH
+name,russikon,ZH
+name,russin,GE
+name,russo,TI
+name,russy,FR
+name,ruswil,LU
+name,ruthi,SG
+name,ruthi (rheintal),SG
+name,ruthi sg,SG
+name,ruti b. buren,BE
+name,ruti b. lyssach,BE
+name,ruti b. riggisberg,BE
+name,ruti bei buren,BE
+name,ruti bei lyssach,BE
+name,ruti gl,GL
+name,ruti zh,ZH
+name,rutihof,AG
+name,rutli,UR
+name,rutschelen,BE
+name,rutschwil (dagerlen),ZH
+name,ruttenen,SO
+name,ruvigliana,TI
+name,s chanf,GR
+name,s. antonino,TI
+name,s. antonio (val morobbia),TI
+name,s. benedetg,GR
+name,s. bernardino,GR
+name,s. carlo (poschiavo),GR
+name,s. carlo (val bavona),TI
+name,s. nazzaro,TI
+name,s. pietro,TI
+name,s. vittore,GR
+name,saanen,BE
+name,saanenmoser,BE
+name,saas almagell,VS
+name,saas balen,VS
+name,saas fee,VS
+name,saas grund,VS
+name,saas im prattigau,GR
+name,sachseln,OW
+name,saclentse,VS
+name,safenwil,AG
+name,safien platz,GR
+name,safiental,GR
+name,safnern,BE
+name,sagno,TI
+name,sagogn,GR
+name,saicourt,BE
+name,saignelegier,JU
+name,saillon,VS
+name,saint aubin,FR
+name,saint aubin fr,FR
+name,saint barthelemy,VD
+name,saint barthelemy vd,VD
+name,saint brais,JU
+name,saint cergue,VD
+name,saint george,VD
+name,saint gingolph,VS
+name,saint imier,BE
+name,saint leonard,VS
+name,saint livres,VD
+name,saint martin fr,FR
+name,saint martin vs,VS
+name,saint maurice,VS
+name,saint oyens,VD
+name,saint prex,VD
+name,saint saphorin (lavaux),VD
+name,saint sulpice,VD
+name,saint sulpice vd,VD
+name,sainte croix,VD
+name,sala capriasca,TI
+name,saland,ZH
+name,salavaux,VD
+name,salenstein,TG
+name,sales,FR
+name,sales (gruyere),FR
+name,salez,SG
+name,salgesch,VS
+name,salins,VS
+name,salmsach,TG
+name,salorino,TI
+name,salouf,GR
+name,salvan,VS
+name,salvenach,FR
+name,samedan,GR
+name,samnaun,GR
+name,samnaun compatsch,GR
+name,samnaun dorf,GR
+name,samstagern,ZH
+name,san vittore,GR
+name,sant'antonino,TI
+name,santa maria in calanca,GR
+name,sargans,SG
+name,sariswil,BE
+name,sarmenstorf,AG
+name,sarn,GR
+name,sarnen,OW
+name,sarreyer,VS
+name,sarzens,VD
+name,sassel,VD
+name,satigny,GE
+name,sattel,SZ
+name,saubraz,VD
+name,sauge,BE
+name,saulcy,JU
+name,saules,NE
+name,saules be,BE
+name,savagnier,NE
+name,saviese,VS
+name,savigny,VD
+name,savognin,GR
+name,savosa,TI
+name,sax,SG
+name,saxeten,BE
+name,saxon,VS
+name,saxonne (ayent),VS
+name,says,GR
+name,scareglia,TI
+name,schachen,LU
+name,schachen b. herisau,AR
+name,schachen b. reute,AR
+name,schachen lu,LU
+name,schaffhausen,SH
+name,schafhausen im emmental,BE
+name,schafisheim,AG
+name,schalchen,ZH
+name,schalunen,BE
+name,schangnau,BE
+name,schanis,SG
+name,scharans,GR
+name,scharnachtal,BE
+name,schattdorf,UR
+name,schattenhalb,BE
+name,scheid,GR
+name,schenkon,LU
+name,scherz,AG
+name,scherzingen,TG
+name,scheunen,BE
+name,scheuren,BE
+name,schiers,GR
+name,schindellegi,SZ
+name,schinznach,AG
+name,schinznach bad,AG
+name,schinznach dorf,AG
+name,schlans,GR
+name,schlatt haslen,AI
+name,schlatt tg,TG
+name,schlatt zh,ZH
+name,schlattingen,TG
+name,schleinikon,ZH
+name,schleitheim,SH
+name,schlierbach,LU
+name,schlieren,ZH
+name,schliern b. koniz,BE
+name,schlossrued,AG
+name,schlosswil,BE
+name,schluein,GR
+name,schmerikon,SG
+name,schmidigen muhleweg,BE
+name,schmidshof,TG
+name,schmiedrued,AG
+name,schmitten (albula),GR
+name,schmitten fr,FR
+name,schmitten gr,GR
+name,schnaus,GR
+name,schneisingen,AG
+name,schnottwil,SO
+name,schocherswil,TG
+name,schofflisdorf,ZH
+name,schoftland,AG
+name,schonenbaumgarten,TG
+name,schonenberg,ZH
+name,schonenberg an der thur,TG
+name,schonenberg zh,ZH
+name,schonenbuch,BL
+name,schonenwerd,SO
+name,schongau,LU
+name,schonholzerswilen,TG
+name,schonried,BE
+name,schotz,LU
+name,schubelbach,SZ
+name,schuders,GR
+name,schupbach,BE
+name,schupfart,AG
+name,schupfen,BE
+name,schupfheim,LU
+name,schwaderloch,AG
+name,schwadernau,BE
+name,schwanden,GL
+name,schwanden (sigriswil),BE
+name,schwanden b. brienz,BE
+name,schwanden bei brienz,BE
+name,schwanden gl,GL
+name,schwanden im emmental,BE
+name,schwandi b. schwanden,GL
+name,schwarzenbach (huttwil),BE
+name,schwarzenbach lu,LU
+name,schwarzenbach sg,SG
+name,schwarzenberg,LU
+name,schwarzenberg lu,LU
+name,schwarzenburg,BE
+name,schwarzenegg,BE
+name,schwarzhausern,BE
+name,schwarzsee,FR
+name,schweizersholz,TG
+name,schwellbrunn,AR
+name,schwende,AI
+name,schwende rute,AI
+name,schwenden im diemtigtal,BE
+name,schwendi im weisstannental,SG
+name,schwendibach,BE
+name,schwerzenbach,ZH
+name,schwyz,SZ
+name,scuol,GR
+name,sedeilles,VD
+name,sedrun,GR
+name,seeberg,BE
+name,seedorf be,BE
+name,seedorf ur,UR
+name,seegraben,ZH
+name,seehof,BE
+name,seelisberg,UR
+name,seengen,AG
+name,seewen,SO
+name,seewen so,SO
+name,seewen sz,SZ
+name,seewil,BE
+name,seewis dorf,GR
+name,seewis im prattigau,GR
+name,seewis pardisla,GR
+name,seewis schmitten,GR
+name,seftigen,BE
+name,segnas,GR
+name,seigneux,VD
+name,seiry,FR
+name,seleute,JU
+name,selkingen,VS
+name,selma,GR
+name,seltisberg,BL
+name,selzach,SO
+name,sembrancher,VS
+name,sementina,TI
+name,semione,TI
+name,sempach,LU
+name,sempach station,LU
+name,semsales,FR
+name,senarclens,VD
+name,senedes,FR
+name,sennhof (winterthur),ZH
+name,sennwald,SG
+name,sent,GR
+name,seon,AG
+name,sergey,VD
+name,serneus,GR
+name,serpiano,TI
+name,serravalle,TI
+name,servion,VD
+name,seseglio,TI
+name,sessa,TI
+name,seuzach,ZH
+name,sevaz,FR
+name,sevelen,SG
+name,severy,VD
+name,sevgein,GR
+name,sfazu,GR
+name,siat,GR
+name,siblingen,SH
+name,siebnen,SZ
+name,siegershausen,TG
+name,sierre,VS
+name,siggenthal station,AG
+name,sigigen,LU
+name,sigirino,TI
+name,siglistorf,AG
+name,signau,BE
+name,signese (ayent),VS
+name,signora,TI
+name,signy,VD
+name,signy avenex,VD
+name,sigriswil,BE
+name,sihlbrugg station,ZH
+name,sihlwald,ZH
+name,silenen,UR
+name,sils im domleschg,GR
+name,sils im engadin/segl,GR
+name,sils/segl baselgia,GR
+name,sils/segl maria,GR
+name,silvaplana,GR
+name,silvaplana surlej,GR
+name,simplon,VS
+name,simplon dorf,VS
+name,simplon hospiz,VS
+name,sins,AG
+name,sion,VS
+name,sirnach,TG
+name,siselen,BE
+name,siselen be,BE
+name,sisikon,UR
+name,sissach,BL
+name,sisseln,AG
+name,sisseln ag,AG
+name,sitterdorf,TG
+name,siviez (nendaz),VS
+name,siviriez,FR
+name,soazza,GR
+name,sobrio,TI
+name,soglio,GR
+name,solduno,TI
+name,solothurn,SO
+name,someo,TI
+name,sommentier,FR
+name,sommeri,TG
+name,sonceboz sombeval,BE
+name,sonnental,SG
+name,sonogno,TI
+name,sonterswil,TG
+name,sonvico,TI
+name,sonvilier,BE
+name,sool,GL
+name,soral,GE
+name,sorenberg,LU
+name,sorengo,TI
+name,sorens,FR
+name,sornard (nendaz),VS
+name,sornetan,BE
+name,sorvilier,BE
+name,sottens,VD
+name,soubey,JU
+name,souboz,BE
+name,soulce,JU
+name,soyhieres,JU
+name,speicher,AR
+name,speicherschwendi,AR
+name,spiegel b. bern,BE
+name,spiez,BE
+name,spiringen,UR
+name,splugen,GR
+name,spreitenbach,AG
+name,spruga,TI
+name,st aubin,FR
+name,st aubin fr,FR
+name,st aubin sauges,NE
+name,st barthelemy,VD
+name,st barthelemy vd,VD
+name,st blaise,NE
+name,st brais,JU
+name,st cergue,VD
+name,st cierges,VD
+name,st george,VD
+name,st gingolph,VS
+name,st imier,BE
+name,st jean,VS
+name,st jean vs,VS
+name,st legier la chiesaz,VD
+name,st leonard,VS
+name,st livres,VD
+name,st luc,VS
+name,st martin fr,FR
+name,st martin vs,VS
+name,st maurice,VS
+name,st oyens,VD
+name,st pierre de clages,VS
+name,st prex,VD
+name,st romain (ayent),VS
+name,st saphorin (lavaux),VD
+name,st saphorin sur morges,VD
+name,st severin,VS
+name,st sulpice ne,NE
+name,st sulpice vd,VD
+name,st triphon,VD
+name,st ursanne,JU
+name,st. antoni,FR
+name,st. antonien,GR
+name,st. erhard,LU
+name,st. gallen,SG
+name,st. gallenkappel,SG
+name,st. german,VS
+name,st. josefen,SG
+name,st. margarethen,TG
+name,st. margarethen tg,TG
+name,st. margrethen,SG
+name,st. margrethen sg,SG
+name,st. margrethenberg,SG
+name,st. martin (lugnez),GR
+name,st. moritz,GR
+name,st. niklaus,VS
+name,st. niklaus vs,VS
+name,st. niklausen lu,LU
+name,st. niklausen ow,OW
+name,st. pantaleon,SO
+name,st. pelagiberg,TG
+name,st. peter,GR
+name,st. peterzell,SG
+name,st. silvester,FR
+name,st. stephan,BE
+name,st. urban,LU
+name,st. ursen,FR
+name,sta. domenica,GR
+name,sta. maria in calanca,GR
+name,sta. maria val mustair,GR
+name,staad,SG
+name,staad sg,SG
+name,staatswald galm,FR
+name,stabio,TI
+name,stachen,TG
+name,stadel,ZH
+name,stadel (winterthur),ZH
+name,stadel b. niederglatt,ZH
+name,stafa,ZH
+name,staffelbach,AG
+name,stalden,VS
+name,stalden (sarnen),OW
+name,stalden vs,VS
+name,staldenried,VS
+name,stallikon,ZH
+name,stammheim,ZH
+name,stampa,GR
+name,stans,NW
+name,stansstad,NW
+name,starrkirch wil,SO
+name,staufen,AG
+name,ste croix,VD
+name,stechelberg,BE
+name,steckborn,TG
+name,steffisburg,BE
+name,steg,VS
+name,steg hohtenn,VS
+name,steg im tosstal,ZH
+name,steg vs,VS
+name,stehrenberg,TG
+name,stein ag,AG
+name,stein am rhein,SH
+name,stein ar,AR
+name,stein sg,SG
+name,steinach,SG
+name,steinebrunn,TG
+name,steinen,SZ
+name,steinerberg,SZ
+name,steinhaus,VS
+name,steinhausen,ZG
+name,steinhof,SO
+name,steinhof so,SO
+name,steinhuserberg,LU
+name,steinmaur,ZH
+name,stels,GR
+name,sternenberg,ZH
+name,stetten ag,AG
+name,stetten sh,SH
+name,stettfurt,TG
+name,stettlen,BE
+name,stierva,GR
+name,stilli,AG
+name,stocken hofen,BE
+name,stoos,SZ
+name,stoos sz,SZ
+name,strada,GR
+name,strengelbach,AG
+name,studen be,BE
+name,studen sz,SZ
+name,stugl/stuls,GR
+name,stusslingen,SO
+name,suberg,BE
+name,subingen,SO
+name,suchy,VD
+name,suderen,BE
+name,suen (st martin),VS
+name,sufers,GR
+name,sugiez,FR
+name,sugnens,VD
+name,suhr,AG
+name,sulgen,TG
+name,sullens,VD
+name,sulz ag,AG
+name,sulz lu,LU
+name,sulzbach,ZH
+name,sumiswald,BE
+name,summaprada,GR
+name,sumvitg,GR
+name,sundlauenen,BE
+name,sunikon,ZH
+name,sur,GR
+name,surava,GR
+name,surcasti,GR
+name,surcuolm,GR
+name,surpierre,FR
+name,surrein,GR
+name,sursee,LU
+name,surses,GR
+name,suscevaz,VD
+name,susch,GR
+name,susten,VS
+name,sutz,BE
+name,sutz lattrigen,BE
+name,syens,VD
+name,tafers,FR
+name,tagelswangen,ZH
+name,tagerig,AG
+name,tagerschen,TG
+name,tagertschi,BE
+name,tagerwilen,TG
+name,tamins,GR
+name,tann,ZH
+name,tannay,VD
+name,tarasp,GR
+name,tartar,GR
+name,tartegnin,VD
+name,tasch,VS
+name,tatroz,FR
+name,tauffelen,BE
+name,tavanasa,GR
+name,tavannes,BE
+name,taverne,TI
+name,tecknau,BL
+name,tegerfelden,AG
+name,tegna,TI
+name,tenero,TI
+name,tenero contra,TI
+name,tenna,GR
+name,tenniken,BL
+name,tennwil,AG
+name,tentlingen,FR
+name,termen,VS
+name,terre di pedemonte,TI
+name,territet,VD
+name,tersnaus,GR
+name,tesserete,TI
+name,teufen ar,AR
+name,teufen zh,ZH
+name,teufenthal,AG
+name,teufenthal ag,AG
+name,teuffenthal,BE
+name,teuffenthal b. thun,BE
+name,teuffenthal be,BE
+name,tevenon,VD
+name,thal,SG
+name,thalheim,AG
+name,thalheim ag,AG
+name,thalheim an der thur,ZH
+name,thalkirch,GR
+name,thalwil,ZH
+name,thayngen,SH
+name,theilingen,ZH
+name,therwil,BL
+name,thielle,NE
+name,thierachern,BE
+name,thierrens,VD
+name,thonex,GE
+name,thorigen,BE
+name,thorishaus,BE
+name,thun,BE
+name,thundorf,TG
+name,thunstetten,BE
+name,thusis,GR
+name,thyon,VS
+name,tiefencastel,GR
+name,tinizong,GR
+name,titterten,BL
+name,tobel,TG
+name,tobel tagerschen,TG
+name,toffen,BE
+name,tolochenaz,VD
+name,torbel,VS
+name,torgon,VS
+name,torny,FR
+name,torny le grand,FR
+name,torre,TI
+name,torricella,TI
+name,torricella taverne,TI
+name,trachselwald,BE
+name,trachslau,SZ
+name,tramelan,BE
+name,trans,GR
+name,trasadingen,SH
+name,travers,NE
+name,treiten,BE
+name,trelex,VD
+name,tremona,TI
+name,tresa,TI
+name,trey,VD
+name,treycovagnes,VD
+name,treytorrens (payerne),VD
+name,treyvaux,FR
+name,triboltingen,TG
+name,triengen,LU
+name,trient,VS
+name,trimbach,SO
+name,trimmis,GR
+name,trimstein,BE
+name,trin,GR
+name,trin mulin,GR
+name,trogen,AR
+name,trogne (st martin),VS
+name,troinex,GE
+name,troistorrents,VS
+name,trub,BE
+name,trubbach,SG
+name,trubschachen,BE
+name,trullikon,ZH
+name,trun,GR
+name,truttikon,ZH
+name,tschappina,GR
+name,tscheppach,SO
+name,tscherlach,SG
+name,tschiertschen,GR
+name,tschierv,GR
+name,tschingel ob gunten,BE
+name,tschlin,GR
+name,tschugg,BE
+name,tubach,SG
+name,tuggen,SZ
+name,tujetsch,GR
+name,tumegl/tomils,GR
+name,turbach,BE
+name,turbenthal,ZH
+name,turgi,AG
+name,turin (salins),VS
+name,turtmann,VS
+name,turtmann unterems,VS
+name,tuscherz alfermee,BE
+name,tuttwil,TG
+name,twann,BE
+name,twann tuscherz,BE
+name,udligenswil,LU
+name,ueberstorf,FR
+name,uebeschi,BE
+name,ueken,AG
+name,uerikon,ZH
+name,uerkheim,AG
+name,uerschhausen,TG
+name,uerzlikon,ZH
+name,uesslingen,TG
+name,uesslingen buch,TG
+name,uetendorf,BE
+name,uetikon am see,ZH
+name,uetliberg,ZH
+name,uetliburg,SG
+name,uetliburg sg,SG
+name,uettligen,BE
+name,uezwil,AG
+name,uffikon,LU
+name,ufhusen,LU
+name,uhwiesen,ZH
+name,uitikon,ZH
+name,uitikon waldegg,ZH
+name,ulisbach,SG
+name,ulmiz,FR
+name,ulrichen,VS
+name,umiken,AG
+name,undervelier,JU
+name,unterageri,ZG
+name,unterbach,VS
+name,unterbach be,BE
+name,unterbach vs,VS
+name,untereggen,SG
+name,unterems,VS
+name,unterendingen,AG
+name,unterengstringen,ZH
+name,unterentfelden,AG
+name,unteriberg,SZ
+name,unterkulm,AG
+name,unterlangenegg,BE
+name,unterlunkhofen,AG
+name,unterohringen,ZH
+name,unterramsern,SO
+name,unterrindal,SG
+name,unterschachen,UR
+name,unterseen,BE
+name,untersiggenthal,AG
+name,unterstammheim,ZH
+name,untersteckholz,BE
+name,unterterzen,SG
+name,untervaz,GR
+name,unterwasser,SG
+name,uors (lumnezia),GR
+name,urdorf,ZH
+name,urmein,GR
+name,urnasch,AR
+name,urnerboden,UR
+name,ursenbach,BE
+name,ursins,VD
+name,urswil,LU
+name,ursy,FR
+name,urtenen schonbuhl,BE
+name,uster,ZH
+name,uttigen,BE
+name,uttwil,TG
+name,utzenstorf,BE
+name,utzigen,BE
+name,uvrier,VS
+name,uznach,SG
+name,uzwil,SG
+name,vacallo,TI
+name,vadura,SG
+name,vaglio,TI
+name,vairano,TI
+name,val d'illiez,VS
+name,val de bagnes,VS
+name,val de charmey,FR
+name,val de ruz,NE
+name,val de travers,NE
+name,val mara,TI
+name,val mustair,GR
+name,val terbi,JU
+name,valangin,NE
+name,valbella,GR
+name,valbirse,BE
+name,valbroye,VD
+name,valchava,GR
+name,valendas,GR
+name,valens,SG
+name,valeyres sous montagny,VD
+name,valeyres sous rances,VD
+name,valeyres sous ursins,VD
+name,vallamand,VD
+name,vallon,FR
+name,vallorbe,VD
+name,vals,GR
+name,valsot,GR
+name,valzeina,GR
+name,vandoeuvres,GE
+name,varen,VS
+name,vason,SG
+name,vattiz,GR
+name,vauderens,FR
+name,vauffelin,BE
+name,vaugondry,VD
+name,vaulion,VD
+name,vaulruz,FR
+name,vaumarcus,NE
+name,vaux sur morges,VD
+name,vaz/obervaz,GR
+name,vechigen,BE
+name,vella,GR
+name,vellerat,JU
+name,veltheim,AG
+name,veltheim ag,AG
+name,vendlincourt,JU
+name,vens (sembrancher),VS
+name,venthone,VS
+name,verbier,VS
+name,vercorin,VS
+name,verdabbio,GR
+name,verdasio,TI
+name,vergeletto,TI
+name,vermes,JU
+name,vernamiege,VS
+name,vernate,TI
+name,vernayaz,VS
+name,vernier,GE
+name,verossaz,VS
+name,vers chez perrin,VD
+name,vers l'eglise,VD
+name,versam,GR
+name,verscio,TI
+name,versegeres,VS
+name,versoix,GE
+name,verzasca,TI
+name,vesenaz,GE
+name,vesin,FR
+name,vessy,GE
+name,vetroz,VS
+name,vevey,VD
+name,vex,VS
+name,veyras,VS
+name,veyrier,GE
+name,veysonnaz,VS
+name,veytaux,VD
+name,vezia,TI
+name,vezio,TI
+name,viano,GR
+name,vich,VD
+name,vicheres (liddes),VS
+name,vico morcote,TI
+name,vicosoprano,GR
+name,vicques,JU
+name,vielbringen b. worb,BE
+name,viganello,TI
+name,vignogn,GR
+name,vilars,NE
+name,vilars ne,NE
+name,villa (ayent),VS
+name,villa (evolene),VS
+name,villa bedretto,TI
+name,villa luganese,TI
+name,villaraboud,FR
+name,villarbeney,FR
+name,villard sur chamby,VD
+name,villarepos,FR
+name,villargiroud,FR
+name,villariaz,FR
+name,villarimboud,FR
+name,villarlod,FR
+name,villars bozon,VD
+name,villars bramard,VD
+name,villars burquin,VD
+name,villars epeney,VD
+name,villars le comte,VD
+name,villars le grand,VD
+name,villars le terroir,VD
+name,villars mendraz,VD
+name,villars sainte croix,VD
+name,villars sous champvent,VD
+name,villars sous mont,FR
+name,villars sous yens,VD
+name,villars ste croix,VD
+name,villars sur fontenais,JU
+name,villars sur glane,FR
+name,villars sur ollon,VD
+name,villars tiercelin,VD
+name,villarsel le gibloux,FR
+name,villarsel sur marly,FR
+name,villarsiviriaux,FR
+name,villarvolard,FR
+name,villarzel,VD
+name,villaz,FR
+name,villaz st pierre,FR
+name,villeneuve fr,FR
+name,villeneuve vd,VD
+name,villeret,BE
+name,villette (lavaux),VD
+name,villiers,NE
+name,villigen,AG
+name,villmergen,AG
+name,villnachern,AG
+name,villorsonnens,FR
+name,vilters,SG
+name,vilters wangs,SG
+name,vinelz,BE
+name,vinzel,VD
+name,vionnaz,VS
+name,vira (gambarogno),TI
+name,visp,VS
+name,visperterminen,VS
+name,vissoie,VS
+name,vitznau,LU
+name,vna,GR
+name,vogelsang,AG
+name,vogelsang ag,AG
+name,vogorno,TI
+name,volken,ZH
+name,volketswil,ZH
+name,volleges,VS
+name,vordemwald,AG
+name,vorderthal,SZ
+name,vouvry,VS
+name,vrin,GR
+name,vuadens,FR
+name,vuarmarens,FR
+name,vuarrens,VD
+name,vucherens,VD
+name,vufflens la ville,VD
+name,vufflens le chateau,VD
+name,vugelles la mothe,VD
+name,vuibroye,VD
+name,vuippens,FR
+name,vuissens,FR
+name,vuisternens devant romont,FR
+name,vuisternens en ogoz,FR
+name,vuiteboeuf,VD
+name,vulliens,VD
+name,vullierens,VD
+name,vully les lacs,VD
+name,vulpera,GR
+name,wabern,BE
+name,wachseldorn,BE
+name,wadenswil,ZH
+name,wagen,SG
+name,wagenhausen,TG
+name,wagerswil,TG
+name,wahlen,BL
+name,wahlen b. laufen,BL
+name,wahlendorf,BE
+name,walchwil,ZG
+name,wald ar,AR
+name,wald be,BE
+name,wald zh,ZH
+name,walde ag,AG
+name,walde sg,SG
+name,waldenburg,BL
+name,waldhausern,AG
+name,waldhausern ag,AG
+name,waldi,TG
+name,waldkirch,SG
+name,waldstatt,AR
+name,walenstadt,SG
+name,walenstadtberg,SG
+name,walkringen,BE
+name,wallbach,AG
+name,wallenbuch,FR
+name,wallenried,FR
+name,wallenwil,TG
+name,wallisellen,ZH
+name,walliswil b. niederbipp,BE
+name,walliswil b. wangen,BE
+name,walliswil bei niederbipp,BE
+name,walliswil bei wangen,BE
+name,walperswil,BE
+name,waltalingen,ZH
+name,waltensburg/vuorz,GR
+name,waltenschwil,AG
+name,walterswil be,BE
+name,walterswil so,SO
+name,walzenhausen,AR
+name,wangen,SZ
+name,wangen an der aare,BE
+name,wangen b. dubendorf,ZH
+name,wangen b. olten,SO
+name,wangen bei olten,SO
+name,wangen bruttisellen,ZH
+name,wangen sz,SZ
+name,wangenried,BE
+name,wangi,TG
+name,wangs,SG
+name,wanzwil,BE
+name,wartau,SG
+name,warth,TG
+name,warth weiningen,TG
+name,wasen im emmental,BE
+name,wassen,UR
+name,wassen ur,UR
+name,wasserauen,AI
+name,wasterkingen,ZH
+name,watt,ZH
+name,wattenwil,BE
+name,wattwil,SG
+name,wauwil,LU
+name,wavre,NE
+name,weesen,SG
+name,wegenstetten,AG
+name,weggis,LU
+name,weiach,ZH
+name,weier im emmental,BE
+name,weinfelden,TG
+name,weingarten kalthausern,TG
+name,weiningen tg,TG
+name,weiningen zh,ZH
+name,weissbad,AI
+name,weissenburg,BE
+name,weissenstein b. solothurn,SO
+name,weisslingen,ZH
+name,weisstannen,SG
+name,weite,SG
+name,welschenrohr,SO
+name,welschenrohr gansbrunnen,SO
+name,wengen,BE
+name,wengi,BE
+name,wengi b. buren,BE
+name,wengi b. frutigen,BE
+name,wenslingen,BL
+name,werdenberg,SG
+name,wergenstein,GR
+name,wermatswil,ZH
+name,wernetshausen,ZH
+name,werthenstein,LU
+name,wettingen,AG
+name,wettswil,ZH
+name,wettswil am albis,ZH
+name,wetzikon tg,TG
+name,wetzikon zh,ZH
+name,wichtrach,BE
+name,widen,AG
+name,widnau,SG
+name,wiedlisbach,BE
+name,wienacht tobel,AR
+name,wiesenberg,NW
+name,wiesendangen,ZH
+name,wiezikon b. sirnach,TG
+name,wiggen,LU
+name,wiggiswil,BE
+name,wigoltingen,TG
+name,wikon,LU
+name,wil ag,AG
+name,wil sg,SG
+name,wil zh,ZH
+name,wila,ZH
+name,wilchingen,SH
+name,wildberg,ZH
+name,wildegg,AG
+name,wildensbuch,ZH
+name,wilderswil,BE
+name,wildhaus,SG
+name,wildhaus alt st. johann,SG
+name,wilen,TG
+name,wilen (gottshaus),TG
+name,wilen (sarnen),OW
+name,wilen b. wil,TG
+name,wilen b. wollerau,SZ
+name,wilen tg,TG
+name,wiler (lotschen),VS
+name,wiler b. seedorf,BE
+name,wiler b. utzenstorf,BE
+name,wiler bei utzenstorf,BE
+name,wileroltigen,BE
+name,wiliberg,AG
+name,wilihof,LU
+name,willadingen,BE
+name,willerzell,SZ
+name,willisau,LU
+name,willisdorf,TG
+name,wimmis,BE
+name,winden,TG
+name,windisch,AG
+name,windlach,ZH
+name,winikon,LU
+name,winistorf,SO
+name,winkel,ZH
+name,winterberg,ZH
+name,winterberg zh,ZH
+name,wintersingen,BL
+name,winterthur,ZH
+name,winznau,SO
+name,wirzweli,NW
+name,wisen,SO
+name,wisen so,SO
+name,wislikofen,AG
+name,wittenbach,SG
+name,wittenwil,TG
+name,witterswil,SO
+name,wittinsburg,BL
+name,wittnau,AG
+name,wittwil,AG
+name,wohlen,AG
+name,wohlen ag,AG
+name,wohlen b. bern,BE
+name,wohlen bei bern,BE
+name,wohlenschwil,AG
+name,wolfenschiessen,NW
+name,wolfertswil,SG
+name,wolfhalden,AR
+name,wolfhausen,ZH
+name,wolfisberg,BE
+name,wolflinswil,AG
+name,wolfwil,SO
+name,wolhusen,LU
+name,wollerau,SZ
+name,worb,BE
+name,worben,BE
+name,worblaufen,BE
+name,woschnau,SO
+name,wunnewil,FR
+name,wunnewil flamatt,FR
+name,wuppenau,TG
+name,wurenlingen,AG
+name,wurenlos,AG
+name,wynau,BE
+name,wynigen,BE
+name,wyssachen,BE
+name,yens,VD
+name,yverdon les bains,VD
+name,yvonand,VD
+name,yvorne,VD
+name,zauggenried,BE
+name,zaziwil,BE
+name,zeglingen,BL
+name,zeihen,AG
+name,zeiningen,AG
+name,zell lu,LU
+name,zell zh,ZH
+name,zenauva,FR
+name,zeneggen,VS
+name,zermatt,VS
+name,zernez,GR
+name,zetzwil,AG
+name,zezikon,TG
+name,ziefen,BL
+name,zielebach,BE
+name,zignau,GR
+name,zihlschlacht,TG
+name,zihlschlacht sitterdorf,TG
+name,zillis,GR
+name,zillis reischen,GR
+name,zimmerwald,BE
+name,zinal,VS
+name,zizers,GR
+name,zofingen,AG
+name,zollbruck,BE
+name,zollikerberg,ZH
+name,zollikofen,BE
+name,zollikon,ZH
+name,zuben,TG
+name,zuberwangen,SG
+name,zuchwil,SO
+name,zuckenriet,SG
+name,zufikon,AG
+name,zug,ZG
+name,zugerberg,ZG
+name,zullwil,SO
+name,zumholz,FR
+name,zumikon,ZH
+name,zunzgen,BL
+name,zuoz,GR
+name,zurich,ZH
+name,zurzach,AG
+name,zuzgen,AG
+name,zuzwil be,BE
+name,zuzwil sg,SG
+name,zweidlen,ZH
+name,zweilutschinen,BE
+name,zweisimmen,BE
+name,zwieselberg,BE
+name,zwillikon,ZH
+name,zwingen,BL
+name,zwischbergen,VS
+name,zwischenfluh,BE
+npa,1000,VD
+npa,1003,VD
+npa,1004,VD
+npa,1005,VD
+npa,1006,VD
+npa,1007,VD
+npa,1008,VD
+npa,1009,VD
+npa,1010,VD
+npa,1011,VD
+npa,1012,VD
+npa,1015,VD
+npa,1018,VD
+npa,1020,VD
+npa,1022,VD
+npa,1023,VD
+npa,1024,VD
+npa,1025,VD
+npa,1026,VD
+npa,1027,VD
+npa,1028,VD
+npa,1029,VD
+npa,1030,VD
+npa,1031,VD
+npa,1032,VD
+npa,1033,VD
+npa,1034,VD
+npa,1035,VD
+npa,1036,VD
+npa,1037,VD
+npa,1038,VD
+npa,1040,VD
+npa,1041,VD
+npa,1042,VD
+npa,1043,VD
+npa,1044,VD
+npa,1045,VD
+npa,1046,VD
+npa,1047,VD
+npa,1052,VD
+npa,1053,VD
+npa,1054,VD
+npa,1055,VD
+npa,1058,VD
+npa,1059,VD
+npa,1061,VD
+npa,1062,VD
+npa,1063,VD
+npa,1066,VD
+npa,1068,VD
+npa,1070,VD
+npa,1071,VD
+npa,1072,VD
+npa,1073,VD
+npa,1076,VD
+npa,1077,VD
+npa,1078,VD
+npa,1080,VD
+npa,1081,VD
+npa,1082,VD
+npa,1083,VD
+npa,1084,VD
+npa,1085,VD
+npa,1088,VD
+npa,1090,VD
+npa,1091,VD
+npa,1092,VD
+npa,1093,VD
+npa,1094,VD
+npa,1095,VD
+npa,1096,VD
+npa,1097,VD
+npa,1098,VD
+npa,1110,VD
+npa,1112,VD
+npa,1113,VD
+npa,1114,VD
+npa,1115,VD
+npa,1116,VD
+npa,1117,VD
+npa,1121,VD
+npa,1122,VD
+npa,1123,VD
+npa,1124,VD
+npa,1125,VD
+npa,1126,VD
+npa,1127,VD
+npa,1128,VD
+npa,1131,VD
+npa,1132,VD
+npa,1134,VD
+npa,1135,VD
+npa,1136,VD
+npa,1141,VD
+npa,1142,VD
+npa,1143,VD
+npa,1144,VD
+npa,1145,VD
+npa,1146,VD
+npa,1147,VD
+npa,1148,VD
+npa,1149,VD
+npa,1162,VD
+npa,1163,VD
+npa,1164,VD
+npa,1165,VD
+npa,1166,VD
+npa,1167,VD
+npa,1168,VD
+npa,1169,VD
+npa,1170,VD
+npa,1172,VD
+npa,1173,VD
+npa,1174,VD
+npa,1175,VD
+npa,1176,VD
+npa,1180,VD
+npa,1182,VD
+npa,1183,VD
+npa,1184,VD
+npa,1185,VD
+npa,1186,VD
+npa,1187,VD
+npa,1188,VD
+npa,1189,VD
+npa,1195,VD
+npa,1196,VD
+npa,1197,VD
+npa,1201,GE
+npa,1202,GE
+npa,1203,GE
+npa,1204,GE
+npa,1205,GE
+npa,1206,GE
+npa,1207,GE
+npa,1208,GE
+npa,1209,GE
+npa,1212,GE
+npa,1213,GE
+npa,1214,GE
+npa,1215,GE
+npa,1216,GE
+npa,1217,GE
+npa,1218,GE
+npa,1219,GE
+npa,1220,GE
+npa,1222,GE
+npa,1223,GE
+npa,1224,GE
+npa,1225,GE
+npa,1226,GE
+npa,1227,GE
+npa,1228,GE
+npa,1231,GE
+npa,1232,GE
+npa,1233,GE
+npa,1234,GE
+npa,1236,GE
+npa,1237,GE
+npa,1239,GE
+npa,1241,GE
+npa,1242,GE
+npa,1243,GE
+npa,1244,GE
+npa,1245,GE
+npa,1246,GE
+npa,1247,GE
+npa,1248,GE
+npa,1251,GE
+npa,1252,GE
+npa,1253,GE
+npa,1254,GE
+npa,1255,GE
+npa,1256,GE
+npa,1257,GE
+npa,1258,GE
+npa,1260,VD
+npa,1261,VD
+npa,1262,VD
+npa,1263,VD
+npa,1264,VD
+npa,1265,VD
+npa,1266,VD
+npa,1267,VD
+npa,1268,VD
+npa,1269,VD
+npa,1270,VD
+npa,1271,VD
+npa,1272,VD
+npa,1273,VD
+npa,1274,VD
+npa,1275,VD
+npa,1276,VD
+npa,1277,VD
+npa,1278,VD
+npa,1279,VD
+npa,1281,GE
+npa,1283,GE
+npa,1284,GE
+npa,1285,GE
+npa,1286,GE
+npa,1287,GE
+npa,1288,GE
+npa,1291,VD
+npa,1292,GE
+npa,1293,GE
+npa,1294,GE
+npa,1295,VD
+npa,1296,VD
+npa,1297,VD
+npa,1298,GE
+npa,1299,VD
+npa,1302,VD
+npa,1303,VD
+npa,1304,VD
+npa,1305,VD
+npa,1306,VD
+npa,1307,VD
+npa,1308,VD
+npa,1312,VD
+npa,1313,VD
+npa,1315,VD
+npa,1316,VD
+npa,1317,VD
+npa,1318,VD
+npa,1321,VD
+npa,1322,VD
+npa,1323,VD
+npa,1324,VD
+npa,1325,VD
+npa,1326,VD
+npa,1329,VD
+npa,1337,VD
+npa,1338,VD
+npa,1341,VD
+npa,1342,VD
+npa,1343,VD
+npa,1344,VD
+npa,1345,VD
+npa,1346,VD
+npa,1347,VD
+npa,1348,VD
+npa,1350,VD
+npa,1352,VD
+npa,1353,VD
+npa,1354,VD
+npa,1355,VD
+npa,1356,VD
+npa,1357,VD
+npa,1358,VD
+npa,1372,VD
+npa,1373,VD
+npa,1374,VD
+npa,1375,VD
+npa,1376,VD
+npa,1377,VD
+npa,1400,VD
+npa,1404,VD
+npa,1405,VD
+npa,1406,VD
+npa,1407,VD
+npa,1408,VD
+npa,1409,VD
+npa,1412,VD
+npa,1413,VD
+npa,1415,VD
+npa,1416,VD
+npa,1417,VD
+npa,1418,VD
+npa,1420,VD
+npa,1421,VD
+npa,1422,VD
+npa,1423,VD
+npa,1424,VD
+npa,1425,VD
+npa,1426,VD
+npa,1427,VD
+npa,1428,VD
+npa,1429,VD
+npa,1430,VD
+npa,1431,VD
+npa,1432,VD
+npa,1433,VD
+npa,1434,VD
+npa,1435,VD
+npa,1436,VD
+npa,1437,VD
+npa,1438,VD
+npa,1439,VD
+npa,1441,VD
+npa,1442,VD
+npa,1443,VD
+npa,1445,VD
+npa,1446,VD
+npa,1450,VD
+npa,1452,VD
+npa,1453,VD
+npa,1454,VD
+npa,1462,VD
+npa,1463,VD
+npa,1464,VD
+npa,1468,FR
+npa,1470,FR
+npa,1473,FR
+npa,1474,FR
+npa,1475,FR
+npa,1482,FR
+npa,1483,FR
+npa,1484,FR
+npa,1485,FR
+npa,1486,FR
+npa,1489,FR
+npa,1509,VD
+npa,1510,VD
+npa,1512,VD
+npa,1513,VD
+npa,1514,VD
+npa,1515,VD
+npa,1521,VD
+npa,1522,VD
+npa,1523,VD
+npa,1524,VD
+npa,1525,VD
+npa,1526,VD
+npa,1527,FR
+npa,1528,FR
+npa,1529,FR
+npa,1530,VD
+npa,1532,FR
+npa,1533,FR
+npa,1535,VD
+npa,1536,VD
+npa,1537,VD
+npa,1538,VD
+npa,1541,FR
+npa,1542,FR
+npa,1543,VD
+npa,1544,FR
+npa,1545,VD
+npa,1551,VD
+npa,1552,VD
+npa,1553,FR
+npa,1554,VD
+npa,1555,VD
+npa,1562,VD
+npa,1563,FR
+npa,1564,FR
+npa,1566,FR
+npa,1567,FR
+npa,1568,FR
+npa,1580,VD
+npa,1583,FR
+npa,1584,VD
+npa,1585,VD
+npa,1586,VD
+npa,1587,VD
+npa,1588,VD
+npa,1589,VD
+npa,1607,VD
+npa,1609,FR
+npa,1610,VD
+npa,1611,FR
+npa,1612,VD
+npa,1613,VD
+npa,1614,FR
+npa,1615,FR
+npa,1616,FR
+npa,1617,FR
+npa,1618,FR
+npa,1619,FR
+npa,1623,FR
+npa,1624,FR
+npa,1625,FR
+npa,1626,FR
+npa,1627,FR
+npa,1628,FR
+npa,1630,FR
+npa,1632,FR
+npa,1633,FR
+npa,1634,FR
+npa,1635,FR
+npa,1636,FR
+npa,1637,FR
+npa,1638,FR
+npa,1642,FR
+npa,1643,FR
+npa,1644,FR
+npa,1645,FR
+npa,1646,FR
+npa,1647,FR
+npa,1648,FR
+npa,1649,FR
+npa,1651,FR
+npa,1652,FR
+npa,1653,FR
+npa,1654,FR
+npa,1656,FR
+npa,1657,BE
+npa,1658,VD
+npa,1659,VD
+npa,1660,VD
+npa,1661,FR
+npa,1663,FR
+npa,1665,FR
+npa,1666,FR
+npa,1667,FR
+npa,1669,FR
+npa,1670,FR
+npa,1673,FR
+npa,1674,FR
+npa,1675,FR
+npa,1676,FR
+npa,1677,FR
+npa,1678,FR
+npa,1679,FR
+npa,1680,FR
+npa,1681,FR
+npa,1682,VD
+npa,1683,VD
+npa,1684,FR
+npa,1685,FR
+npa,1686,FR
+npa,1687,FR
+npa,1688,FR
+npa,1689,FR
+npa,1690,FR
+npa,1691,FR
+npa,1692,FR
+npa,1694,FR
+npa,1695,FR
+npa,1696,FR
+npa,1697,FR
+npa,1699,FR
+npa,1700,FR
+npa,1712,FR
+npa,1713,FR
+npa,1714,FR
+npa,1715,FR
+npa,1716,FR
+npa,1717,FR
+npa,1718,FR
+npa,1719,FR
+npa,1720,FR
+npa,1721,FR
+npa,1722,FR
+npa,1723,FR
+npa,1724,FR
+npa,1725,FR
+npa,1726,FR
+npa,1727,FR
+npa,1728,FR
+npa,1730,FR
+npa,1731,FR
+npa,1732,FR
+npa,1733,FR
+npa,1734,FR
+npa,1735,FR
+npa,1736,FR
+npa,1737,FR
+npa,1740,FR
+npa,1741,FR
+npa,1742,FR
+npa,1744,FR
+npa,1745,FR
+npa,1746,FR
+npa,1747,FR
+npa,1748,FR
+npa,1749,FR
+npa,1752,FR
+npa,1753,FR
+npa,1754,FR
+npa,1756,FR
+npa,1757,FR
+npa,1762,FR
+npa,1763,FR
+npa,1772,FR
+npa,1773,FR
+npa,1774,FR
+npa,1775,FR
+npa,1776,FR
+npa,1782,FR
+npa,1783,FR
+npa,1784,FR
+npa,1785,FR
+npa,1786,FR
+npa,1788,FR
+npa,1789,FR
+npa,1791,FR
+npa,1792,FR
+npa,1793,FR
+npa,1794,FR
+npa,1795,FR
+npa,1796,FR
+npa,1797,BE
+npa,1800,VD
+npa,1801,VD
+npa,1802,VD
+npa,1803,VD
+npa,1804,VD
+npa,1805,VD
+npa,1806,VD
+npa,1807,VD
+npa,1808,VD
+npa,1809,VD
+npa,1814,VD
+npa,1815,VD
+npa,1816,VD
+npa,1817,VD
+npa,1820,VD
+npa,1822,VD
+npa,1823,VD
+npa,1824,VD
+npa,1832,VD
+npa,1833,VD
+npa,1844,VD
+npa,1845,VD
+npa,1846,VD
+npa,1847,VD
+npa,1852,VD
+npa,1853,VD
+npa,1854,VD
+npa,1856,VD
+npa,1860,VD
+npa,1862,VD
+npa,1863,VD
+npa,1864,VD
+npa,1865,VD
+npa,1866,VD
+npa,1867,VD
+npa,1868,VS
+npa,1869,VS
+npa,1870,VS
+npa,1871,VS
+npa,1872,VS
+npa,1873,VS
+npa,1874,VS
+npa,1875,VS
+npa,1880,VD
+npa,1882,VD
+npa,1884,VD
+npa,1885,VD
+npa,1890,VS
+npa,1891,VS
+npa,1892,VD
+npa,1893,VS
+npa,1895,VS
+npa,1896,VS
+npa,1897,VS
+npa,1898,VS
+npa,1899,VS
+npa,1902,VS
+npa,1903,VS
+npa,1904,VS
+npa,1905,VS
+npa,1906,VS
+npa,1907,VS
+npa,1908,VS
+npa,1911,VS
+npa,1912,VS
+npa,1913,VS
+npa,1914,VS
+npa,1918,VS
+npa,1920,VS
+npa,1921,VS
+npa,1922,VS
+npa,1923,VS
+npa,1925,VS
+npa,1926,VS
+npa,1927,VS
+npa,1928,VS
+npa,1929,VS
+npa,1932,VS
+npa,1933,VS
+npa,1934,VS
+npa,1936,VS
+npa,1937,VS
+npa,1938,VS
+npa,1941,VS
+npa,1942,VS
+npa,1943,VS
+npa,1944,VS
+npa,1945,VS
+npa,1946,VS
+npa,1947,VS
+npa,1948,VS
+npa,1950,VS
+npa,1955,VS
+npa,1957,VS
+npa,1958,VS
+npa,1961,VS
+npa,1962,VS
+npa,1963,VS
+npa,1964,VS
+npa,1965,VS
+npa,1966,VS
+npa,1967,VS
+npa,1968,VS
+npa,1969,VS
+npa,1971,VS
+npa,1972,VS
+npa,1973,VS
+npa,1974,VS
+npa,1975,VS
+npa,1976,VS
+npa,1977,VS
+npa,1978,VS
+npa,1981,VS
+npa,1982,VS
+npa,1983,VS
+npa,1984,VS
+npa,1985,VS
+npa,1986,VS
+npa,1987,VS
+npa,1988,VS
+npa,1991,VS
+npa,1992,VS
+npa,1993,VS
+npa,1994,VS
+npa,1996,VS
+npa,1997,VS
+npa,2000,NE
+npa,2012,NE
+npa,2013,NE
+npa,2014,NE
+npa,2015,NE
+npa,2016,NE
+npa,2017,NE
+npa,2019,NE
+npa,2022,NE
+npa,2023,NE
+npa,2024,NE
+npa,2025,NE
+npa,2027,NE
+npa,2028,NE
+npa,2034,NE
+npa,2035,NE
+npa,2036,NE
+npa,2037,NE
+npa,2042,NE
+npa,2043,NE
+npa,2046,NE
+npa,2052,NE
+npa,2053,NE
+npa,2054,NE
+npa,2056,NE
+npa,2057,NE
+npa,2058,NE
+npa,2063,NE
+npa,2065,NE
+npa,2067,NE
+npa,2068,NE
+npa,2072,NE
+npa,2073,NE
+npa,2074,NE
+npa,2075,NE
+npa,2087,NE
+npa,2088,NE
+npa,2103,NE
+npa,2105,NE
+npa,2108,NE
+npa,2112,NE
+npa,2113,NE
+npa,2114,NE
+npa,2115,NE
+npa,2116,NE
+npa,2117,NE
+npa,2123,NE
+npa,2124,NE
+npa,2126,NE
+npa,2127,NE
+npa,2149,NE
+npa,2206,NE
+npa,2207,NE
+npa,2208,NE
+npa,2300,NE
+npa,2314,NE
+npa,2316,NE
+npa,2318,NE
+npa,2322,NE
+npa,2325,NE
+npa,2333,BE
+npa,2336,JU
+npa,2338,JU
+npa,2340,JU
+npa,2350,JU
+npa,2353,JU
+npa,2354,JU
+npa,2360,JU
+npa,2362,JU
+npa,2363,JU
+npa,2364,JU
+npa,2400,NE
+npa,2405,NE
+npa,2406,NE
+npa,2414,NE
+npa,2416,NE
+npa,2502,BE
+npa,2503,BE
+npa,2504,BE
+npa,2505,BE
+npa,2512,BE
+npa,2513,BE
+npa,2514,BE
+npa,2515,BE
+npa,2516,BE
+npa,2517,BE
+npa,2518,BE
+npa,2520,BE
+npa,2523,NE
+npa,2525,NE
+npa,2532,BE
+npa,2533,BE
+npa,2534,BE
+npa,2535,BE
+npa,2536,BE
+npa,2537,BE
+npa,2538,BE
+npa,2540,SO
+npa,2542,BE
+npa,2543,BE
+npa,2544,SO
+npa,2545,SO
+npa,2552,BE
+npa,2553,BE
+npa,2554,BE
+npa,2555,BE
+npa,2556,BE
+npa,2557,BE
+npa,2558,BE
+npa,2560,BE
+npa,2562,BE
+npa,2563,BE
+npa,2564,BE
+npa,2565,BE
+npa,2572,BE
+npa,2575,BE
+npa,2576,BE
+npa,2577,BE
+npa,2603,BE
+npa,2604,BE
+npa,2605,BE
+npa,2606,BE
+npa,2607,BE
+npa,2608,BE
+npa,2610,BE
+npa,2612,BE
+npa,2613,BE
+npa,2615,BE
+npa,2616,BE
+npa,2710,BE
+npa,2712,BE
+npa,2713,BE
+npa,2714,JU
+npa,2715,BE
+npa,2716,BE
+npa,2717,BE
+npa,2718,JU
+npa,2720,BE
+npa,2722,BE
+npa,2723,BE
+npa,2732,BE
+npa,2733,BE
+npa,2735,BE
+npa,2736,BE
+npa,2738,BE
+npa,2740,JU
+npa,2742,BE
+npa,2743,BE
+npa,2744,BE
+npa,2745,BE
+npa,2746,BE
+npa,2747,BE
+npa,2762,BE
+npa,2800,JU
+npa,2802,JU
+npa,2803,JU
+npa,2805,JU
+npa,2806,JU
+npa,2807,JU
+npa,2812,JU
+npa,2813,JU
+npa,2814,BL
+npa,2822,JU
+npa,2823,JU
+npa,2824,JU
+npa,2825,JU
+npa,2826,JU
+npa,2828,JU
+npa,2829,JU
+npa,2830,JU
+npa,2832,JU
+npa,2842,JU
+npa,2843,JU
+npa,2852,JU
+npa,2853,JU
+npa,2854,JU
+npa,2855,JU
+npa,2856,JU
+npa,2857,JU
+npa,2863,JU
+npa,2864,JU
+npa,2873,JU
+npa,2882,JU
+npa,2883,JU
+npa,2884,JU
+npa,2885,JU
+npa,2886,JU
+npa,2887,JU
+npa,2888,JU
+npa,2889,JU
+npa,2900,JU
+npa,2902,JU
+npa,2903,JU
+npa,2904,JU
+npa,2905,JU
+npa,2906,JU
+npa,2907,JU
+npa,2908,JU
+npa,2912,JU
+npa,2914,JU
+npa,2915,JU
+npa,2916,JU
+npa,2922,JU
+npa,2923,JU
+npa,2924,JU
+npa,2925,JU
+npa,2926,JU
+npa,2932,JU
+npa,2933,JU
+npa,2935,JU
+npa,2942,JU
+npa,2943,JU
+npa,2944,JU
+npa,2946,JU
+npa,2947,JU
+npa,2950,JU
+npa,2952,JU
+npa,2953,JU
+npa,2954,JU
+npa,3004,BE
+npa,3005,BE
+npa,3006,BE
+npa,3007,BE
+npa,3008,BE
+npa,3010,BE
+npa,3011,BE
+npa,3012,BE
+npa,3013,BE
+npa,3014,BE
+npa,3015,BE
+npa,3018,BE
+npa,3019,BE
+npa,3020,BE
+npa,3027,BE
+npa,3032,BE
+npa,3033,BE
+npa,3034,BE
+npa,3035,BE
+npa,3036,BE
+npa,3037,BE
+npa,3038,BE
+npa,3042,BE
+npa,3043,BE
+npa,3044,BE
+npa,3045,BE
+npa,3046,BE
+npa,3047,BE
+npa,3048,BE
+npa,3049,BE
+npa,3052,BE
+npa,3053,BE
+npa,3054,BE
+npa,3063,BE
+npa,3065,BE
+npa,3066,BE
+npa,3067,BE
+npa,3068,BE
+npa,3072,BE
+npa,3073,BE
+npa,3074,BE
+npa,3075,BE
+npa,3076,BE
+npa,3077,BE
+npa,3078,BE
+npa,3082,BE
+npa,3083,BE
+npa,3084,BE
+npa,3086,BE
+npa,3087,BE
+npa,3088,BE
+npa,3089,BE
+npa,3095,BE
+npa,3096,BE
+npa,3097,BE
+npa,3098,BE
+npa,3099,BE
+npa,3110,BE
+npa,3111,BE
+npa,3112,BE
+npa,3113,BE
+npa,3114,BE
+npa,3115,BE
+npa,3116,BE
+npa,3122,BE
+npa,3123,BE
+npa,3124,BE
+npa,3125,BE
+npa,3126,BE
+npa,3127,BE
+npa,3128,BE
+npa,3132,BE
+npa,3144,BE
+npa,3145,BE
+npa,3147,BE
+npa,3148,BE
+npa,3150,BE
+npa,3152,BE
+npa,3153,BE
+npa,3154,BE
+npa,3155,BE
+npa,3156,BE
+npa,3157,BE
+npa,3158,BE
+npa,3159,BE
+npa,3172,BE
+npa,3173,BE
+npa,3174,BE
+npa,3175,FR
+npa,3176,BE
+npa,3177,BE
+npa,3178,FR
+npa,3179,BE
+npa,3182,FR
+npa,3183,BE
+npa,3184,FR
+npa,3185,FR
+npa,3186,FR
+npa,3202,BE
+npa,3203,BE
+npa,3204,BE
+npa,3205,BE
+npa,3207,BE
+npa,3208,BE
+npa,3210,FR
+npa,3212,FR
+npa,3213,FR
+npa,3214,FR
+npa,3215,FR
+npa,3216,FR
+npa,3225,BE
+npa,3226,BE
+npa,3232,BE
+npa,3233,BE
+npa,3234,BE
+npa,3235,BE
+npa,3236,BE
+npa,3237,BE
+npa,3238,BE
+npa,3250,BE
+npa,3251,BE
+npa,3252,BE
+npa,3253,SO
+npa,3254,SO
+npa,3255,BE
+npa,3256,BE
+npa,3257,BE
+npa,3262,BE
+npa,3263,BE
+npa,3264,BE
+npa,3266,BE
+npa,3267,BE
+npa,3268,BE
+npa,3270,BE
+npa,3271,BE
+npa,3272,BE
+npa,3273,BE
+npa,3274,BE
+npa,3280,FR
+npa,3282,BE
+npa,3283,BE
+npa,3284,FR
+npa,3285,FR
+npa,3286,FR
+npa,3292,BE
+npa,3293,BE
+npa,3294,BE
+npa,3295,BE
+npa,3296,BE
+npa,3297,BE
+npa,3298,BE
+npa,3302,BE
+npa,3303,BE
+npa,3305,BE
+npa,3306,BE
+npa,3307,SO
+npa,3308,BE
+npa,3309,BE
+npa,3312,BE
+npa,3313,BE
+npa,3314,BE
+npa,3315,BE
+npa,3317,BE
+npa,3322,BE
+npa,3323,BE
+npa,3324,BE
+npa,3325,BE
+npa,3326,BE
+npa,3360,BE
+npa,3362,BE
+npa,3363,BE
+npa,3365,BE
+npa,3366,BE
+npa,3367,BE
+npa,3368,BE
+npa,3372,BE
+npa,3373,BE
+npa,3374,BE
+npa,3375,BE
+npa,3376,BE
+npa,3377,BE
+npa,3380,BE
+npa,3400,BE
+npa,3412,BE
+npa,3413,BE
+npa,3414,BE
+npa,3415,BE
+npa,3416,BE
+npa,3417,BE
+npa,3418,BE
+npa,3419,BE
+npa,3421,BE
+npa,3422,BE
+npa,3423,BE
+npa,3424,BE
+npa,3425,BE
+npa,3426,BE
+npa,3427,BE
+npa,3428,BE
+npa,3429,BE
+npa,3432,BE
+npa,3433,BE
+npa,3434,BE
+npa,3435,BE
+npa,3436,BE
+npa,3437,BE
+npa,3438,BE
+npa,3439,BE
+npa,3452,BE
+npa,3453,BE
+npa,3454,BE
+npa,3455,BE
+npa,3456,BE
+npa,3457,BE
+npa,3462,BE
+npa,3463,BE
+npa,3464,BE
+npa,3465,BE
+npa,3472,BE
+npa,3473,BE
+npa,3474,BE
+npa,3475,BE
+npa,3476,BE
+npa,3503,BE
+npa,3504,BE
+npa,3506,BE
+npa,3507,BE
+npa,3508,BE
+npa,3510,BE
+npa,3512,BE
+npa,3513,BE
+npa,3531,BE
+npa,3532,BE
+npa,3533,BE
+npa,3534,BE
+npa,3535,BE
+npa,3536,BE
+npa,3537,BE
+npa,3538,BE
+npa,3543,BE
+npa,3550,BE
+npa,3551,BE
+npa,3552,BE
+npa,3553,BE
+npa,3555,BE
+npa,3556,BE
+npa,3557,BE
+npa,3600,BE
+npa,3603,BE
+npa,3604,BE
+npa,3608,BE
+npa,3612,BE
+npa,3613,BE
+npa,3614,BE
+npa,3615,BE
+npa,3616,BE
+npa,3617,BE
+npa,3618,BE
+npa,3619,BE
+npa,3622,BE
+npa,3623,BE
+npa,3624,BE
+npa,3625,BE
+npa,3626,BE
+npa,3627,BE
+npa,3628,BE
+npa,3629,BE
+npa,3631,BE
+npa,3632,BE
+npa,3633,BE
+npa,3634,BE
+npa,3635,BE
+npa,3636,BE
+npa,3638,BE
+npa,3645,BE
+npa,3646,BE
+npa,3647,BE
+npa,3652,BE
+npa,3653,BE
+npa,3654,BE
+npa,3655,BE
+npa,3656,BE
+npa,3657,BE
+npa,3658,BE
+npa,3661,BE
+npa,3662,BE
+npa,3663,BE
+npa,3664,BE
+npa,3665,BE
+npa,3671,BE
+npa,3672,BE
+npa,3673,BE
+npa,3674,BE
+npa,3700,BE
+npa,3702,BE
+npa,3703,BE
+npa,3704,BE
+npa,3705,BE
+npa,3706,BE
+npa,3707,BE
+npa,3711,BE
+npa,3713,BE
+npa,3714,BE
+npa,3715,BE
+npa,3716,BE
+npa,3717,BE
+npa,3718,BE
+npa,3722,BE
+npa,3723,BE
+npa,3724,BE
+npa,3725,BE
+npa,3752,BE
+npa,3753,BE
+npa,3754,BE
+npa,3755,BE
+npa,3756,BE
+npa,3757,BE
+npa,3758,BE
+npa,3762,BE
+npa,3763,BE
+npa,3764,BE
+npa,3765,BE
+npa,3766,BE
+npa,3770,BE
+npa,3771,BE
+npa,3772,BE
+npa,3773,BE
+npa,3775,BE
+npa,3776,BE
+npa,3777,BE
+npa,3778,BE
+npa,3780,BE
+npa,3781,BE
+npa,3782,BE
+npa,3783,BE
+npa,3784,BE
+npa,3785,BE
+npa,3792,BE
+npa,3800,BE
+npa,3803,BE
+npa,3804,BE
+npa,3805,BE
+npa,3806,BE
+npa,3807,BE
+npa,3812,BE
+npa,3813,BE
+npa,3814,BE
+npa,3815,BE
+npa,3816,BE
+npa,3818,BE
+npa,3822,BE
+npa,3823,BE
+npa,3824,BE
+npa,3825,BE
+npa,3826,BE
+npa,3852,BE
+npa,3853,BE
+npa,3854,BE
+npa,3855,BE
+npa,3856,BE
+npa,3857,BE
+npa,3858,BE
+npa,3860,BE
+npa,3862,BE
+npa,3863,BE
+npa,3864,BE
+npa,3900,VS
+npa,3901,VS
+npa,3902,VS
+npa,3903,VS
+npa,3904,VS
+npa,3905,VS
+npa,3906,VS
+npa,3907,VS
+npa,3908,VS
+npa,3910,VS
+npa,3911,VS
+npa,3912,VS
+npa,3913,VS
+npa,3914,VS
+npa,3916,VS
+npa,3917,VS
+npa,3918,VS
+npa,3919,VS
+npa,3920,VS
+npa,3922,VS
+npa,3923,VS
+npa,3924,VS
+npa,3925,VS
+npa,3926,VS
+npa,3927,VS
+npa,3928,VS
+npa,3929,VS
+npa,3930,VS
+npa,3931,VS
+npa,3932,VS
+npa,3933,VS
+npa,3934,VS
+npa,3935,VS
+npa,3937,VS
+npa,3938,VS
+npa,3939,VS
+npa,3940,VS
+npa,3942,VS
+npa,3943,VS
+npa,3944,VS
+npa,3945,VS
+npa,3946,VS
+npa,3947,VS
+npa,3948,VS
+npa,3949,VS
+npa,3951,VS
+npa,3952,VS
+npa,3953,VS
+npa,3954,VS
+npa,3955,VS
+npa,3956,VS
+npa,3957,VS
+npa,3960,VS
+npa,3961,VS
+npa,3963,VS
+npa,3965,VS
+npa,3966,VS
+npa,3967,VS
+npa,3968,VS
+npa,3970,VS
+npa,3971,VS
+npa,3972,VS
+npa,3973,VS
+npa,3974,VS
+npa,3975,VS
+npa,3976,VS
+npa,3977,VS
+npa,3978,VS
+npa,3979,VS
+npa,3982,VS
+npa,3983,VS
+npa,3984,VS
+npa,3985,VS
+npa,3986,VS
+npa,3987,VS
+npa,3988,VS
+npa,3989,VS
+npa,3991,VS
+npa,3992,VS
+npa,3993,VS
+npa,3994,VS
+npa,3995,VS
+npa,3996,VS
+npa,3997,VS
+npa,3998,VS
+npa,3999,VS
+npa,4001,BS
+npa,4031,BS
+npa,4051,BS
+npa,4052,BS
+npa,4053,BS
+npa,4054,BS
+npa,4055,BS
+npa,4056,BS
+npa,4057,BS
+npa,4058,BS
+npa,4059,BS
+npa,4101,BL
+npa,4102,BL
+npa,4103,BL
+npa,4104,BL
+npa,4105,BL
+npa,4106,BL
+npa,4107,BL
+npa,4108,SO
+npa,4112,SO
+npa,4114,SO
+npa,4115,SO
+npa,4116,SO
+npa,4117,BL
+npa,4118,SO
+npa,4123,BL
+npa,4124,BL
+npa,4125,BS
+npa,4126,BS
+npa,4127,BL
+npa,4132,BL
+npa,4133,BL
+npa,4142,BL
+npa,4143,SO
+npa,4144,BL
+npa,4145,SO
+npa,4146,SO
+npa,4147,BL
+npa,4148,BL
+npa,4153,BL
+npa,4202,BL
+npa,4203,BL
+npa,4204,SO
+npa,4206,SO
+npa,4207,BL
+npa,4208,SO
+npa,4222,BL
+npa,4223,BL
+npa,4224,BL
+npa,4225,BL
+npa,4226,SO
+npa,4227,SO
+npa,4228,SO
+npa,4229,SO
+npa,4232,SO
+npa,4233,SO
+npa,4234,SO
+npa,4242,BL
+npa,4243,BL
+npa,4244,BL
+npa,4245,SO
+npa,4246,BL
+npa,4247,SO
+npa,4252,SO
+npa,4253,BL
+npa,4254,BL
+npa,4302,BL
+npa,4303,AG
+npa,4304,BL
+npa,4305,AG
+npa,4310,AG
+npa,4312,AG
+npa,4313,AG
+npa,4314,AG
+npa,4315,AG
+npa,4316,AG
+npa,4317,AG
+npa,4322,AG
+npa,4323,AG
+npa,4324,AG
+npa,4325,AG
+npa,4332,AG
+npa,4333,AG
+npa,4334,AG
+npa,4402,BL
+npa,4410,BL
+npa,4411,BL
+npa,4412,SO
+npa,4413,SO
+npa,4414,BL
+npa,4415,BL
+npa,4416,BL
+npa,4417,BL
+npa,4418,BL
+npa,4419,BL
+npa,4421,SO
+npa,4422,BL
+npa,4423,BL
+npa,4424,BL
+npa,4425,BL
+npa,4426,BL
+npa,4431,BL
+npa,4432,BL
+npa,4433,BL
+npa,4434,BL
+npa,4435,BL
+npa,4436,BL
+npa,4437,BL
+npa,4438,BL
+npa,4441,BL
+npa,4442,BL
+npa,4443,BL
+npa,4444,BL
+npa,4445,BL
+npa,4446,BL
+npa,4447,BL
+npa,4448,BL
+npa,4450,BL
+npa,4451,BL
+npa,4452,BL
+npa,4453,BL
+npa,4455,BL
+npa,4456,BL
+npa,4457,BL
+npa,4458,BL
+npa,4460,BL
+npa,4461,BL
+npa,4462,BL
+npa,4463,BL
+npa,4464,BL
+npa,4465,BL
+npa,4466,BL
+npa,4467,BL
+npa,4468,SO
+npa,4469,BL
+npa,4492,BL
+npa,4493,BL
+npa,4494,BL
+npa,4495,BL
+npa,4496,BL
+npa,4497,BL
+npa,4500,SO
+npa,4512,SO
+npa,4513,SO
+npa,4514,SO
+npa,4515,SO
+npa,4522,SO
+npa,4523,SO
+npa,4524,SO
+npa,4525,SO
+npa,4528,SO
+npa,4532,SO
+npa,4533,SO
+npa,4534,SO
+npa,4535,SO
+npa,4536,BE
+npa,4537,BE
+npa,4538,BE
+npa,4539,BE
+npa,4542,SO
+npa,4543,SO
+npa,4552,SO
+npa,4553,SO
+npa,4554,SO
+npa,4556,SO
+npa,4557,SO
+npa,4558,SO
+npa,4562,SO
+npa,4563,SO
+npa,4565,SO
+npa,4566,SO
+npa,4571,SO
+npa,4573,SO
+npa,4574,SO
+npa,4576,SO
+npa,4577,SO
+npa,4578,SO
+npa,4579,SO
+npa,4581,SO
+npa,4582,SO
+npa,4583,SO
+npa,4584,SO
+npa,4585,SO
+npa,4586,SO
+npa,4587,SO
+npa,4588,SO
+npa,4600,SO
+npa,4612,SO
+npa,4613,SO
+npa,4614,SO
+npa,4615,SO
+npa,4616,SO
+npa,4617,SO
+npa,4618,SO
+npa,4622,SO
+npa,4623,SO
+npa,4624,SO
+npa,4625,SO
+npa,4626,SO
+npa,4628,SO
+npa,4629,SO
+npa,4632,SO
+npa,4633,SO
+npa,4634,SO
+npa,4652,SO
+npa,4653,SO
+npa,4654,SO
+npa,4655,SO
+npa,4656,SO
+npa,4657,SO
+npa,4658,SO
+npa,4663,AG
+npa,4665,AG
+npa,4702,SO
+npa,4703,SO
+npa,4704,BE
+npa,4710,SO
+npa,4712,SO
+npa,4713,SO
+npa,4714,SO
+npa,4715,SO
+npa,4716,SO
+npa,4717,SO
+npa,4718,SO
+npa,4719,SO
+npa,4800,AG
+npa,4802,AG
+npa,4803,AG
+npa,4805,AG
+npa,4806,LU
+npa,4812,AG
+npa,4813,AG
+npa,4814,AG
+npa,4852,AG
+npa,4853,AG
+npa,4856,AG
+npa,4900,BE
+npa,4911,BE
+npa,4912,BE
+npa,4913,BE
+npa,4914,BE
+npa,4915,LU
+npa,4916,BE
+npa,4917,BE
+npa,4919,BE
+npa,4922,BE
+npa,4923,BE
+npa,4924,BE
+npa,4932,BE
+npa,4933,BE
+npa,4934,BE
+npa,4935,BE
+npa,4936,BE
+npa,4937,BE
+npa,4938,BE
+npa,4942,BE
+npa,4943,BE
+npa,4944,BE
+npa,4950,BE
+npa,4952,BE
+npa,4953,BE
+npa,4954,BE
+npa,4955,BE
+npa,5000,AG
+npa,5004,AG
+npa,5012,SO
+npa,5013,SO
+npa,5014,SO
+npa,5015,SO
+npa,5018,AG
+npa,5022,AG
+npa,5023,AG
+npa,5024,AG
+npa,5025,AG
+npa,5026,AG
+npa,5027,AG
+npa,5028,AG
+npa,5032,AG
+npa,5033,AG
+npa,5034,AG
+npa,5035,AG
+npa,5036,AG
+npa,5037,AG
+npa,5040,AG
+npa,5042,AG
+npa,5043,AG
+npa,5044,AG
+npa,5046,AG
+npa,5053,AG
+npa,5054,AG
+npa,5056,AG
+npa,5057,AG
+npa,5058,AG
+npa,5062,AG
+npa,5063,AG
+npa,5064,AG
+npa,5070,AG
+npa,5072,AG
+npa,5073,AG
+npa,5074,AG
+npa,5075,AG
+npa,5076,AG
+npa,5077,AG
+npa,5078,AG
+npa,5079,AG
+npa,5080,AG
+npa,5082,AG
+npa,5083,AG
+npa,5084,AG
+npa,5085,AG
+npa,5102,AG
+npa,5103,AG
+npa,5105,AG
+npa,5106,AG
+npa,5107,AG
+npa,5108,AG
+npa,5112,AG
+npa,5113,AG
+npa,5116,AG
+npa,5200,AG
+npa,5210,AG
+npa,5212,AG
+npa,5213,AG
+npa,5222,AG
+npa,5223,AG
+npa,5225,AG
+npa,5233,AG
+npa,5234,AG
+npa,5235,AG
+npa,5236,AG
+npa,5237,AG
+npa,5242,AG
+npa,5243,AG
+npa,5244,AG
+npa,5245,AG
+npa,5246,AG
+npa,5272,AG
+npa,5273,AG
+npa,5274,AG
+npa,5275,AG
+npa,5276,AG
+npa,5277,AG
+npa,5300,AG
+npa,5301,AG
+npa,5303,AG
+npa,5304,AG
+npa,5305,AG
+npa,5306,AG
+npa,5312,AG
+npa,5313,AG
+npa,5314,AG
+npa,5315,AG
+npa,5316,AG
+npa,5317,AG
+npa,5318,AG
+npa,5322,AG
+npa,5323,AG
+npa,5324,AG
+npa,5325,AG
+npa,5326,AG
+npa,5330,AG
+npa,5332,AG
+npa,5333,AG
+npa,5334,AG
+npa,5400,AG
+npa,5404,AG
+npa,5405,AG
+npa,5406,AG
+npa,5408,AG
+npa,5412,AG
+npa,5413,AG
+npa,5415,AG
+npa,5416,AG
+npa,5417,AG
+npa,5420,AG
+npa,5423,AG
+npa,5425,AG
+npa,5426,AG
+npa,5430,AG
+npa,5432,AG
+npa,5436,AG
+npa,5442,AG
+npa,5443,AG
+npa,5444,AG
+npa,5445,AG
+npa,5452,AG
+npa,5453,AG
+npa,5454,AG
+npa,5462,AG
+npa,5463,AG
+npa,5464,AG
+npa,5465,AG
+npa,5466,AG
+npa,5467,AG
+npa,5502,AG
+npa,5503,AG
+npa,5504,AG
+npa,5505,AG
+npa,5506,AG
+npa,5507,AG
+npa,5512,AG
+npa,5522,AG
+npa,5524,AG
+npa,5525,AG
+npa,5600,AG
+npa,5603,AG
+npa,5604,AG
+npa,5605,AG
+npa,5606,AG
+npa,5607,AG
+npa,5608,AG
+npa,5610,AG
+npa,5611,AG
+npa,5612,AG
+npa,5613,AG
+npa,5614,AG
+npa,5615,AG
+npa,5616,AG
+npa,5617,AG
+npa,5618,AG
+npa,5619,AG
+npa,5620,AG
+npa,5621,AG
+npa,5622,AG
+npa,5623,AG
+npa,5624,AG
+npa,5625,AG
+npa,5626,AG
+npa,5627,AG
+npa,5628,AG
+npa,5630,AG
+npa,5632,AG
+npa,5634,AG
+npa,5636,AG
+npa,5637,AG
+npa,5642,AG
+npa,5643,AG
+npa,5644,AG
+npa,5645,AG
+npa,5646,AG
+npa,5647,AG
+npa,5702,AG
+npa,5703,AG
+npa,5704,AG
+npa,5705,AG
+npa,5706,AG
+npa,5707,AG
+npa,5708,AG
+npa,5712,AG
+npa,5722,AG
+npa,5723,AG
+npa,5724,AG
+npa,5725,AG
+npa,5726,AG
+npa,5727,AG
+npa,5728,AG
+npa,5732,AG
+npa,5733,AG
+npa,5734,AG
+npa,5735,LU
+npa,5736,AG
+npa,5737,AG
+npa,5742,AG
+npa,5745,AG
+npa,5746,SO
+npa,6003,LU
+npa,6004,LU
+npa,6005,LU
+npa,6006,LU
+npa,6012,LU
+npa,6013,LU
+npa,6014,LU
+npa,6015,LU
+npa,6016,LU
+npa,6017,LU
+npa,6018,LU
+npa,6019,LU
+npa,6020,LU
+npa,6022,LU
+npa,6023,LU
+npa,6024,LU
+npa,6025,LU
+npa,6026,LU
+npa,6027,LU
+npa,6028,LU
+npa,6030,LU
+npa,6032,LU
+npa,6033,LU
+npa,6034,LU
+npa,6035,LU
+npa,6036,LU
+npa,6037,LU
+npa,6038,LU
+npa,6039,LU
+npa,6042,AG
+npa,6043,LU
+npa,6044,LU
+npa,6045,LU
+npa,6047,LU
+npa,6048,LU
+npa,6052,NW
+npa,6053,OW
+npa,6055,OW
+npa,6056,OW
+npa,6060,OW
+npa,6062,OW
+npa,6063,OW
+npa,6064,OW
+npa,6066,OW
+npa,6067,OW
+npa,6068,OW
+npa,6072,OW
+npa,6073,OW
+npa,6074,OW
+npa,6078,OW
+npa,6083,BE
+npa,6084,BE
+npa,6085,BE
+npa,6086,BE
+npa,6102,LU
+npa,6103,LU
+npa,6105,LU
+npa,6106,LU
+npa,6110,LU
+npa,6112,LU
+npa,6113,LU
+npa,6114,LU
+npa,6122,LU
+npa,6123,LU
+npa,6125,LU
+npa,6126,LU
+npa,6130,LU
+npa,6132,LU
+npa,6133,LU
+npa,6142,LU
+npa,6143,LU
+npa,6144,LU
+npa,6145,LU
+npa,6146,LU
+npa,6147,LU
+npa,6152,LU
+npa,6153,LU
+npa,6154,LU
+npa,6156,LU
+npa,6162,LU
+npa,6163,LU
+npa,6166,LU
+npa,6167,LU
+npa,6170,LU
+npa,6173,LU
+npa,6174,LU
+npa,6182,LU
+npa,6192,LU
+npa,6196,LU
+npa,6197,BE
+npa,6203,LU
+npa,6204,LU
+npa,6205,LU
+npa,6206,LU
+npa,6207,LU
+npa,6208,LU
+npa,6210,LU
+npa,6211,LU
+npa,6212,LU
+npa,6213,LU
+npa,6214,LU
+npa,6215,LU
+npa,6216,LU
+npa,6217,LU
+npa,6218,LU
+npa,6221,LU
+npa,6222,LU
+npa,6231,LU
+npa,6232,LU
+npa,6233,LU
+npa,6234,LU
+npa,6235,LU
+npa,6236,LU
+npa,6242,LU
+npa,6243,LU
+npa,6244,LU
+npa,6245,LU
+npa,6246,LU
+npa,6247,LU
+npa,6248,LU
+npa,6252,LU
+npa,6253,LU
+npa,6260,LU
+npa,6262,LU
+npa,6263,LU
+npa,6264,LU
+npa,6265,LU
+npa,6274,LU
+npa,6275,LU
+npa,6276,LU
+npa,6277,LU
+npa,6280,LU
+npa,6283,LU
+npa,6284,LU
+npa,6285,LU
+npa,6286,LU
+npa,6287,LU
+npa,6288,LU
+npa,6289,LU
+npa,6294,LU
+npa,6295,LU
+npa,6300,ZG
+npa,6312,ZG
+npa,6313,ZG
+npa,6314,ZG
+npa,6315,ZG
+npa,6317,ZG
+npa,6318,ZG
+npa,6319,ZG
+npa,6330,ZG
+npa,6331,ZG
+npa,6332,ZG
+npa,6333,ZG
+npa,6343,ZG
+npa,6344,LU
+npa,6345,ZG
+npa,6353,LU
+npa,6354,LU
+npa,6362,NW
+npa,6363,NW
+npa,6365,NW
+npa,6370,NW
+npa,6372,NW
+npa,6373,NW
+npa,6374,NW
+npa,6375,NW
+npa,6376,NW
+npa,6377,UR
+npa,6382,NW
+npa,6383,NW
+npa,6386,NW
+npa,6387,NW
+npa,6390,OW
+npa,6402,SZ
+npa,6403,SZ
+npa,6404,LU
+npa,6405,SZ
+npa,6410,SZ
+npa,6414,SZ
+npa,6415,SZ
+npa,6416,SZ
+npa,6417,SZ
+npa,6418,SZ
+npa,6422,SZ
+npa,6423,SZ
+npa,6424,SZ
+npa,6430,SZ
+npa,6432,SZ
+npa,6433,SZ
+npa,6434,SZ
+npa,6436,SZ
+npa,6438,SZ
+npa,6440,SZ
+npa,6441,UR
+npa,6442,SZ
+npa,6443,SZ
+npa,6454,UR
+npa,6460,UR
+npa,6461,UR
+npa,6462,UR
+npa,6463,UR
+npa,6464,UR
+npa,6465,UR
+npa,6466,UR
+npa,6467,UR
+npa,6468,UR
+npa,6469,UR
+npa,6472,UR
+npa,6473,UR
+npa,6474,UR
+npa,6475,UR
+npa,6476,UR
+npa,6482,UR
+npa,6484,UR
+npa,6485,UR
+npa,6487,UR
+npa,6490,UR
+npa,6491,UR
+npa,6493,UR
+npa,6500,TI
+npa,6503,TI
+npa,6512,TI
+npa,6513,TI
+npa,6514,TI
+npa,6515,TI
+npa,6516,TI
+npa,6517,TI
+npa,6518,TI
+npa,6523,TI
+npa,6524,TI
+npa,6525,TI
+npa,6526,TI
+npa,6527,TI
+npa,6528,TI
+npa,6532,TI
+npa,6533,TI
+npa,6534,GR
+npa,6535,GR
+npa,6537,GR
+npa,6538,GR
+npa,6540,GR
+npa,6541,GR
+npa,6542,GR
+npa,6543,GR
+npa,6544,GR
+npa,6545,GR
+npa,6546,GR
+npa,6548,GR
+npa,6549,GR
+npa,6556,GR
+npa,6557,GR
+npa,6558,GR
+npa,6562,GR
+npa,6563,GR
+npa,6565,GR
+npa,6571,TI
+npa,6572,TI
+npa,6573,TI
+npa,6574,TI
+npa,6575,TI
+npa,6576,TI
+npa,6577,TI
+npa,6578,TI
+npa,6579,TI
+npa,6582,TI
+npa,6583,TI
+npa,6584,TI
+npa,6592,TI
+npa,6593,TI
+npa,6594,TI
+npa,6595,TI
+npa,6596,TI
+npa,6597,TI
+npa,6598,TI
+npa,6599,TI
+npa,6600,TI
+npa,6605,TI
+npa,6612,TI
+npa,6613,TI
+npa,6614,TI
+npa,6616,TI
+npa,6618,TI
+npa,6622,TI
+npa,6631,TI
+npa,6632,TI
+npa,6633,TI
+npa,6634,TI
+npa,6635,TI
+npa,6636,TI
+npa,6637,TI
+npa,6644,TI
+npa,6645,TI
+npa,6646,TI
+npa,6647,TI
+npa,6648,TI
+npa,6652,TI
+npa,6653,TI
+npa,6654,TI
+npa,6655,TI
+npa,6656,TI
+npa,6657,TI
+npa,6658,TI
+npa,6659,TI
+npa,6661,TI
+npa,6670,TI
+npa,6672,TI
+npa,6673,TI
+npa,6674,TI
+npa,6675,TI
+npa,6676,TI
+npa,6677,TI
+npa,6678,TI
+npa,6682,TI
+npa,6683,TI
+npa,6684,TI
+npa,6685,TI
+npa,6690,TI
+npa,6692,TI
+npa,6693,TI
+npa,6694,TI
+npa,6695,TI
+npa,6696,TI
+npa,6702,TI
+npa,6703,TI
+npa,6705,TI
+npa,6707,TI
+npa,6710,TI
+npa,6713,TI
+npa,6714,TI
+npa,6715,TI
+npa,6716,TI
+npa,6717,TI
+npa,6718,TI
+npa,6719,TI
+npa,6720,TI
+npa,6721,TI
+npa,6722,TI
+npa,6723,TI
+npa,6724,TI
+npa,6742,TI
+npa,6743,TI
+npa,6744,TI
+npa,6745,TI
+npa,6746,TI
+npa,6747,TI
+npa,6748,TI
+npa,6749,TI
+npa,6760,TI
+npa,6763,TI
+npa,6764,TI
+npa,6772,TI
+npa,6773,TI
+npa,6774,TI
+npa,6775,TI
+npa,6776,TI
+npa,6777,TI
+npa,6780,TI
+npa,6781,TI
+npa,6802,TI
+npa,6803,TI
+npa,6804,TI
+npa,6805,TI
+npa,6806,TI
+npa,6807,TI
+npa,6808,TI
+npa,6809,TI
+npa,6810,TI
+npa,6814,TI
+npa,6815,TI
+npa,6816,TI
+npa,6817,TI
+npa,6818,TI
+npa,6821,TI
+npa,6822,TI
+npa,6823,TI
+npa,6825,TI
+npa,6826,TI
+npa,6827,TI
+npa,6828,TI
+npa,6830,TI
+npa,6832,TI
+npa,6833,TI
+npa,6834,TI
+npa,6835,TI
+npa,6837,TI
+npa,6838,TI
+npa,6839,TI
+npa,6850,TI
+npa,6852,TI
+npa,6853,TI
+npa,6854,TI
+npa,6855,TI
+npa,6862,TI
+npa,6863,TI
+npa,6864,TI
+npa,6865,TI
+npa,6866,TI
+npa,6867,TI
+npa,6872,TI
+npa,6873,TI
+npa,6874,TI
+npa,6875,TI
+npa,6877,TI
+npa,6883,TI
+npa,6900,TI
+npa,6912,TI
+npa,6913,TI
+npa,6914,TI
+npa,6915,TI
+npa,6916,TI
+npa,6917,TI
+npa,6918,TI
+npa,6919,TI
+npa,6921,TI
+npa,6922,TI
+npa,6924,TI
+npa,6925,TI
+npa,6926,TI
+npa,6927,TI
+npa,6928,TI
+npa,6929,TI
+npa,6930,TI
+npa,6932,TI
+npa,6933,TI
+npa,6934,TI
+npa,6935,TI
+npa,6936,TI
+npa,6937,TI
+npa,6938,TI
+npa,6939,TI
+npa,6942,TI
+npa,6943,TI
+npa,6944,TI
+npa,6945,TI
+npa,6946,TI
+npa,6947,TI
+npa,6948,TI
+npa,6949,TI
+npa,6950,TI
+npa,6951,TI
+npa,6952,TI
+npa,6953,TI
+npa,6954,TI
+npa,6955,TI
+npa,6956,TI
+npa,6957,TI
+npa,6958,TI
+npa,6959,TI
+npa,6960,TI
+npa,6962,TI
+npa,6963,TI
+npa,6964,TI
+npa,6965,TI
+npa,6966,TI
+npa,6967,TI
+npa,6968,TI
+npa,6974,TI
+npa,6976,TI
+npa,6977,TI
+npa,6978,TI
+npa,6979,TI
+npa,6980,TI
+npa,6981,TI
+npa,6982,TI
+npa,6983,TI
+npa,6984,TI
+npa,6986,TI
+npa,6987,TI
+npa,6988,TI
+npa,6989,TI
+npa,6990,TI
+npa,6991,TI
+npa,6992,TI
+npa,6993,TI
+npa,6994,TI
+npa,6995,TI
+npa,6997,TI
+npa,6998,TI
+npa,6999,TI
+npa,7000,GR
+npa,7012,GR
+npa,7013,GR
+npa,7014,GR
+npa,7015,GR
+npa,7016,GR
+npa,7017,GR
+npa,7018,GR
+npa,7019,GR
+npa,7023,GR
+npa,7026,GR
+npa,7027,GR
+npa,7028,GR
+npa,7029,GR
+npa,7031,GR
+npa,7032,GR
+npa,7050,GR
+npa,7056,GR
+npa,7057,GR
+npa,7058,GR
+npa,7062,GR
+npa,7063,GR
+npa,7064,GR
+npa,7074,GR
+npa,7075,GR
+npa,7076,GR
+npa,7077,GR
+npa,7078,GR
+npa,7082,GR
+npa,7083,GR
+npa,7084,GR
+npa,7104,GR
+npa,7106,GR
+npa,7107,GR
+npa,7109,GR
+npa,7110,GR
+npa,7111,GR
+npa,7112,GR
+npa,7113,GR
+npa,7114,GR
+npa,7115,GR
+npa,7116,GR
+npa,7122,GR
+npa,7126,GR
+npa,7127,GR
+npa,7128,GR
+npa,7130,GR
+npa,7132,GR
+npa,7134,GR
+npa,7137,GR
+npa,7138,GR
+npa,7141,GR
+npa,7142,GR
+npa,7143,GR
+npa,7144,GR
+npa,7145,GR
+npa,7146,GR
+npa,7147,GR
+npa,7148,GR
+npa,7149,GR
+npa,7151,GR
+npa,7152,GR
+npa,7153,GR
+npa,7154,GR
+npa,7155,GR
+npa,7156,GR
+npa,7157,GR
+npa,7158,GR
+npa,7159,GR
+npa,7162,GR
+npa,7163,GR
+npa,7164,GR
+npa,7165,GR
+npa,7166,GR
+npa,7167,GR
+npa,7168,GR
+npa,7172,GR
+npa,7173,GR
+npa,7174,GR
+npa,7175,GR
+npa,7176,GR
+npa,7180,GR
+npa,7182,GR
+npa,7183,GR
+npa,7184,GR
+npa,7185,GR
+npa,7186,GR
+npa,7187,GR
+npa,7188,GR
+npa,7189,GR
+npa,7202,GR
+npa,7203,GR
+npa,7204,GR
+npa,7205,GR
+npa,7206,GR
+npa,7208,GR
+npa,7212,GR
+npa,7213,GR
+npa,7214,GR
+npa,7215,GR
+npa,7220,GR
+npa,7222,GR
+npa,7223,GR
+npa,7224,GR
+npa,7226,GR
+npa,7228,GR
+npa,7231,GR
+npa,7232,GR
+npa,7233,GR
+npa,7235,GR
+npa,7240,GR
+npa,7241,GR
+npa,7242,GR
+npa,7243,GR
+npa,7244,GR
+npa,7245,GR
+npa,7246,GR
+npa,7247,GR
+npa,7249,GR
+npa,7250,GR
+npa,7252,GR
+npa,7260,GR
+npa,7265,GR
+npa,7270,GR
+npa,7272,GR
+npa,7276,GR
+npa,7277,GR
+npa,7278,GR
+npa,7302,GR
+npa,7303,GR
+npa,7304,GR
+npa,7306,GR
+npa,7307,GR
+npa,7310,SG
+npa,7312,SG
+npa,7313,SG
+npa,7314,SG
+npa,7317,SG
+npa,7320,SG
+npa,7323,SG
+npa,7324,SG
+npa,7325,SG
+npa,7326,SG
+npa,7402,GR
+npa,7403,GR
+npa,7404,GR
+npa,7405,GR
+npa,7407,GR
+npa,7408,GR
+npa,7411,GR
+npa,7412,GR
+npa,7413,GR
+npa,7414,GR
+npa,7415,GR
+npa,7416,GR
+npa,7417,GR
+npa,7418,GR
+npa,7419,GR
+npa,7421,GR
+npa,7422,GR
+npa,7423,GR
+npa,7424,GR
+npa,7425,GR
+npa,7426,GR
+npa,7427,GR
+npa,7428,GR
+npa,7430,GR
+npa,7431,GR
+npa,7432,GR
+npa,7433,GR
+npa,7434,GR
+npa,7435,GR
+npa,7436,GR
+npa,7437,GR
+npa,7438,GR
+npa,7440,GR
+npa,7442,GR
+npa,7443,GR
+npa,7444,GR
+npa,7445,GR
+npa,7447,GR
+npa,7448,GR
+npa,7450,GR
+npa,7451,GR
+npa,7452,GR
+npa,7453,GR
+npa,7454,GR
+npa,7455,GR
+npa,7456,GR
+npa,7457,GR
+npa,7458,GR
+npa,7459,GR
+npa,7460,GR
+npa,7462,GR
+npa,7463,GR
+npa,7464,GR
+npa,7472,GR
+npa,7473,GR
+npa,7477,GR
+npa,7482,GR
+npa,7484,GR
+npa,7492,GR
+npa,7493,GR
+npa,7494,GR
+npa,7500,GR
+npa,7502,GR
+npa,7503,GR
+npa,7504,GR
+npa,7505,GR
+npa,7512,GR
+npa,7513,GR
+npa,7514,GR
+npa,7515,GR
+npa,7516,GR
+npa,7517,GR
+npa,7522,GR
+npa,7523,GR
+npa,7524,GR
+npa,7525,GR
+npa,7526,GR
+npa,7527,GR
+npa,7530,GR
+npa,7532,GR
+npa,7533,GR
+npa,7534,GR
+npa,7535,GR
+npa,7536,GR
+npa,7537,GR
+npa,7542,GR
+npa,7543,GR
+npa,7545,GR
+npa,7546,GR
+npa,7550,GR
+npa,7551,GR
+npa,7552,GR
+npa,7553,GR
+npa,7554,GR
+npa,7556,GR
+npa,7557,GR
+npa,7558,GR
+npa,7559,GR
+npa,7560,GR
+npa,7562,GR
+npa,7563,GR
+npa,7602,GR
+npa,7603,GR
+npa,7604,GR
+npa,7605,GR
+npa,7606,GR
+npa,7608,GR
+npa,7610,GR
+npa,7710,GR
+npa,7741,GR
+npa,7742,GR
+npa,7743,GR
+npa,7744,GR
+npa,7745,GR
+npa,7746,GR
+npa,7747,GR
+npa,7748,GR
+npa,8001,ZH
+npa,8002,ZH
+npa,8003,ZH
+npa,8004,ZH
+npa,8005,ZH
+npa,8006,ZH
+npa,8008,ZH
+npa,8032,ZH
+npa,8037,ZH
+npa,8038,ZH
+npa,8041,ZH
+npa,8044,ZH
+npa,8045,ZH
+npa,8046,ZH
+npa,8047,ZH
+npa,8048,ZH
+npa,8049,ZH
+npa,8050,ZH
+npa,8051,ZH
+npa,8052,ZH
+npa,8053,ZH
+npa,8055,ZH
+npa,8057,ZH
+npa,8064,ZH
+npa,8102,ZH
+npa,8103,ZH
+npa,8104,ZH
+npa,8105,ZH
+npa,8106,ZH
+npa,8107,ZH
+npa,8108,ZH
+npa,8109,AG
+npa,8112,ZH
+npa,8113,ZH
+npa,8114,ZH
+npa,8115,ZH
+npa,8117,ZH
+npa,8118,ZH
+npa,8121,ZH
+npa,8122,ZH
+npa,8123,ZH
+npa,8124,ZH
+npa,8125,ZH
+npa,8126,ZH
+npa,8127,ZH
+npa,8132,ZH
+npa,8133,ZH
+npa,8134,ZH
+npa,8135,ZH
+npa,8136,ZH
+npa,8142,ZH
+npa,8143,ZH
+npa,8152,ZH
+npa,8153,ZH
+npa,8154,ZH
+npa,8155,ZH
+npa,8156,ZH
+npa,8157,ZH
+npa,8158,ZH
+npa,8162,ZH
+npa,8164,ZH
+npa,8165,ZH
+npa,8166,ZH
+npa,8172,ZH
+npa,8173,ZH
+npa,8174,ZH
+npa,8175,ZH
+npa,8180,ZH
+npa,8181,ZH
+npa,8182,ZH
+npa,8184,ZH
+npa,8185,ZH
+npa,8187,ZH
+npa,8192,ZH
+npa,8193,ZH
+npa,8194,ZH
+npa,8195,ZH
+npa,8196,ZH
+npa,8197,ZH
+npa,8200,SH
+npa,8203,SH
+npa,8207,SH
+npa,8208,SH
+npa,8213,SH
+npa,8214,SH
+npa,8215,SH
+npa,8216,SH
+npa,8217,SH
+npa,8218,SH
+npa,8219,SH
+npa,8222,SH
+npa,8223,SH
+npa,8224,SH
+npa,8225,SH
+npa,8226,SH
+npa,8228,SH
+npa,8231,SH
+npa,8232,SH
+npa,8233,SH
+npa,8234,SH
+npa,8235,SH
+npa,8236,SH
+npa,8239,SH
+npa,8240,SH
+npa,8241,SH
+npa,8242,SH
+npa,8243,SH
+npa,8245,ZH
+npa,8246,ZH
+npa,8247,ZH
+npa,8248,ZH
+npa,8252,TG
+npa,8253,TG
+npa,8254,TG
+npa,8255,TG
+npa,8259,TG
+npa,8260,SH
+npa,8261,SH
+npa,8262,SH
+npa,8263,SH
+npa,8264,TG
+npa,8265,TG
+npa,8266,TG
+npa,8267,TG
+npa,8268,TG
+npa,8269,TG
+npa,8272,TG
+npa,8273,TG
+npa,8274,TG
+npa,8280,TG
+npa,8302,ZH
+npa,8303,ZH
+npa,8304,ZH
+npa,8305,ZH
+npa,8306,ZH
+npa,8307,ZH
+npa,8308,ZH
+npa,8309,ZH
+npa,8310,ZH
+npa,8311,ZH
+npa,8312,ZH
+npa,8314,ZH
+npa,8315,ZH
+npa,8317,ZH
+npa,8320,ZH
+npa,8322,ZH
+npa,8330,ZH
+npa,8331,ZH
+npa,8332,ZH
+npa,8335,ZH
+npa,8340,ZH
+npa,8342,ZH
+npa,8344,ZH
+npa,8345,ZH
+npa,8352,ZH
+npa,8353,ZH
+npa,8354,ZH
+npa,8355,TG
+npa,8356,TG
+npa,8357,TG
+npa,8360,TG
+npa,8362,TG
+npa,8363,TG
+npa,8370,TG
+npa,8371,TG
+npa,8372,TG
+npa,8374,TG
+npa,8376,TG
+npa,8400,ZH
+npa,8404,ZH
+npa,8405,ZH
+npa,8406,ZH
+npa,8408,ZH
+npa,8409,ZH
+npa,8412,ZH
+npa,8413,ZH
+npa,8414,ZH
+npa,8415,ZH
+npa,8416,ZH
+npa,8418,ZH
+npa,8421,ZH
+npa,8422,ZH
+npa,8424,ZH
+npa,8425,ZH
+npa,8426,ZH
+npa,8427,ZH
+npa,8428,ZH
+npa,8442,ZH
+npa,8444,ZH
+npa,8447,ZH
+npa,8450,ZH
+npa,8451,ZH
+npa,8452,ZH
+npa,8453,ZH
+npa,8454,SH
+npa,8455,SH
+npa,8457,ZH
+npa,8458,ZH
+npa,8459,ZH
+npa,8460,ZH
+npa,8461,ZH
+npa,8462,ZH
+npa,8463,ZH
+npa,8464,ZH
+npa,8465,ZH
+npa,8466,ZH
+npa,8467,ZH
+npa,8468,ZH
+npa,8471,ZH
+npa,8472,ZH
+npa,8474,ZH
+npa,8475,ZH
+npa,8476,ZH
+npa,8477,ZH
+npa,8478,ZH
+npa,8479,ZH
+npa,8482,ZH
+npa,8483,ZH
+npa,8484,ZH
+npa,8486,ZH
+npa,8487,ZH
+npa,8488,ZH
+npa,8489,ZH
+npa,8492,ZH
+npa,8493,ZH
+npa,8494,ZH
+npa,8496,ZH
+npa,8497,ZH
+npa,8498,ZH
+npa,8499,ZH
+npa,8500,TG
+npa,8505,TG
+npa,8506,TG
+npa,8507,TG
+npa,8508,TG
+npa,8512,TG
+npa,8514,TG
+npa,8522,TG
+npa,8523,ZH
+npa,8524,TG
+npa,8526,TG
+npa,8532,TG
+npa,8535,TG
+npa,8536,TG
+npa,8537,TG
+npa,8542,ZH
+npa,8543,ZH
+npa,8544,ZH
+npa,8545,ZH
+npa,8547,TG
+npa,8548,ZH
+npa,8552,TG
+npa,8553,TG
+npa,8554,TG
+npa,8555,TG
+npa,8556,TG
+npa,8558,TG
+npa,8560,TG
+npa,8561,TG
+npa,8564,TG
+npa,8565,TG
+npa,8566,TG
+npa,8570,TG
+npa,8572,TG
+npa,8573,TG
+npa,8574,TG
+npa,8575,TG
+npa,8576,TG
+npa,8577,TG
+npa,8580,TG
+npa,8581,TG
+npa,8582,TG
+npa,8583,TG
+npa,8584,TG
+npa,8585,TG
+npa,8586,TG
+npa,8587,TG
+npa,8588,TG
+npa,8589,TG
+npa,8590,TG
+npa,8592,TG
+npa,8593,TG
+npa,8594,TG
+npa,8595,TG
+npa,8596,TG
+npa,8597,TG
+npa,8598,TG
+npa,8599,TG
+npa,8600,ZH
+npa,8602,ZH
+npa,8603,ZH
+npa,8604,ZH
+npa,8605,ZH
+npa,8606,ZH
+npa,8607,ZH
+npa,8608,ZH
+npa,8610,ZH
+npa,8614,ZH
+npa,8615,ZH
+npa,8616,ZH
+npa,8617,ZH
+npa,8618,ZH
+npa,8620,ZH
+npa,8623,ZH
+npa,8624,ZH
+npa,8625,ZH
+npa,8626,ZH
+npa,8627,ZH
+npa,8630,ZH
+npa,8632,ZH
+npa,8633,ZH
+npa,8634,ZH
+npa,8635,ZH
+npa,8636,ZH
+npa,8637,ZH
+npa,8638,SG
+npa,8645,SG
+npa,8646,SG
+npa,8700,ZH
+npa,8702,ZH
+npa,8703,ZH
+npa,8704,ZH
+npa,8706,ZH
+npa,8707,ZH
+npa,8708,ZH
+npa,8712,ZH
+npa,8713,ZH
+npa,8714,ZH
+npa,8715,SG
+npa,8716,SG
+npa,8717,SG
+npa,8718,SG
+npa,8722,SG
+npa,8723,SG
+npa,8725,SG
+npa,8726,SG
+npa,8727,SG
+npa,8730,SG
+npa,8732,SG
+npa,8733,SG
+npa,8734,SG
+npa,8735,SG
+npa,8737,SG
+npa,8738,SG
+npa,8739,SG
+npa,8750,GL
+npa,8751,UR
+npa,8752,GL
+npa,8753,GL
+npa,8754,GL
+npa,8755,GL
+npa,8756,GL
+npa,8757,GL
+npa,8758,GL
+npa,8762,GL
+npa,8765,GL
+npa,8766,GL
+npa,8767,GL
+npa,8772,GL
+npa,8773,GL
+npa,8774,GL
+npa,8775,GL
+npa,8777,GL
+npa,8782,GL
+npa,8783,GL
+npa,8784,GL
+npa,8800,ZH
+npa,8802,ZH
+npa,8803,ZH
+npa,8804,ZH
+npa,8805,ZH
+npa,8806,SZ
+npa,8807,SZ
+npa,8808,SZ
+npa,8810,ZH
+npa,8815,ZH
+npa,8816,ZH
+npa,8820,ZH
+npa,8824,ZH
+npa,8825,ZH
+npa,8832,SZ
+npa,8833,ZH
+npa,8834,SZ
+npa,8835,SZ
+npa,8836,SZ
+npa,8840,SZ
+npa,8841,SZ
+npa,8842,SZ
+npa,8843,SZ
+npa,8844,SZ
+npa,8845,SZ
+npa,8846,SZ
+npa,8847,SZ
+npa,8849,SZ
+npa,8852,SZ
+npa,8853,SZ
+npa,8854,SZ
+npa,8855,SZ
+npa,8856,SZ
+npa,8857,SZ
+npa,8858,SZ
+npa,8862,SZ
+npa,8863,SZ
+npa,8864,SZ
+npa,8865,GL
+npa,8867,GL
+npa,8868,GL
+npa,8873,SG
+npa,8874,GL
+npa,8877,SG
+npa,8878,SG
+npa,8880,SG
+npa,8881,SG
+npa,8882,SG
+npa,8883,SG
+npa,8884,SG
+npa,8885,SG
+npa,8886,SG
+npa,8887,SG
+npa,8888,SG
+npa,8889,SG
+npa,8890,SG
+npa,8892,SG
+npa,8893,SG
+npa,8894,SG
+npa,8895,SG
+npa,8896,SG
+npa,8897,SG
+npa,8898,SG
+npa,8902,ZH
+npa,8903,ZH
+npa,8904,ZH
+npa,8905,AG
+npa,8906,ZH
+npa,8907,ZH
+npa,8908,ZH
+npa,8909,ZH
+npa,8910,ZH
+npa,8911,ZH
+npa,8912,ZH
+npa,8913,ZH
+npa,8914,ZH
+npa,8915,ZH
+npa,8916,AG
+npa,8917,AG
+npa,8918,AG
+npa,8919,AG
+npa,8925,ZH
+npa,8926,ZH
+npa,8932,ZH
+npa,8933,ZH
+npa,8934,ZH
+npa,8942,ZH
+npa,8951,ZH
+npa,8952,ZH
+npa,8953,ZH
+npa,8954,ZH
+npa,8955,ZH
+npa,8956,AG
+npa,8957,AG
+npa,8962,AG
+npa,8964,AG
+npa,8965,AG
+npa,8966,AG
+npa,8967,AG
+npa,9000,SG
+npa,9008,SG
+npa,9010,SG
+npa,9011,SG
+npa,9012,SG
+npa,9014,SG
+npa,9015,SG
+npa,9016,SG
+npa,9030,SG
+npa,9032,SG
+npa,9033,SG
+npa,9034,SG
+npa,9035,AR
+npa,9036,SG
+npa,9037,AR
+npa,9038,AR
+npa,9042,AR
+npa,9043,AR
+npa,9044,AR
+npa,9050,AI
+npa,9052,AR
+npa,9053,AR
+npa,9054,AI
+npa,9055,AR
+npa,9056,AR
+npa,9057,AI
+npa,9058,AI
+npa,9062,AR
+npa,9063,AR
+npa,9064,AR
+npa,9100,AR
+npa,9103,AR
+npa,9104,AR
+npa,9107,AR
+npa,9108,AI
+npa,9112,AR
+npa,9113,SG
+npa,9114,SG
+npa,9115,SG
+npa,9116,SG
+npa,9122,SG
+npa,9123,SG
+npa,9125,SG
+npa,9126,SG
+npa,9127,SG
+npa,9200,SG
+npa,9203,SG
+npa,9204,SG
+npa,9205,SG
+npa,9212,SG
+npa,9213,TG
+npa,9214,TG
+npa,9215,TG
+npa,9216,TG
+npa,9217,TG
+npa,9220,TG
+npa,9223,TG
+npa,9225,TG
+npa,9230,SG
+npa,9231,SG
+npa,9240,SG
+npa,9242,SG
+npa,9243,SG
+npa,9244,SG
+npa,9245,SG
+npa,9246,SG
+npa,9247,SG
+npa,9248,SG
+npa,9249,SG
+npa,9300,SG
+npa,9304,SG
+npa,9305,SG
+npa,9306,TG
+npa,9308,SG
+npa,9312,SG
+npa,9313,SG
+npa,9314,TG
+npa,9315,TG
+npa,9320,TG
+npa,9322,TG
+npa,9323,SG
+npa,9325,TG
+npa,9326,TG
+npa,9327,SG
+npa,9400,SG
+npa,9402,SG
+npa,9403,SG
+npa,9404,SG
+npa,9405,AR
+npa,9410,AR
+npa,9411,AR
+npa,9413,AI
+npa,9422,SG
+npa,9423,SG
+npa,9424,SG
+npa,9425,SG
+npa,9426,AR
+npa,9427,AR
+npa,9428,AR
+npa,9430,SG
+npa,9434,SG
+npa,9435,SG
+npa,9436,SG
+npa,9437,SG
+npa,9443,SG
+npa,9444,SG
+npa,9445,SG
+npa,9450,SG
+npa,9451,SG
+npa,9452,SG
+npa,9453,SG
+npa,9462,SG
+npa,9463,SG
+npa,9464,SG
+npa,9465,SG
+npa,9466,SG
+npa,9467,SG
+npa,9468,SG
+npa,9469,SG
+npa,9470,SG
+npa,9472,SG
+npa,9473,SG
+npa,9475,SG
+npa,9476,SG
+npa,9477,SG
+npa,9478,SG
+npa,9479,SG
+npa,9500,SG
+npa,9502,TG
+npa,9503,TG
+npa,9504,TG
+npa,9506,TG
+npa,9507,TG
+npa,9508,TG
+npa,9512,SG
+npa,9514,TG
+npa,9515,TG
+npa,9517,TG
+npa,9523,SG
+npa,9524,SG
+npa,9525,SG
+npa,9526,SG
+npa,9527,SG
+npa,9532,TG
+npa,9533,SG
+npa,9534,SG
+npa,9535,TG
+npa,9536,SG
+npa,9542,TG
+npa,9543,TG
+npa,9545,TG
+npa,9546,TG
+npa,9547,TG
+npa,9548,TG
+npa,9552,SG
+npa,9553,TG
+npa,9554,TG
+npa,9555,TG
+npa,9556,TG
+npa,9562,TG
+npa,9565,TG
+npa,9573,TG
+npa,9601,SG
+npa,9602,SG
+npa,9604,SG
+npa,9606,SG
+npa,9607,SG
+npa,9608,SG
+npa,9612,SG
+npa,9613,SG
+npa,9614,SG
+npa,9615,SG
+npa,9620,SG
+npa,9621,SG
+npa,9622,SG
+npa,9630,SG
+npa,9631,SG
+npa,9633,SG
+npa,9642,SG
+npa,9643,SG
+npa,9650,SG
+npa,9651,SG
+npa,9652,SG
+npa,9655,SG
+npa,9656,SG
+npa,9657,SG
+npa,9658,SG

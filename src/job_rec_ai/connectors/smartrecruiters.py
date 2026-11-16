@@ -77,7 +77,7 @@ class SmartRecruitersConnector:
                                                 params={"page": page}))
 
         # Une offre peut figurer dans plusieurs groupes (un par lieu, chez Vitol) : elle passe
-        # le filtre si l'un de ses lieux est en Suisse romande
+        # le filtre si l'un de ses lieux est en Suisse
         wheres: dict[str, list[str]] = {}
         for url, where in listing:
             wheres.setdefault(url, []).append(where)

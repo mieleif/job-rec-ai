@@ -31,15 +31,14 @@ from job_rec_ai.models import Job
 from job_rec_ai.text import clean_html, normalize
 
 # Au-delà, on filtre sur le lieu écrit dans l'URL avant de télécharger les annonces
-# (Nestlé : 2 000 annonces dans le monde pour une centaine en Suisse romande). En deçà,
+# pour éviter de télécharger toutes les annonces mondiales des multinationales. En deçà,
 # on télécharge tout : certaines URL ne contiennent pas le lieu (SIG).
 FULL_SCAN_MAX = 300
 _ENTRY = re.compile(r"<url>\s*<loc>([^<]+/job/[^<]+)</loc>(?:\s*<lastmod>([^<]+)</lastmod>)?")
 _JOB_ID = re.compile(r"/(\d+)/?$")
-# Un NPA romand en fin d'URL (Mediclinic : « …-Clinique-Cecil-Secretaire-Laus-1003 », la ville
-# tronquée). 1000-1999 : GE, VD, FR, VS romand ; 2100-2999 : NE, JU, Jura bernois et Bienne.
-# 2000-2099 (Neuchâtel) exclus : ce sont surtout des années (« Graduate-Program-2026 »)
-_ROMAND_NPA = re.compile(r"-(1\d{3}|2[1-9]\d{2})$")
+# NPA possible en fin d'URL, dans toute la Suisse ; 2000-2099 écartés ici pour ne pas
+# confondre les années des programmes diplômés. Le lieu du détail tranche ensuite.
+_SWISS_NPA = re.compile(r"-(1\d{3}|2[1-9]\d{2}|[3-9]\d{3})$")
 # Date.toString() de Java : « Tue Nov 03 02:00:00 CET 2026 », quel que soit le fuseau
 _JAVA_DATE = re.compile(r"^\w{3} (\w{3}) (\d{1,2}) \d{2}:\d{2}:\d{2} \S+ (\d{4})$")
 _MONTHS = {m: i for i, m in enumerate(
@@ -117,27 +116,32 @@ def title_of(page: JobPostingPage) -> str | None:
 
 
 # Coop tronque parfois le canton à quatre lettres (« Colombier, Neuc », « Fully, Vala ») :
-# on le complète quand il est le début d'un nom de canton romand
-_CANTON_NAMES = ("Genève", "Vaud", "Fribourg", "Neuchâtel", "Valais", "Jura")
+# on le complète quand il est le début d'un nom de canton suisse
+_CANTON_NAMES = ("Genève", "Vaud", "Fribourg", "Neuchâtel", "Valais", "Jura",
+                 "Zürich", "Bern", "Luzern", "Uri", "Schwyz", "Obwalden", "Nidwalden",
+                 "Glarus", "Zug", "Solothurn", "Basel-Stadt", "Basel-Landschaft",
+                 "Schaffhausen", "Appenzell Ausserrhoden", "Appenzell Innerrhoden",
+                 "St. Gallen", "Graubünden", "Aargau", "Thurgau", "Ticino")
 
 
 def full_region(region: str | None) -> str | None:
     """« Neuc » → « Neuchâtel » ; un nom complet ou inconnu est rendu tel quel."""
     if region and len(region) <= 4:
         prefix = normalize(region)
-        for name in _CANTON_NAMES:
-            if normalize(name).startswith(prefix) and normalize(name) != prefix:
-                return name
+        matches = [name for name in _CANTON_NAMES if normalize(name).startswith(prefix)]
+        if len(matches) == 1:
+            return matches[0]
     return region
 
 
-def worth_fetching(slug: str) -> bool:
-    """Pré-filtre sur l'URL : un lieu romand y figure, y compris un canton tronqué en
-    dernier mot (Coop : « Colombier-Vendeur-Neuc ») ou un NPA romand (« …-Laus-1003 »).
+def worth_fetching(slug: str, *, allow_postal: bool = False) -> bool:
+    """Pré-filtre sur l'URL : un lieu suisse y figure, y compris un canton tronqué en
+    dernier mot (Coop : « Colombier-Vendeur-Neuc »). Un NPA seul ne suffit que pour
+    un board déjà limité à la Suisse : Brisbane 4000 et Lausanne 1003 ont quatre chiffres.
     Grossier exprès : le verdict vient du lieu de l'annonce, une fois téléchargée."""
     last = slug.rsplit("-", 1)[-1]
     return (mentions_target_place(slug) or mentions_target_place(full_region(last))
-            or bool(_ROMAND_NPA.search(slug)))
+            or (allow_postal and bool(_SWISS_NPA.search(slug))))
 
 
 def location_of(page: JobPostingPage, url: str, title: str | None) -> str:
@@ -186,10 +190,13 @@ class SuccessFactorsConnector:
         if not entries:
             raise ValueError(f"aucune annonce de {board} dans {site}/sitemap.xml")
         prefilter = len(entries) > FULL_SCAN_MAX
+        # Hirslanden est la branche suisse du sitemap Mediclinic, filtrée ci-dessus.
+        # Sur un board mondial (EY), un code à quatre chiffres peut être étranger.
+        allow_postal = parts.path.casefold() == "/hirslanden"
 
         postings = []
         for url, lastmod in entries:
-            if prefilter and not worth_fetching(_slug(url)):
+            if prefilter and not worth_fetching(_slug(url), allow_postal=allow_postal):
                 continue
             raw = get_html_or_skip(client, url)  # retirée mais encore dans le sitemap : None
             if raw is None:

@@ -3,21 +3,60 @@
 Le carnet de bord du projet : où on en est, ce qu'on a décidé et pourquoi, la suite.
 Les tâches cochables restent dans [ROADMAP.md](ROADMAP.md) ; ce fichier ne les recopie pas.
 
-_Dernière mise à jour : 2026-11-07_
+_Dernière mise à jour : 2026-11-16_
 
 ## Où on en est
 
 | Étape | Checkpoint | Ce qui reste |
 |---|---|---|
 | M0 · Setup | 9/9 (avec une note locale, voir « Contraintes ») | règles perso dans `CLAUDE.md`, Milestones GitHub, questions de contrôle |
-| M1 · Collecte | **8/8** (fixtures réelles pour les 13 connecteurs) | **1 692 offres réelles** en Suisse romande francophone (GE 681, VD 511, FR 214, NE 106, BE 83, VS 72, JU 25 ; 58 employeurs et 1 agence). Restent : note HTTP, questions de contrôle |
-| M2 · Pipeline | 7/7 (livrable : [notebook « 5 graphiques »](notebooks/marche-emploi.ipynb)) | installer le timer sur le VPS, note ETL/ELT, questions de contrôle |
+| M1 · Collecte | **8/8** (fixtures réelles pour les 13 connecteurs) | **5 046 offres actives**, 26 cantons, 64 sources avec des annonces (collecte locale du 15–16.11). VPS à mettre à jour ; note HTTP et questions de contrôle restantes |
+| M2 · Pipeline | 7/7 (livrable : [notebook « 5 graphiques »](notebooks/marche-emploi.ipynb)) | timer actif sur le VPS (03:17 UTC) ; note ETL/ELT, questions de contrôle |
 | M3 · Baseline | code 6/6 ; BM25 en production (`recommend`), nDCG@10 0,779 sur 38 offres notées | 3-4 CV anonymisés de plus, note « mesurer avant d'optimiser », questions de contrôle |
-| M4 → M8 | pas commencé | |
+| M4 → M7 | embeddings en pause ; intégration DoxAI en service | voir ROADMAP.md |
+| M8 · Production | API déployée sur le VPS, checkpoint API 3/3 lors de sa préparation | suivi et livrables restants dans ROADMAP.md |
 
-Tests du projet : 391 réussis.
+Tests du projet : 487 réussis (2026-11-16) ; Ruff valide.
 
 ## Décisions
+
+- **2026-11-16 · Géographie suisse adossée au répertoire officiel des localités.** La
+  relecture de la branche nationale a trouvé des homonymes étrangers classés suisses
+  (Emmen NL, Cham DE, Baden AT ; en base 3 offres : Freiburg i. Br. et Palma de Mallorca) et
+  une table NPA partielle. NPA et noms de localités viennent désormais du répertoire
+  swisstopo (open data), compacté dans `ch_localities.csv` par `localities.py` ; la liste
+  manuelle reste en premier pour les exonymes (Geneva, Genf). Un nom du répertoire doit
+  occuper seul un morceau du lieu (« Rue », « Sur », « Ins » sont des localités) ; noms et
+  NPA ambigus écartés (« Stein », 1290). Veto étendu aux pays, régions, États américains et
+  villes frontalières. Moutier → JU (depuis le 01.01.2026). Règle « code postal à cinq
+  chiffres = étranger » rejetée : l'État de Genève colle le n° de rue au NPA (14 offres
+  perdues). Effet : offres sans canton 135 → 70 ; 3 sortent du périmètre ; 4 changent de
+  canton. Mettre à jour la table : retélécharger le répertoire, relancer le module.
+
+- **2026-11-16 · Collecte nationale mesurée et pré-filtre corrigé.** Base locale passée de
+  1 692 à **5 046 offres actives (+198,2 %)** : 26 cantons, 64 sources avec des annonces,
+  3 507 nouvelles URL, 182 réactivées, 335 anciennes offres devenues inactives. Parmi les
+  lieux actuels, 3 226 offres hors ancien filtre sont maintenant rattachées à un canton.
+  Premier crawl : 3 h 14, dont 87 min chez EY avant une déconnexion ; ses anciennes offres
+  ont été conservées. Cause de lenteur : des codes postaux étrangers à quatre chiffres
+  passaient le pré-filtre NPA. Ce raccourci est désormais réservé au board suisse Hirslanden.
+  Reprise EY : 123 offres en 2 min 17, aucune erreur résiduelle ni offre active non rafraîchie.
+  Alerte OIM (8 → 2) à examiner ; Coop représente 52,5 % du corpus. Les NPA et communes
+  restent partiels : 103 offres sans canton dans la vue API. [Bilan](docs/crawl-suisse-2026-11-15.md).
+  Aucun déploiement VPS effectué ; durée d'un cycle complet corrigé et mémoire VPS non mesurées.
+
+- **2026-11-15 · Toute la Suisse, à la demande de Leif.** Remplace le périmètre
+  linguistique du 05.11 : 26 cantons, Haut-Valais, Singine, Seeland et Tessin inclus.
+  `geo` reconnaît les cantons et principales communes ; pays suisse explicite accepté même
+  sans canton connu, sans généraliser les plages NPA approximatives. Pré-filtre
+  SuccessFactors élargi, JSON-LD garde le contexte pays/région, Lonza réactivée. Aucun
+  changement du contrat API, du schéma ou des dépendances. Les employeurs restent ceux du
+  catalogue ; les offres multi-sites n'ont toujours qu'un canton. Documentation actualisée
+  pour le VPS déjà en ligne : nouvelle image + collecte complète, anciens chiffres de durée
+  et mémoire clairement historiques. Déploiement et volume national non vérifiés ici.
+  Clone synchronisé avec `origin/main` (8 commits, jusqu'à `c280f60`) avant modification ;
+  branches distantes non fusionnées `m1-m2-livrables`, `m3-notes`, `m4-embeddings` conservées.
+  `/karpthy_guidelines` introuvable dans les consignes locales installées.
 
 - **2026-11-07 · Domaine web de chaque employeur, pour les logos de DoxAI.** DoxAI affiche
   le logo via `img.logo.dev/<domaine>` : chaque offre des quatre routes gagne
@@ -376,6 +415,15 @@ Tests du projet : 391 réussis.
 
 ## Prochaines étapes
 
+- Publier l'image contenant le périmètre suisse, appliquer la mise à jour documentée sur le
+  VPS et lancer une collecte complète. Comparer au bilan local de 5 046 offres ; mesurer
+  durée, mémoire et qualité sur le VPS (le premier essai local non corrigé dépassait 3 h) ;
+  les anciens chiffres romands et nDCG@10 ne valent pas mesure du corpus national.
+  Après déploiement, `job-rec-ai rederive` applique la nouvelle géographie aux offres en base.
+- Coop (52,5 % du corpus) : les offres n'ont que leur titre. Récupérer la description dans
+  le connecteur SuccessFactors, sinon BM25 et embeddings n'ont rien à comparer et la langue
+  est mal détectée.
+
 1. Familles de métiers : 667 offres sur 1 884 dans « Autre » (Coop, Lonza, État de
    Fribourg) : enrichir `families.py` (allemand surtout) ou attendre l'extraction par LLM (M5).
 2. Romandie : identifier l'ATS des États de Neuchâtel, du Valais et du Jura et de l'Hôpital
@@ -404,6 +452,22 @@ Tests du projet : 391 réussis.
 8. Finir M0 : règles perso dans `CLAUDE.md`, Milestones GitHub.
 
 ## Journal des sessions
+
+- **2026-11-16** (relecture) : revue de la branche `codex/switzerland-crawl` ; géographie
+  sur le répertoire officiel swisstopo, veto des homonymes étrangers étendu, Moutier → JU.
+  Mesuré sur la base locale sans la modifier : 135 → 70 offres sans canton. Constat :
+  les 2 651 offres Coop n'ont que leur titre (médiane 34 caractères), donc 1 506 sont
+  détectées `en` à tort. Ruff valide, 487 tests réussis.
+
+- **2026-11-16** : fin du crawl local et comparaison à la sauvegarde ; 4 961 offres au premier
+  passage, puis 5 046 après reprise d'EY. Correctif du pré-filtre postal SuccessFactors,
+  bilan détaillé, README et procédure VPS actualisés. Ruff valide, 453 tests réussis.
+
+- **2026-11-15** : synchronisation GitHub ; périmètre de collecte étendu aux 26 cantons,
+  Lonza réactivée, tests géographiques/connecteurs adaptés, documentation et roadmap
+  alignées sur le VPS déjà déployé. Ruff valide, 447 tests réussis. Copie locale :
+  1 692 offres actives (dernière collecte le 05.11), aucun nouveau volume national mesuré.
+  Nouvelle collecte nationale à lancer après publication.
 
 - **2026-11-07** (soir) : `company_domain` sur `/jobs`, `/jobs/{id}`, `/jobs/{id}/similar` et
   `/recommend` (logos de DoxAI) : colonne `domain` de `companies.csv` (65 sources),

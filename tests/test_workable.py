@@ -31,7 +31,7 @@ def _handler(request: httpx.Request) -> httpx.Response:
     return httpx.Response(200, json={"name": "Acme", "jobs": [
         _job("A1", "Laborantin·e", "Martigny"),
         _job("B2", "Statisticien·ne", "Zürich"),
-        # multi-sites : gardée si l'un des lieux est romand
+        # multi-sites : gardée si l'un des lieux est suisse
         _job("C3", "Auditeur·rice", "Basel", locations=[
             {"city": "Basel", "country": "Switzerland"},
             {"city": "Lausanne", "country": "Switzerland"}]),
@@ -47,8 +47,9 @@ def test_workable_fetch_filtre_et_parse(sleeps):
     connector = REGISTRY["workable"]
     with PoliteClient(transport=httpx.MockTransport(_handler), sleep=sleeps.append) as client:
         payload = connector.fetch("acme", "Acme", client, keep=is_target)
-    first, second, third = connector.parse(payload)
-    assert (first.title, second.title) == ("Laborantin·e", "Auditeur·rice")  # Zürich écarté
+    first, zurich, second, third = connector.parse(payload)
+    assert zurich.location == "Zürich, Switzerland"
+    assert (first.title, second.title) == ("Laborantin·e", "Auditeur·rice")
     assert third.location == "Eclagnens, Vaud, Switzerland"
     assert first.location == "Martigny, Switzerland"
     assert second.location == "Basel, Switzerland / Lausanne, Switzerland"

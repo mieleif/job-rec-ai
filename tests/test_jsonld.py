@@ -42,7 +42,7 @@ PAGES = {
     "/emplois/offres/2": ad("Juriste"),  # sans lieu : gardée
     "/emplois/offres/3": ad("Huissier", "Place du  Bourg-de-Four 1​&amp;#160;"),
     "/emplois/offres/4": "<html><body>Page d'information</body></html>",
-    # employeur multi-sites (CSEM) : une ville nommée hors Suisse romande est écartée,
+    # employeur multi-sites (CSEM) : les sites alémaniques sont également gardés,
     # un simple nom de pays ne situe rien et reste
     "/emplois/offres/6": ad("Ingénieur·e", "Alpnach"),
     "/emplois/offres/7": ad("Chercheur·se", "Switzerland"),
@@ -65,13 +65,14 @@ def test_jsonld_fetch_et_parse(site_client):
     connector = REGISTRY["jsonld"]
     payload = connector.fetch(BOARD, "État", site_client, keep=is_target)
     # page 2 suivie via rel="next" ; la page sans JSON-LD ignorée ; filtre de lieu seulement
-    # sur une ville nommée (Alpnach écartée ; sans lieu, rue ou pays seul : gardées)
-    assert [p["url"].rsplit("/", 1)[1] for p in payload["postings"]] == ["1", "2", "3", "7"]
-    first, second, third, _ = connector.parse(payload)
+    # sur une ville nommée (Alpnach incluse ; sans lieu, rue ou pays seul : gardées)
+    assert [p["url"].rsplit("/", 1)[1] for p in payload["postings"]] == ["1", "2", "3", "6", "7"]
+    first, second, third, alpnach, _ = connector.parse(payload)
     assert (first.title, first.location, first.posted_at) == (
         "Analyste de données", "Genève, CH", date(2026, 10, 20))
     assert first.description == "Vous l'aimerez : Python."  # entités et balises nettoyées
     assert first.employment_type == "FULL_TIME, PART_TIME" and first.source_id == "REF-1"
+    assert alpnach.location == "Alpnach, CH"
     assert second.location == ""  # pas de lieu publié : le canton viendra de l'employeur
     assert third.location == "Place du Bourg-de-Four 1, CH"  # entités et U+200B nettoyés
 
@@ -113,7 +114,7 @@ def test_vraie_fixture_texte_propre():
 
 
 @pytest.mark.parametrize("address, expected", [
-    ({"addressLocality": "Alpnach", "addressCountry": "CH"}, ["Alpnach"]),
+    ({"addressLocality": "Alpnach", "addressCountry": "CH"}, ["Alpnach, CH"]),
     ({"addressLocality": "-", "addressRegion": "Zürich"}, ["Zürich"]),  # Vaudoise
     ({"addressLocality": "-", "addressRegion": "-"}, []),
     ({"addressLocality": "Place du Bourg-de-Four 1"}, []),
@@ -159,7 +160,7 @@ def test_code_de_canton_nu():
                                                            "addressRegion": "FR"}}})
     assert places == ["(FR)"] and is_target(places[0])  # Fribourg, pas le code pays
     zurich = named_localities({"jobLocation": {"address": {"addressRegion": "ZH"}}})
-    assert not is_target(zurich[0])
+    assert is_target(zurich[0])
 
 
 def test_pagination_non_suivie_signalee(sleeps, caplog):
@@ -173,3 +174,15 @@ def test_pagination_non_suivie_signalee(sleeps, caplog):
     with PoliteClient(transport=httpx.MockTransport(handler), sleep=sleeps.append) as client:
         assert listed_links(client, f"{SITE}/emplois") == [f"{SITE}/emplois/1"]
     assert "3 pages annoncées, 1 lues" in caplog.text
+
+
+@pytest.mark.parametrize("city, country, expected", [
+    ("Comune sconosciuto", "CH", True), ("Lugano", "CH", True),
+    ("Zurich", "Germany", False), ("Geneva", "United States", False),
+])
+def test_filtre_jsonld_conserve_le_pays(city, country, expected, site_client, monkeypatch):
+    page = ad("Analyste", city).replace('"addressCountry": "CH"',
+                                         f'"addressCountry": "{country}"')
+    monkeypatch.setitem(PAGES, "/emplois/offres/1", page)
+    payload = REGISTRY["jsonld"].fetch(BOARD, "État", site_client, keep=is_target)
+    assert any(p["url"].endswith("/1") for p in payload["postings"]) is expected
