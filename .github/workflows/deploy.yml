@@ -1,0 +1,92 @@
+# Déploie sur le VPS l'image d'un commit de main, une fois sa CI et son image réussies.
+#
+# - Automatique : chaque push sur main (fusion d'une PR) dont les workflows CI et Image ont
+#   réussi. Les deux déclenchent ce workflow en finissant ; le premier arrivé voit l'autre
+#   encore en cours et passe son tour, le second déploie.
+# - À la main (Actions → Deploy → Run workflow) : un SHA de main au choix, vide = le dernier.
+#   C'est aussi le retour arrière : relancer avec le SHA d'avant.
+#
+# Le travail sur le VPS est fait par deploy/deploy.sh (tag exact, vérification, retour
+# arrière automatique). Il refuse de toucher l'API pendant la collecte nocturne : relancer
+# alors à la main après ~06:30 UTC.
+name: Deploy
+
+on:
+  workflow_run:
+    workflows: [CI, Image]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      sha:
+        description: SHA complet d'un commit de main (vide = dernier commit de main)
+        required: false
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.event == 'push' &&
+       github.event.workflow_run.conclusion == 'success')
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Choisir le commit, vérifier sa CI et son image
+        id: plan
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT: ${{ github.event_name }}
+          INPUT_SHA: ${{ inputs.sha }}
+          RUN_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          set -euo pipefail
+          sha="${INPUT_SHA:-${RUN_SHA:-$(git rev-parse origin/main)}}"
+          if [[ ! "$sha" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "SHA complet attendu : $sha" >&2; exit 2
+          fi
+          if ! git merge-base --is-ancestor "$sha" origin/main; then
+            echo "$sha n'est pas un commit de main" >&2; exit 2
+          fi
+          for workflow in ci.yml image.yml; do
+            state=$(gh run list --workflow "$workflow" --commit "$sha" --event push --limit 1 \
+              --json status,conclusion -q '.[0] | "\(.status) \(.conclusion)"')
+            if [[ "$state" != "completed success" ]]; then
+              echo "$workflow pour $sha : ${state:-aucun run}"
+              # Déclenché par un workflow : l'autre finira et redéclenchera. À la main : échec.
+              if [[ "$EVENT" == workflow_dispatch ]]; then exit 1; fi
+              echo "deploy=false" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          done
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+          echo "deploy=true" >> "$GITHUB_OUTPUT"
+
+      - name: Déployer sur le VPS
+        if: steps.plan.outputs.deploy == 'true'
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.PRODUCTION_SSH_PRIVATE_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.PRODUCTION_SSH_KNOWN_HOSTS }}
+          SSH_HOST: ${{ secrets.PRODUCTION_SSH_HOST }}
+          SSH_USER: ${{ secrets.PRODUCTION_SSH_USER }}
+          TAG: ${{ steps.plan.outputs.sha }}
+        run: |
+          set -euo pipefail
+          install -m 700 -d "$HOME/.ssh"
+          printf '%s\n' "$SSH_PRIVATE_KEY" > "$HOME/.ssh/id_deploy"
+          printf '%s\n' "$SSH_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
+          chmod 600 "$HOME/.ssh/id_deploy" "$HOME/.ssh/known_hosts"
+          ssh -i "$HOME/.ssh/id_deploy" -o BatchMode=yes "$SSH_USER@$SSH_HOST" \
+            "TAG=$TAG bash -s" < deploy/deploy.sh
