@@ -237,17 +237,18 @@ def test_lieu_avec_canton_tronque():
     ("Lausanne-Vendeur-Vaud", True),
     ("Basel-Verkaufer-Base", True), ("Thun-Verkaufer-Bern", True),
     # Mediclinic : ville tronquée, NPA en fin d'URL ; une année n'est pas un NPA
-    ("Hirslanden-Clinique-Cecil-Secretaire-medicale-Laus-1003", True),
-    ("Hirslanden-Klinik-Hirslanden-Pflegefachperson-Zuri-8032", True),
+    ("Hirslanden-Clinique-Cecil-Secretaire-medicale-Laus-1003", False),
+    ("Hirslanden-Klinik-Hirslanden-Pflegefachperson-Zuri-8032", False),
     ("Graduate-Programme-Audit-2026", False),
 ])
 def test_prefiltre_canton_tronque(slug, expected):
     assert successfactors.worth_fetching(slug) == expected
 
 
-def test_board_avec_chemin(sleeps):
+def test_board_avec_chemin(sleeps, monkeypatch):
     """Mediclinic : un sitemap pour plusieurs marques ; le board /Hirslanden ne lit que les
     siennes (l'Afrique du Sud n'est même pas téléchargée)."""
+    monkeypatch.setattr(successfactors, "FULL_SCAN_MAX", 0)
     sitemap = (f"<url><loc>{SITE}/Hirslanden/job/Cecil-Secretaire-Laus-1003/1/</loc></url>"
                f"<url><loc>{SITE}/SouthernAfrica/job/Morningside-Nurse-Sand-2196/2/</loc></url>")
     page = ('<span itemprop="addressLocality">Clinique Cecil</span>'
@@ -281,3 +282,20 @@ def test_gros_sitemap_garde_toute_la_suisse(city, sf_client, requested, monkeypa
         "</urlset>", f"<url><loc>{SITE}{path}</loc></url></urlset>"))
     jobs = REGISTRY["successfactors"].fetch(SITE, "Acme", sf_client, keep=is_target)
     assert any(p["url"] == f"{SITE}{path}" for p in jobs["postings"])
+
+
+@pytest.mark.parametrize("slug", [
+    "Brisbane-Consultant-QLD-4000", "Debrecen-Analyst-Debrecen-4021",
+    "Limassol-Senior-Auditor-4003", "Sydney-Consultant-NSW-2000",
+])
+def test_code_postal_etranger_ne_suffit_pas(slug):
+    assert not successfactors.worth_fetching(slug)
+
+
+@pytest.mark.parametrize("slug", [
+    "Hirslanden-Clinique-Cecil-Secretaire-medicale-Laus-1003",
+    "Hirslanden-Klinik-Hirslanden-Pflegefachperson-Zuri-8032",
+])
+def test_npa_seul_sur_board_suisse(slug):
+    assert not successfactors.worth_fetching(slug)
+    assert successfactors.worth_fetching(slug, allow_postal=True)

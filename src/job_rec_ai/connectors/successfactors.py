@@ -134,13 +134,14 @@ def full_region(region: str | None) -> str | None:
     return region
 
 
-def worth_fetching(slug: str) -> bool:
+def worth_fetching(slug: str, *, allow_postal: bool = False) -> bool:
     """Pré-filtre sur l'URL : un lieu suisse y figure, y compris un canton tronqué en
-    dernier mot (Coop : « Colombier-Vendeur-Neuc ») ou un NPA suisse (« …-Laus-1003 »).
+    dernier mot (Coop : « Colombier-Vendeur-Neuc »). Un NPA seul ne suffit que pour
+    un board déjà limité à la Suisse : Brisbane 4000 et Lausanne 1003 ont quatre chiffres.
     Grossier exprès : le verdict vient du lieu de l'annonce, une fois téléchargée."""
     last = slug.rsplit("-", 1)[-1]
     return (mentions_target_place(slug) or mentions_target_place(full_region(last))
-            or bool(_SWISS_NPA.search(slug)))
+            or (allow_postal and bool(_SWISS_NPA.search(slug))))
 
 
 def location_of(page: JobPostingPage, url: str, title: str | None) -> str:
@@ -189,10 +190,13 @@ class SuccessFactorsConnector:
         if not entries:
             raise ValueError(f"aucune annonce de {board} dans {site}/sitemap.xml")
         prefilter = len(entries) > FULL_SCAN_MAX
+        # Hirslanden est la branche suisse du sitemap Mediclinic, filtrée ci-dessus.
+        # Sur un board mondial (EY), un code à quatre chiffres peut être étranger.
+        allow_postal = parts.path.casefold() == "/hirslanden"
 
         postings = []
         for url, lastmod in entries:
-            if prefilter and not worth_fetching(_slug(url)):
+            if prefilter and not worth_fetching(_slug(url), allow_postal=allow_postal):
                 continue
             raw = get_html_or_skip(client, url)  # retirée mais encore dans le sitemap : None
             if raw is None:

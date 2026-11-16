@@ -16,7 +16,7 @@ Où on en est, et les décisions prises : **[PROGRESS.md](PROGRESS.md)**.
 | Étape | Statut |
 |---|---|
 | M0 · Setup | 🚧 en cours |
-| M1 · Collecte | 🚧 périmètre étendu aux 26 cantons ; volume national à mesurer après déploiement |
+| M1 · Collecte | 🚧 5 046 offres actives dans 26 cantons (collecte locale du 15–16.11.2026) |
 | M2 · Pipeline | ✅ collecte nocturne active sur le VPS (03:17 UTC) ; notes restantes |
 | M3 · Baseline et évaluation | 🚧 BM25 en service ; nDCG@10 0,779 sur 38 offres notées |
 | M4 · Embeddings et recherche sémantique | ⏳ |
@@ -24,6 +24,12 @@ Où on en est, et les décisions prises : **[PROGRESS.md](PROGRESS.md)**.
 | M6 · Re-ranking | ⏳ |
 | M7 · Feedback et swipe | ⏳ |
 | M8 · Production | 🚧 API Docker en ligne sur le VPS de DoxAI ; étapes restantes dans la roadmap |
+
+## Première collecte nationale
+
+**1 692 → 5 046 offres actives (+198,2 %)**, 26 cantons représentés, 64 sources avec des
+annonces actives. Mesure locale du 15–16 novembre 2026, après reprise réussie d'EY ;
+le VPS reste à mettre à jour. [Comparaison détaillée et limites](docs/crawl-suisse-2026-11-15.md).
 
 ## Le marché romand en images (instantané historique)
 

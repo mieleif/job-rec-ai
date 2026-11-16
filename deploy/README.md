@@ -253,3 +253,17 @@ restent dans la base jusqu'à une nouvelle collecte avec l'ancien périmètre ; 
 l'ancienne image seule ne restaure donc pas le corpus romand. Lonza, ignorée par l'ancienne
 configuration, conserve ses lignes : restaurer une sauvegarde d'avant la mise à jour si un
 retour exact aux anciennes données est nécessaire.
+
+
+### Mesure locale et correctif du 16.11.2026
+
+La collecte locale compte désormais **5 046 offres actives dans les 26 cantons**. Le premier
+passage a duré **3 h 14**, dont 87 min sur EY avant une déconnexion. Le pré-filtre
+SuccessFactors téléchargeait trop d'annonces étrangères à cause des codes postaux à quatre
+chiffres ; un code postal seul n'est maintenant admis que sur le board suisse Hirslanden.
+La reprise d'EY avec le correctif a réussi en **2 min 17** (123 offres).
+
+Déployer la version incluant ce correctif. Le cycle complet corrigé n'a pas été remesuré,
+et les limites de mémoire restent à valider sur le VPS : conserver la surveillance du délai
+systemd de 3 h et du rapport qualité. Le nombre local ne prouve pas le nombre actuellement
+servi par le VPS. [Bilan détaillé](../docs/crawl-suisse-2026-11-15.md).
