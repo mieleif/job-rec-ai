@@ -1,19 +1,22 @@
 """Géographie : rattacher un texte de lieu libre (« Genève, GE, Switzerland ») à un canton.
 
 Les ATS écrivent les lieux de façon hétérogène : Geneva / Genève / Genf, « Lausanne, VD »,
-« Meyrin (GE) », « 2 Locations »… On ne cherche pas la perfection : une liste de communes
-de Suisse où se trouvent les employeurs, plus les noms de canton.
+« Meyrin (GE) », « 2 Locations »… Deux sources, de la plus précise à la plus large :
+1. une liste écrite à la main (exonymes et quartiers : Geneva, Genf, Plainpalais…),
+   cherchée n'importe où dans le texte ;
+2. le répertoire officiel des localités (swisstopo, voir localities.py) : tous les NPA et
+   noms de localités / communes, mais un nom ne compte que s'il forme à lui seul un
+   morceau du lieu (« CH - Ittigen », « Ittigen, Bern ») : « Rue », « Sur » ou « Ins »
+   sont des localités, pas des mots à chercher dans « Rue du Rhône ».
 """
 
 import re
 
+from job_rec_ai import localities
 from job_rec_ai.text import compile_keywords, first_match, normalize
 
 # Périmètre : toute la Suisse, sans restriction linguistique (15.11.2026).
-TARGET_CANTONS = {
-    "AG", "AI", "AR", "BE", "BL", "BS", "FR", "GE", "GL", "GR", "JU", "LU", "NE",
-    "NW", "OW", "SG", "SH", "SO", "SZ", "TG", "TI", "UR", "VD", "VS", "ZG", "ZH",
-}
+TARGET_CANTONS = set(localities.SWISS_CANTONS)
 # Le pays des cantons cibles, tel que l'écrivent les ATS dans leurs filtres de recherche
 TARGET_COUNTRY = "Switzerland"
 
@@ -69,9 +72,10 @@ _PLACES = {
         "delemont", "porrentruy", "bassecourt", "saignelegier", "courrendlin",
         "courgenay", "glovelier", "le noirmont", "les breuleux", "courroux", "boncourt",
         "canton du jura",
+        "moutier",  # jurassienne depuis le 01.01.2026 (vote de 2021), bernoise avant
     ],
     "BE": [
-        "bienne", "biel", "saint-imier", "st-imier", "moutier", "tavannes",
+        "bienne", "biel", "saint-imier", "st-imier", "tavannes",
         "tramelan", "reconvilier", "la neuveville", "courtelary", "sonceboz", "malleray",
         "bevilard", "cormoret", "villeret", "corgemont", "jura bernois",
     ],
@@ -121,39 +125,62 @@ _PATTERNS = compile_keywords(
 _CODES = "|".join(sorted(TARGET_CANTONS))
 _ABBREV = re.compile(r"\b(GE|VD)\b|\((" + _CODES + r")\)")
 _SWISS_ABBREV = re.compile(r"\b(" + _CODES + r")\b")
-# Homonymes à l'étranger : Geneva (Illinois, New York), Bellevue (Washington), Freiburg
-# im Breisgau, Neuenburg am Rhein… « , DE » en fin de lieu : le code pays de l'Allemagne.
-# Communes homonymes en Suisse romande même (Colombier, Corcelles et Fontaines existent dans
-# VD et NE ; « Fully » est aussi un mot anglais des URL) : non listées, faute de pouvoir
-# trancher sur le nom seul.
+# Homonymes à l'étranger : un lieu qui nomme un pays, une région ou un code postal étrangers
+# n'est pas en Suisse, même s'il porte un nom de localité suisse (Emmen aux Pays-Bas, Cham
+# en Bavière, Baden en Autriche, Lucerne en Californie, Freiburg im Breisgau…). Indices :
+# - un pays ou une région étrangers en toutes lettres (en, fr, de, it) ;
+# - un État américain, en toutes lettres ou en code en fin de lieu (« New Bern, NC ») ;
+#   « NE » et « AR » en sont exclus (Neuchâtel, Appenzell Rhodes-Extérieures), « Montana »
+#   aussi (Crans-Montana) ;
+# - les villes frontalières écrites avec la ville suisse voisine (« Saint-Louis (Bâle) »).
+# Pas de veto « code postal à cinq chiffres » : l'État de Genève colle le numéro de rue au
+# NPA (« Rue David-Dufour 51205 Genève »), ce qui écartait 14 offres genevoises.
+# Communes homonymes en Suisse même (Colombier, Corcelles et Fontaines existent dans VD et
+# NE) : non listées, faute de pouvoir trancher sur le nom seul.
+_COUNTRIES = (
+    "united states|usa|united kingdom|uk|england|scotland|ireland|irlande|france|italy|"
+    "italia|italie|germany|deutschland|allemagne|germania|belgium|belgique|netherlands|"
+    "nederland|niederlande|pays bas|austria|osterreich|autriche|liechtenstein|"
+    "luxembourg|spain|espana|espagne|portugal|poland|polska|pologne|czech|czechia|hungary|"
+    "slovakia|slovenia|croatia|serbia|romania|bulgaria|greece|cyprus|malta|denmark|"
+    "sweden|norway|finland|india|china|singapore|japan|korea|taiwan|hong kong|australia|"
+    "new zealand|canada|mexico|brazil|argentina|south africa|israel|turkey|"
+    "united arab emirates|uae|dubai|bavaria|bayern|baden wurttemberg|breisgau|i\\.? ?br|"
+    "sardinia|sardegna|mallorca|baleares|haute savoie|alsace|lombardia|lombardy|piemonte|"
+    "vorarlberg|tirol"
+)
+_US_STATES = (
+    "alabama|alaska|arizona|arkansas|california|colorado|connecticut|delaware|florida|"
+    "georgia|hawaii|idaho|illinois|indiana|iowa|kansas|kentucky|louisiana|maine|maryland|"
+    "massachusetts|michigan|minnesota|mississippi|missouri|nebraska|nevada|new hampshire|"
+    "new jersey|new mexico|new york|north carolina|north dakota|ohio|oklahoma|oregon|"
+    "pennsylvania|rhode island|south carolina|south dakota|tennessee|texas|utah|vermont|"
+    "virginia|washington|west virginia|wisconsin|wyoming"
+)
+_US_CODES = (
+    "al|ak|az|ca|co|ct|fl|ga|hi|ia|id|il|in|ks|ky|la|ma|md|me|mi|mn|mo|ms|mt|nc|nd|nh|nj|"
+    "nm|nv|ny|oh|ok|or|pa|ri|sc|sd|tn|tx|ut|va|vt|wa|wi|wv|wy"
+)
+_BORDER_TOWNS = (
+    "baden baden|saint louis|st louis|huningue|lorrach|weil am rhein|konstanz|mulhouse|annemasse|"
+    "saint julien en genevois|ferney voltaire|divonne|thonon|evian|neuenburg am rhein|"
+    "am rhein|como|varese"
+)
 _FOREIGN = re.compile(
-    r"united states|\busa\b|illinois|new york|\b(il|ny|oh|al|wa)\b|ohio|alabama|"
-    r"florida|france|italy|italia|united kingdom|germany|deutschland|allemagne|belgium|"
-    r"belgique|breisgau|am rhein|baden wurttemberg|,\s*de\s*$"
+    rf"\b(?:{_COUNTRIES}|{_US_STATES}|{_BORDER_TOWNS})\b"
+    rf"|\b(?:il|ny|oh|al|wa)\b|,\s*(?:{_US_CODES}|de)\s*$"
 )
 # Une offre multi-sites (« Geneva, Switzerland, Paris, France ») cite un pays étranger sans
-# être à l'étranger : la Suisse nommée explicitement lève le veto des homonymes.
-_SWISS = re.compile(r"\b(?:switzerland|suisse|schweiz|svizzera|svizra|ch|che)\b")
+# être à l'étranger : la Suisse nommée explicitement lève le veto des homonymes. « ch » seul
+# compte, pas « ch. » (chemin : « Ch. des Mines 2 »).
+_SWISS = re.compile(r"\b(?:switzerland|suisse|schweiz|svizzera|svizra|che)\b|\bch\b(?!\.)")
 
 
 # NPA (code postal suisse) → canton, quand aucun nom de lieu n'a parlé (Mediclinic :
-# « Hirslanden Clinique Cecil, 1003 Laus », la ville tronquée). Plages approximatives : la
-# Poste publie la table exacte, mais les frontières de NPA ne suivent pas toujours celles des
-# cantons (Versoix 1290 est à GE, Estavayer 1470 à FR, Saignelégier 2350 au JU…). Les plages
-# La table reste partielle : ne pas inventer un canton à partir de grandes plages en
-# Suisse alémanique / au Tessin. Un pays suisse explicite suffit toutefois à la collecte.
-# Beaucoup de pays ont des codes postaux à 4 chiffres (Bruxelles 1000, Vienne 1010, Sydney
-# 2000, Sandton 2196) : un NPA ne compte que préfixé « CH- » ou dans un lieu qui nomme la
-# Suisse.
-_NPA_RANGES = [
-    (1000, 1199, "VD"), (1200, 1259, "GE"), (1260, 1289, "VD"), (1290, 1299, "GE"),
-    (1300, 1599, "VD"), (1600, 1799, "FR"),
-    (1800, 1869, "VD"), (1870, 1999, "VS"), (2000, 2499, "NE"),
-    (2500, 2520, "BE"), (2523, 2525, "NE"), (2532, 2538, "BE"),
-    (2540, 2545, "SO"), (2552, 2565, "BE"),
-    (2600, 2799, "BE"), (2800, 2999, "JU"),
-    (3900, 3999, "VS"), (8032, 8032, "ZH"),
-]
+# « Hirslanden Clinique Cecil, 1003 Laus », la ville tronquée), d'après le répertoire
+# officiel (localities.py). Beaucoup de pays ont des codes postaux à 4 chiffres (Bruxelles
+# 1000, Vienne 1010, Sydney 2000, Sandton 2196) : un NPA ne compte que préfixé « CH- » ou
+# dans un lieu qui nomme la Suisse.
 _NPA = re.compile(r"(?<![\d.])([1-9]\d{3})(?![\d.])")
 _CH_NPA = re.compile(r"\bCH[-\s]?([1-9]\d{3})(?!\d)")
 
@@ -172,8 +199,24 @@ def canton_of_npa(text: str) -> str | None:
         match = _NPA.search(text)
     if not match:
         return None
-    npa = int(match.group(1))
-    return next((canton for low, high, canton in _NPA_RANGES if low <= npa <= high), None)
+    npa, _ = localities.reference()
+    return npa.get(match.group(1))
+
+
+# Morceaux d'un lieu qu'un nom de localité doit occuper seul : « Ittigen, Bern »,
+# « CH - Ittigen », « Spital (Ittigen) ». Les NPA sont retirés (« 3063 Ittigen »).
+_PARTS = re.compile(r"\s*(?:,|\s[-–]\s|\(|\))\s*")
+_POSTAL = re.compile(r"\b(?:ch\s?)?\d{4}\b")
+
+
+def _directory_canton(location: str) -> str | None:
+    """Le canton d'un morceau du lieu qui est exactement un nom du répertoire officiel."""
+    _, names = localities.reference()
+    for part in _PARTS.split(location):
+        key = localities.name_key(_POSTAL.sub(" ", normalize(part)))
+        if key in names:
+            return names[key]
+    return None
 
 
 # Séparateurs des lieux multiples : « Zürich / Lausanne », « Genève; Paris », « Genève · CDI »
@@ -207,6 +250,8 @@ def _segment_canton(location: str) -> str | None:
     match = _ABBREV.search(location)
     if match:
         return match.group(1) or match.group(2)
+    if canton := _directory_canton(location):
+        return canton
     if _SWISS.search(norm):
         match = _SWISS_ABBREV.search(location)
         if match:

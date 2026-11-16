@@ -16,9 +16,22 @@ _Dernière mise à jour : 2026-11-16_
 | M4 → M7 | embeddings en pause ; intégration DoxAI en service | voir ROADMAP.md |
 | M8 · Production | API déployée sur le VPS, checkpoint API 3/3 lors de sa préparation | suivi et livrables restants dans ROADMAP.md |
 
-Tests du projet : 453 réussis (2026-11-16) ; Ruff valide.
+Tests du projet : 487 réussis (2026-11-16) ; Ruff valide.
 
 ## Décisions
+
+- **2026-11-16 · Géographie suisse adossée au répertoire officiel des localités.** La
+  relecture de la branche nationale a trouvé des homonymes étrangers classés suisses
+  (Emmen NL, Cham DE, Baden AT ; en base 3 offres : Freiburg i. Br. et Palma de Mallorca) et
+  une table NPA partielle. NPA et noms de localités viennent désormais du répertoire
+  swisstopo (open data), compacté dans `ch_localities.csv` par `localities.py` ; la liste
+  manuelle reste en premier pour les exonymes (Geneva, Genf). Un nom du répertoire doit
+  occuper seul un morceau du lieu (« Rue », « Sur », « Ins » sont des localités) ; noms et
+  NPA ambigus écartés (« Stein », 1290). Veto étendu aux pays, régions, États américains et
+  villes frontalières. Moutier → JU (depuis le 01.01.2026). Règle « code postal à cinq
+  chiffres = étranger » rejetée : l'État de Genève colle le n° de rue au NPA (14 offres
+  perdues). Effet : offres sans canton 135 → 70 ; 3 sortent du périmètre ; 4 changent de
+  canton. Mettre à jour la table : retélécharger le répertoire, relancer le module.
 
 - **2026-11-16 · Collecte nationale mesurée et pré-filtre corrigé.** Base locale passée de
   1 692 à **5 046 offres actives (+198,2 %)** : 26 cantons, 64 sources avec des annonces,
@@ -406,6 +419,10 @@ Tests du projet : 453 réussis (2026-11-16) ; Ruff valide.
   VPS et lancer une collecte complète. Comparer au bilan local de 5 046 offres ; mesurer
   durée, mémoire et qualité sur le VPS (le premier essai local non corrigé dépassait 3 h) ;
   les anciens chiffres romands et nDCG@10 ne valent pas mesure du corpus national.
+  Après déploiement, `job-rec-ai rederive` applique la nouvelle géographie aux offres en base.
+- Coop (52,5 % du corpus) : les offres n'ont que leur titre. Récupérer la description dans
+  le connecteur SuccessFactors, sinon BM25 et embeddings n'ont rien à comparer et la langue
+  est mal détectée.
 
 1. Familles de métiers : 667 offres sur 1 884 dans « Autre » (Coop, Lonza, État de
    Fribourg) : enrichir `families.py` (allemand surtout) ou attendre l'extraction par LLM (M5).
@@ -435,6 +452,12 @@ Tests du projet : 453 réussis (2026-11-16) ; Ruff valide.
 8. Finir M0 : règles perso dans `CLAUDE.md`, Milestones GitHub.
 
 ## Journal des sessions
+
+- **2026-11-16** (relecture) : revue de la branche `codex/switzerland-crawl` ; géographie
+  sur le répertoire officiel swisstopo, veto des homonymes étrangers étendu, Moutier → JU.
+  Mesuré sur la base locale sans la modifier : 135 → 70 offres sans canton. Constat :
+  les 2 651 offres Coop n'ont que leur titre (médiane 34 caractères), donc 1 506 sont
+  détectées `en` à tort. Ruff valide, 487 tests réussis.
 
 - **2026-11-16** : fin du crawl local et comparaison à la sauvegarde ; 4 961 offres au premier
   passage, puis 5 046 après reprise d'EY. Correctif du pré-filtre postal SuccessFactors,

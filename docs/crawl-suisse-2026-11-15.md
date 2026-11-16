@@ -106,6 +106,42 @@ avec ce corpus n'a pas été mesurée ici.
 Validation du code final : `uv run ruff check .` et `uv run pytest -q` — **453 tests réussis**.
 Aucun fichier de `checkpoints/` modifié.
 
+## Correctif géographique (16.11) : répertoire officiel et homonymes étrangers
+
+La relecture de la branche a trouvé deux faiblesses de `geo.py` une fois le périmètre
+élargi :
+
+- **Homonymes étrangers non bloqués.** Le veto avait été écrit pour les noms romands.
+  Emmen (Pays-Bas), Cham (Bavière), Baden (Autriche), Lucerne (Californie), Saint-Louis
+  (Bâle) étaient classés suisses. En base : 2 offres EY à « Freiburg i. Br., 79098 BW »
+  (classées FR) et 1 à « Palma de Mallorca, 07010 Bale » (classée BS).
+- **Géographie écrite à la main.** Environ 150 communes sur 2 100, et une table NPA
+  partielle (CH-8032 reconnu, pas CH-8001 ni CH-4051).
+
+Correctif : la table NPA/localités vient du **répertoire officiel des localités** de
+swisstopo (open data ; `localities.py` génère `ch_localities.csv` : 3 147 NPA, 4 362 noms).
+Un nom du répertoire ne compte que s'il forme seul un morceau du lieu (« CH - Ittigen »),
+car « Rue », « Sur » ou « Ins » sont des localités. Les noms ambigus sont écartés
+(« Stein » : AG, AR, SG), ainsi que les NPA partagés sans canton dominant (1290). Le veto
+nomme maintenant les pays, régions, États américains et villes frontalières.
+
+Le répertoire a aussi corrigé une erreur de la liste manuelle : **Moutier est jurassienne
+depuis le 01.01.2026**. Une règle « code postal à cinq chiffres = étranger » a été essayée
+puis retirée : l'État de Genève colle le numéro de rue au NPA (« Rue David-Dufour
+51205 Genève »), ce qui écartait 14 offres genevoises.
+
+Effet mesuré sur les 5 046 offres actives (lieux recalculés, base non modifiée) :
+
+| | avant | après |
+|---|---:|---:|
+| offres sans canton | 135 | **70** |
+| offres classées suisses à tort (sortent du périmètre) | — | 3 |
+| offres dont le canton change | — | 4 (Moutier → JU ; Kemptthal → ZH) |
+
+Les 70 restantes : État de Genève sans lieu ou avec une adresse en texte libre (27, canton
+venu de l'employeur dans la vue API), Lonza « CH - Stein » (24, ambigu sans contexte), lieux
+réduits au pays. Validation : ruff valide, **487 tests réussis**, checkpoints M1/M2 15/15.
+
 ## Reproductibilité
 
 - Sauvegarde avant collecte : `data/raw/switzerland-comparison-2026-11-15/before.duckdb`.

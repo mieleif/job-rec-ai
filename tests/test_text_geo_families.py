@@ -48,12 +48,76 @@ def test_detect_language_allemand_est_other():
     ("Colombier", None), ("Corcelles-Cormondrèche", "NE"),
     # NPA quand aucun nom ne parle : ville tronquée par l'ATS
     ("Hirslanden Clinique Cecil, CH-1003 Laus", "VD"), ("Clinique, 1870 Mont, Switzerland", "VS"),
-    ("Site, CH-2740 Mout", "BE"), ("Klinik, CH-8032 Zuri", "ZH"), ("Bureau 12.1234", None),
+    ("Klinik, CH-8032 Zuri", "ZH"), ("Bureau 12.1234", None),
+    # Moutier est jurassienne depuis le 01.01.2026 : le répertoire officiel le sait
+    ("Site, CH-2740 Mout", "JU"), ("Moutier", "JU"),
     # sans indice suisse, un code postal à 4 chiffres ne prouve rien
     ("1000 Bruxelles", None), ("Mediclinic Morningside, 2196 Sand", None),
 ])
 def test_canton_of(location, canton):
     assert canton_of(location) == canton
+
+
+@pytest.mark.parametrize("location, canton", [
+    # tous les NPA du répertoire officiel, pas seulement ceux de Romandie
+    ("Site, CH-8001", "ZH"), ("Basel, CH, 4051", "BS"), ("Site, CH-6500", "TI"),
+    ("Spital, 7000 Chur, Schweiz", "GR"), ("Site, CH-9999", None),  # NPA inexistant
+    # une localité absente de la liste manuelle, seule dans son morceau du lieu
+    ("CH - Ittigen", "BE"), ("Spital, Wetzikon ZH", "ZH"), ("3063 Ittigen", "BE"),
+    ("Stein AG", "AG"), ("CH - Stein", None),  # Stein AG, AR et SG : ambigu
+    # …mais pas un mot dans une phrase : « Rue » et « Sur » sont des localités
+    ("Rue du Rhône 8", None), ("Sur site", None),
+])
+def test_repertoire_officiel(location, canton):
+    assert canton_of(location) == canton
+
+
+@pytest.mark.parametrize("location", [
+    # homonymes étrangers des communes alémaniques : pays, région ou État nommés
+    "Emmen, Netherlands", "Cham, Bavaria", "Baden, Austria", "Baden-Baden",
+    "Lucerne, CA", "New Bern, NC", "Berne, Indiana", "Vaduz, Liechtenstein",
+    # vus dans la collecte (EY, Accor)
+    "Freiburg i. Br., 79098 BW", "Freiburg i.Br.", "Zürichstrasse 1, 78462 Konstanz",
+    "Palma de Mallorca, 07010 Bale",
+    # villes frontalières écrites avec leur voisine suisse
+    "Saint-Louis (Bâle)", "Lörrach (bei Basel)",
+    # « Ch. » est un chemin, pas la Suisse
+    "Ch. des Mines 2, Paris",
+])
+def test_homonymes_etrangers(location):
+    from job_rec_ai.geo import is_target
+    assert canton_of(location) is None and not is_target(location)
+
+
+@pytest.mark.parametrize("location, canton", [
+    ("Crans-Montana", "VS"),  # « Montana » n'est pas un veto
+    ("Neuchâtel, NE", "NE"), ("Herisau, AR", "AR"),  # codes de canton = codes d'États
+    ("Lausanne, Switzerland / Emmen, Netherlands", "VD"),
+    # État de Genève : numéro de rue collé au NPA, pas un code postal étranger
+    ("Rue David-Dufour 51205 Genève", "GE"),
+])
+def test_veto_sans_faux_positif(location, canton):
+    assert canton_of(location) == canton
+
+
+def test_repertoire_construit_sans_ambiguite():
+    from job_rec_ai.localities import build
+
+    def row(name, npa, commune, canton, share="100 %"):
+        return {"Ortschaftsname": name, "PLZ4": npa, "Gemeindename": commune,
+                "Kantonskürzel": canton, "Adressenanteil": share}
+
+    table = build([
+        row("Stein AG", "4332", "Stein (AG)", "AG"), row("Stein AR", "9063", "Stein (AR)", "AR"),
+        row("Versoix", "1290", "Versoix", "GE", "60 %"),
+        row("Chavannes-des-Bois", "1290", "Chavannes-des-Bois", "VD", "40 %"),
+        row("Lausanne 25", "1000", "Lausanne", "VD"), row("Vaduz", "9490", "Vaduz", "FL"),
+    ])
+    assert ("name", "stein ag", "AG") in table and ("name", "stein ar", "AR") in table
+    assert not any(key == "stein" for _, key, _ in table)  # forme courte ambiguë
+    assert not any(kind == "npa" and key == "1290" for kind, key, _ in table)  # partagé
+    assert ("name", "lausanne", "VD") in table and ("npa", "1000", "VD") in table
+    assert not any(canton == "FL" for *_, canton in table)  # Liechtenstein écarté
 
 
 @pytest.mark.parametrize("title, family", [
