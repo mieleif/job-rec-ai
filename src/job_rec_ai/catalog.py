@@ -117,6 +117,7 @@ def detail(job: dict) -> dict:
 class Query:
     q: str | None = None
     cantons: frozenset[str] = frozenset()
+    families: frozenset[str] = frozenset()  # libellés exacts de `family` (OU entre eux)
     workload_min: int | None = None
     workload_max: int | None = None
     posted_within_days: int | None = None
@@ -156,7 +157,7 @@ def search(jobs: list[dict], index: BM25, query: Query, today: date) -> dict:
     since = (today - timedelta(days=query.posted_within_days)).isoformat() \
         if query.posted_within_days is not None else None
 
-    matching = []  # tous les filtres sauf les cantons : la base des facettes
+    matching = []  # tous les filtres sauf cantons et familles : la base des facettes
     for i, job in enumerate(jobs):
         if scores is not None and scores[i] <= 0:
             continue
@@ -167,8 +168,17 @@ def search(jobs: list[dict], index: BM25, query: Query, today: date) -> dict:
             continue
         matching.append((float(scores[i]) if scores is not None else 0.0, job))
 
-    facets = Counter(job["canton"] for _, job in matching if job["canton"])
-    hits = [(s, j) for s, j in matching if not query.cantons or j["canton"] in query.cantons]
+    def in_cantons(job: dict) -> bool:
+        return not query.cantons or job["canton"] in query.cantons
+
+    def in_families(job: dict) -> bool:
+        return not query.families or job["family"] in query.families
+
+    # Chaque facette compte tous les filtres sauf le sien : on voit ce qu'élargir apporterait
+    facets = Counter(job["canton"] for _, job in matching if job["canton"] and in_families(job))
+    family_facets = Counter(job["family"] for _, job in matching
+                            if job["family"] and in_cantons(job))
+    hits = [(s, j) for s, j in matching if in_cantons(j) and in_families(j)]
 
     sort = query.sort or ("relevance" if scores is not None else "recent")
     if sort == "relevance" and scores is not None:
@@ -182,8 +192,13 @@ def search(jobs: list[dict], index: BM25, query: Query, today: date) -> dict:
         # Le nombre d'employeurs distincts parmi les résultats (« 1 701 offres de 65 entreprises »)
         "companies": len({j["company"] for _, j in hits}),
         "jobs": [summary(j) for _, j in hits[start:start + query.per_page]],
-        "facets": {"cantons": dict(sorted(facets.items(), key=lambda kv: (-kv[1], kv[0])))},
+        "facets": {"cantons": _by_count(facets), "families": _by_count(family_facets)},
     }
+
+
+def _by_count(counts: Counter) -> dict[str, int]:
+    """Le plus fréquent d'abord, puis par ordre alphabétique."""
+    return dict(sorted(counts.items(), key=lambda kv: (-kv[1], kv[0])))
 
 
 def similar(jobs: list[dict], index: BM25, position: int, k: int) -> list[dict]:
