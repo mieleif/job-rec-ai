@@ -453,6 +453,11 @@ Tests du projet : 487 réussis (2026-11-16) ; Ruff valide.
 
 ## Journal des sessions
 
+- **2026-11-17** : familles de métier pour l'onboarding de DoxAI : filtre `families` sur
+  `/jobs` et `/recommend`, facette `facets.families`, routes `GET /families` et
+  `POST /classify` (règles, sans modèle) ; réponses inchangées sans le filtre (tests sur les
+  13 fixtures relevés sur `main`). Ruff valide, 502 tests réussis.
+
 - **2026-11-16** (relecture) : revue de la branche `codex/switzerland-crawl` ; géographie
   sur le répertoire officiel swisstopo, veto des homonymes étrangers étendu, Moutier → JU.
   Mesuré sur la base locale sans la modifier : 135 → 70 offres sans canton. Constat :

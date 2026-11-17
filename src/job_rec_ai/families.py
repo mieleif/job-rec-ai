@@ -12,6 +12,7 @@ Data & IA, pas dans Ingénierie).
 """
 
 import re
+from collections import Counter
 from dataclasses import dataclass
 
 from job_rec_ai.text import compile_keywords, first_match, normalize
@@ -115,6 +116,11 @@ FAMILY_RULES: list[tuple[str, list[str]]] = [
         "boulangere", "patissier", "confiseur",
     ]),
 ]
+
+# Les familles de métier, dans l'ordre des règles, sans « Autre » (GET /families de l'API).
+# « Stage / Apprentissage », « Direction », « Senior / Lead » et « Junior » sont des niveaux de
+# séniorité (SENIORITY_RULES ci-dessous), pas des familles.
+FAMILIES: tuple[str, ...] = tuple(name for name, _ in FAMILY_RULES)
 
 SENIORITY_RULES: list[tuple[str, list[str]]] = [
     ("Stage / Apprentissage", [
@@ -225,3 +231,12 @@ def classify(title: str, description: str | None = None, category: str | None = 
     low, high = workload(title)
     return Classification(family=family, family_keyword=keyword, seniority=seniority,
                           workload_min=low, workload_max=high)
+
+
+def families_of_titles(titles: list[str]) -> list[str]:
+    """Les familles distinctes d'une liste de titres (ceux d'un CV importé, par exemple), de la
+    plus fréquente à la moins fréquente ; à égalité, dans l'ordre d'apparition. « Autre » est
+    écarté. Même règle que `classify` sur le titre seul : aucun appel de modèle."""
+    counts = Counter(first_match(_FAMILIES, normalize(t), default=OTHER)[0] for t in titles)
+    counts.pop(OTHER, None)
+    return [family for family, _ in counts.most_common()]

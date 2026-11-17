@@ -16,11 +16,15 @@ dans le dépôt `mieleif/cv-app-web` et suit ses règles (`CLAUDE.md`, `memory-b
 ### `POST /recommend`
 
 ```json
-{ "cv_text": "texte du profil (1 à 50 000 caractères)", "k": 10, "cantons": ["GE", "VD"] }
+{ "cv_text": "texte du profil (1 à 50 000 caractères)", "k": 10, "cantons": ["GE", "VD"],
+  "families": ["Data & IA", "Informatique & Tech"] }
 ```
 
-`k` : 1 à 50 (10 par défaut). `cantons` : facultatif, filtre dur parmi GE, VD, FR, NE, VS, JU,
-BE (Jura bernois et Bienne).
+`k` : 1 à 50 (10 par défaut). `cantons` : facultatif, filtre dur sur le code du canton.
+`families` (ajouté le 17.11.2026) : facultatif, filtre dur sur le libellé **exact** de
+`family` (voir « Familles de métier » plus bas), OU entre les familles, ET avec `cantons`.
+Absent, la réponse est identique à avant ; présent, il ne fait que retirer des offres (l'ordre
+des autres ne bouge pas, `k` s'applique après le filtre).
 
 Réponse `200`, triée par score décroissant ; les offres sans aucun mot commun avec le profil
 sont écartées (la liste peut donc être plus courte que `k`) :
@@ -64,6 +68,7 @@ offre expirée disparaît des routes (404). Recherche par `id` en O(1) (dictionn
 |---|---|
 | `q` | recherche plein texte BM25 sur titre + entreprise + description ; seules les offres qui contiennent au moins un mot de la recherche sont gardées |
 | `cantons` | `GE,VD` (virgules, casse indifférente) |
+| `families` | `Data%20%26%20IA,Sant%C3%A9%20%26%20Soins` : libellés exacts de `family` (casse et accents comptent), virgules, OU entre eux, ET avec les autres filtres (17.11.2026) |
 | `workload_min`, `workload_max` | 0 à 100 ; une offre est gardée si sa plage de taux **recouvre** la plage demandée ; sans taux affiché, elle compte pour 100 % ; `workload_min > workload_max` → `422` |
 | `posted_within_days` | publiée depuis au plus n jours (0 à 3650) ; sans date de publication (Prospective), la date de première collecte |
 | `page`, `per_page` | `page` ≥ 1 ; `per_page` 1 à 50 (20 par défaut) |
@@ -72,11 +77,14 @@ offre expirée disparaît des routes (404). Recherche par `id` en O(1) (dictionn
 ```json
 { "total": 412, "page": 1, "per_page": 20, "companies": 41,
   "jobs": [JobSummary, …],
-  "facets": { "cantons": { "GE": 120, "VD": 98, "FR": 30 } } }
+  "facets": { "cantons": { "GE": 120, "VD": 98, "FR": 30 },
+              "families": { "Informatique & Tech": 80, "Data & IA": 41, "Autre": 12 } } }
 ```
 
 `facets.cantons` compte les offres qui passent **tous les filtres sauf `cantons`** (pour afficher
 « Vaud (98) » même quand seul Genève est coché), triées par nombre décroissant.
+`facets.families` (17.11.2026), de même : tous les filtres sauf `families` (`cantons` compris),
+« Autre » compris s'il y a de telles offres, même tri.
 `companies` est le nombre d'employeurs distincts parmi les `total` résultats (tous les filtres
 appliqués), pour « 412 offres de 41 entreprises ».
 
@@ -182,3 +190,53 @@ L'élargissement devient visible après publication de l'image, mise à jour du 
 collecte, selon [la procédure de déploiement](../deploy/README.md). Les graphiques historiques
 et le score d'évaluation BM25 sur le corpus romand ne mesurent pas la couverture ou la qualité
 du nouveau corpus national.
+
+
+## Familles de métier (17.11.2026)
+
+Pour l'onboarding de DoxAI (choisir 1 à 3 domaines). Purement additif : sans `families`, `/jobs`
+et `/recommend` répondent exactement comme avant (tests sur les 13 fixtures, relevés sur `main`
+avant la modification) ; la réponse de `/jobs` gagne seulement `facets.families`.
+
+Les familles sont celles que la collecte attribue à chaque offre (`families.FAMILY_RULES`,
+règles sur le titre, puis sur la catégorie de l'ATS) ; une offre sans règle est « Autre ».
+« Stage / Apprentissage », « Direction », « Senior / Lead » et « Junior » sont des **niveaux de
+séniorité** (`seniority`), pas des familles : ils ne filtrent rien par `families`.
+
+Libellés (dans cet ordre) : Data & IA, Informatique & Tech, Santé & Soins, Recherche & Science, Juridique & Compliance,
+Banque & Gestion de fortune, Finance & Comptabilité, Ressources humaines,
+Marketing & Communication, Vente & Relation client, Supply chain & Achats,
+Ingénierie & Production, Administration & Assistanat, Direction & Conseil,
+Hôtellerie & Services.
+
+**Libellé inconnu** : traité comme un canton inconnu, ni `400` ni `422` ; il ne correspond à
+aucune offre. `families=Inconnue,Data%20%26%20IA` = `families=Data%20%26%20IA` ;
+`families=Inconnue` seul → `total: 0`. Un paramètre vide (`families=` ou `, `) = pas de filtre.
+
+### `GET /families`
+
+Même jeton ; ne lit pas la base (répond même sans index). Pour vérifier que la liste traduite de
+DoxAI reste alignée.
+
+```json
+{ "families": ["Data & IA", "Informatique & Tech", "…", "Hôtellerie & Services"] }
+```
+
+### `POST /classify`
+
+Les familles d'intitulés de poste (ceux d'un CV importé), par les mêmes règles que la collecte,
+sans modèle ni base. Titres non journalisés.
+
+```json
+{ "titles": ["Comptable", "Développeur full-stack", "Contrôleur de gestion", "Pflegefachperson"] }
+```
+
+→ `200`
+
+```json
+{ "families": ["Finance & Comptabilité", "Informatique & Tech"] }
+```
+
+Familles distinctes, la plus fréquente d'abord (à égalité : ordre d'apparition), « Autre »
+écarté (la liste peut être vide). `titles` : 0 à 20 chaînes de 200 caractères au plus (espaces
+de bord retirés ; une chaîne vide ne compte pas) ; au-delà, ou sans `titles` → `422`.

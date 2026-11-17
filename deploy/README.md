@@ -267,3 +267,39 @@ Déployer la version incluant ce correctif. Le cycle complet corrigé n'a pas é
 et les limites de mémoire restent à valider sur le VPS : conserver la surveillance du délai
 systemd de 3 h et du rapport qualité. Le nombre local ne prouve pas le nombre actuellement
 servi par le VPS. [Bilan détaillé](../docs/crawl-suisse-2026-11-15.md).
+
+
+## Mise à jour du 17.11.2026 : familles de métier (onboarding de DoxAI)
+
+Purement additif : `GET /jobs` et `POST /recommend` acceptent un filtre facultatif `families`
+(libellés exacts de `family`, OU entre eux, ET avec les autres filtres) ; `/jobs` gagne la
+facette `facets.families`. Deux routes nouvelles, sous le même jeton : `GET /families` (les 15
+familles) et `POST /classify` (`{"titles": [...]}` → leurs familles, sans modèle). Sans
+`families`, les réponses sont identiques à avant, classement de `/recommend` compris (tests sur
+les 13 fixtures). Aucune migration, aucune dépendance, ni le fichier Compose, ni le timer, ni
+la collecte ne changent : seul le conteneur `job-rec-ai` redémarre (il sert le staging comme la
+production de DoxAI ; quelques secondes, l'index se recharge au démarrage).
+
+```bash
+cd /opt/job-rec-ai
+systemctl is-active job-rec-ai-crawl            # « inactive » : pas pendant la collecte
+grep '^JOB_REC_TAG=' .env                       # noter l'ancien tag (retour arrière)
+sed -i 's/^JOB_REC_TAG=.*/JOB_REC_TAG=<sha>/' .env
+docker compose pull api && docker compose up -d api     # recrée le seul conteneur job-rec-ai
+docker exec cv-app wget -qO- http://job-rec-ai:8000/health
+
+# Vérifier (le jeton est lu dans .env, jamais affiché)
+set -a; . /opt/job-rec-ai/.env; set +a
+H="Authorization: Bearer $JOB_REC_TOKEN"
+docker exec cv-app wget -qO- --header "$H" http://job-rec-ai:8000/families
+docker exec cv-app wget -qO- --header "$H" \
+  "http://job-rec-ai:8000/jobs?families=Informatique%20%26%20Tech&per_page=2"
+docker exec cv-app wget -qO- --header "$H" --header "Content-Type: application/json" \
+  --post-data '{"titles": ["Comptable", "Développeur full-stack"]}' \
+  http://job-rec-ai:8000/classify
+```
+
+Retour arrière : remettre l'ancien `JOB_REC_TAG` et `docker compose up -d api`. Rien à défaire
+dans la base. L'ancienne version ignore `families` sans erreur (sur `/jobs` comme sur
+`/recommend`) : elle renverrait toutes les familles ; `/families` et `/classify` y répondent
+`404`, et `facets.families` manque.

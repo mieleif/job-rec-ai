@@ -84,10 +84,12 @@ envoyé en `Authorization: Bearer …` sur toutes les routes sauf `/health`).
 |---|---|
 | `GET /health` | le service répond (sans jeton) |
 | `GET /status` | offres indexées, date de chargement de la base |
-| `POST /recommend` | `{cv_text, k, cantons}` → les offres les plus proches du CV (BM25) |
-| `GET /jobs` | liste cherchable : `q` (BM25), `cantons`, taux, ancienneté, pagination, facettes par canton |
+| `POST /recommend` | `{cv_text, k, cantons, families}` → les offres les plus proches du CV (BM25) |
+| `GET /jobs` | liste cherchable : `q` (BM25), `cantons`, `families`, taux, ancienneté, pagination, facettes par canton et par famille |
 | `GET /jobs/{id}` | une offre, avec l'annonce en Markdown (titres, listes, gras gardés) |
 | `GET /jobs/{id}/similar` | les offres les plus proches de celle-ci |
+| `GET /families` | les 15 familles de métier, dans l'ordre des règles (sans « Autre ») |
+| `POST /classify` | `{titles}` → les familles de ces intitulés, la plus fréquente d'abord (règles, sans modèle) |
 
 `id` = 16 caractères hexadécimaux du SHA-256 de l'URL de l'offre. Chaque offre des quatre
 routes porte `company_domain` (« vitol.com », `null` si inconnu) : le domaine nu de l'employeur,

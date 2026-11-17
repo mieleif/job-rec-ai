@@ -2,11 +2,14 @@
 
     GET  /health     → {"status": "ok"}           (le conteneur répond)
     GET  /status     → offres indexées, date de chargement de la base
-    POST /recommend  {"cv_text": "...", "k": 10, "cantons": ["GE", "VD"]}
+    POST /recommend  {"cv_text": "...", "k": 10, "cantons": ["GE", "VD"],
+                      "families": ["Data & IA"]}
                      → [{"job_id", "id", "title", "company", "url", …, "score"}], score décroissant
-    GET  /jobs       ?q=&cantons=GE,VD&workload_min=&workload_max=&posted_within_days=
-                     &page=1&per_page=20&sort=recent|relevance
+    GET  /jobs       ?q=&cantons=GE,VD&families=Data%20%26%20IA,…&workload_min=&workload_max=
+                     &posted_within_days=&page=1&per_page=20&sort=recent|relevance
                      → {"total", "page", "per_page", "companies", "jobs": [JobSummary], "facets"}
+    GET  /families   → {"families": [...]}  les familles de métier (families.FAMILIES)
+    POST /classify   {"titles": ["Comptable", …]} → {"families": [...]} (règles, sans modèle)
     GET  /jobs/{id}  → JobDetail (l'annonce en Markdown, structure gardée) ; 404 sinon
     GET  /jobs/{id}/similar?k=4 → [JobSummary], les offres les plus proches de celle-ci
 
@@ -44,6 +47,7 @@ from pydantic import BaseModel, Field, StringConstraints
 
 from job_rec_ai import catalog, storage
 from job_rec_ai.bm25 import BM25
+from job_rec_ai.families import FAMILIES, families_of_titles
 from job_rec_ai.recommend import document, rank
 
 log = logging.getLogger("job_rec_ai.api")
@@ -113,6 +117,8 @@ class RecommendRequest(BaseModel):
     cv_text: CvText = Field(description="Texte du CV ou du profil (jamais conservé)")
     k: int = Field(10, ge=1, le=50, description="Nombre d'offres à renvoyer")
     cantons: list[str] | None = Field(None, description="Filtre dur, ex. [\"GE\"]")
+    families: list[str] | None = Field(
+        None, description="Filtre dur sur la famille exacte (OU), ex. [\"Data & IA\"]")
 
 
 class Recommendation(BaseModel):
@@ -160,7 +166,8 @@ class JobDetail(JobSummary):
 
 
 class Facets(BaseModel):
-    cantons: dict[str, int]  # tous les filtres appliqués sauf `cantons`
+    cantons: dict[str, int]   # tous les filtres appliqués sauf `cantons`
+    families: dict[str, int]  # tous les filtres appliqués sauf `families` (« Autre » compris)
 
 
 class JobList(BaseModel):
@@ -170,6 +177,23 @@ class JobList(BaseModel):
     companies: int  # employeurs distincts parmi les `total` résultats
     jobs: list[JobSummary]
     facets: Facets
+
+
+Title = Annotated[str, StringConstraints(strip_whitespace=True, max_length=200)]
+
+
+class ClassifyRequest(BaseModel):
+    titles: list[Title] = Field(max_length=20, description="Intitulés de poste (ceux d'un CV)")
+
+
+class FamilyList(BaseModel):
+    families: list[str]
+
+
+def _labels(value: str | None) -> frozenset[str]:
+    """Les valeurs d'un paramètre à virgules (« GE, vd » → {"GE", "vd"}), sans espaces de
+    bord ni valeurs vides, casse gardée : les familles sont comparées telles quelles."""
+    return frozenset(v.strip() for v in (value or "").split(",") if v.strip())
 
 
 def create_app(db_path: Path | str | None = None) -> FastAPI:
@@ -206,10 +230,13 @@ def create_app(db_path: Path | str | None = None) -> FastAPI:
             raise HTTPException(503, "index indisponible (base absente ou en cours d'écriture)")
         ranked = rank(index.jobs, req.cv_text, index=index.bm25)
         wanted = {c.upper() for c in req.cantons} if req.cantons else None
+        families = {f.strip() for f in req.families} if req.families else None
         hits = [j for j in ranked
-                if j["score"] > 0 and (wanted is None or j["canton"] in wanted)][:req.k]
-        log.info("recommend k=%d cantons=%s → %d offres en %.0f ms", req.k, req.cantons,
-                 len(hits), 1000 * (time.perf_counter() - started))
+                if j["score"] > 0 and (wanted is None or j["canton"] in wanted)
+                and (families is None or j["family"] in families)][:req.k]
+        log.info("recommend k=%d cantons=%s families=%s → %d offres en %.0f ms", req.k,
+                 req.cantons, req.families, len(hits),
+                 1000 * (time.perf_counter() - started))
         return [Recommendation(job_id=j["url"], **{f: j.get(f) for f in Recommendation.model_fields
                                                    if f != "job_id"}) for j in hits]
 
@@ -230,6 +257,9 @@ def create_app(db_path: Path | str | None = None) -> FastAPI:
     def jobs(
         q: Annotated[str | None, Query(max_length=500)] = None,
         cantons: Annotated[str | None, Query(max_length=200, description="ex. GE,VD")] = None,
+        families: Annotated[str | None, Query(
+            max_length=1000, description="libellés exacts, virgules : Data & IA,Santé & Soins")
+        ] = None,
         workload_min: Annotated[int | None, Query(ge=0, le=100)] = None,
         workload_max: Annotated[int | None, Query(ge=0, le=100)] = None,
         posted_within_days: Annotated[int | None, Query(ge=0, le=3650)] = None,
@@ -241,8 +271,8 @@ def create_app(db_path: Path | str | None = None) -> FastAPI:
             raise HTTPException(422, "workload_min > workload_max")
         current = ready()
         query = catalog.Query(
-            q=q, cantons=frozenset(c.strip().upper() for c in (cantons or "").split(",")
-                                   if c.strip()),
+            q=q, cantons=frozenset(c.upper() for c in _labels(cantons)),
+            families=_labels(families),
             workload_min=workload_min, workload_max=workload_max,
             posted_within_days=posted_within_days, sort=sort, page=page, per_page=per_page)
         return JobList(**catalog.search(current.jobs, current.search_bm25, query, date.today()))
@@ -257,6 +287,18 @@ def create_app(db_path: Path | str | None = None) -> FastAPI:
         current = ready()
         return [JobSummary(**s) for s in catalog.similar(current.jobs, current.bm25,
                                                          position(current, job_id), k)]
+
+    @app.get("/families", dependencies=[Depends(authorized)])
+    def families_list() -> FamilyList:
+        """Les familles de métier, dans l'ordre des règles : la liste de référence de DoxAI."""
+        return FamilyList(families=list(FAMILIES))
+
+    @app.post("/classify", dependencies=[Depends(authorized)])
+    def classify_titles(req: ClassifyRequest) -> FamilyList:
+        """Les familles d'une liste d'intitulés (la plus fréquente d'abord, « Autre » écarté),
+        par les mêmes règles que la collecte. Ni la base ni un modèle : les titres ne sont
+        pas journalisés."""
+        return FamilyList(families=families_of_titles(req.titles))
 
     return app
 
