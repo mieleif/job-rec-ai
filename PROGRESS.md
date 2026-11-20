@@ -3,7 +3,7 @@
 Le carnet de bord du projet : où on en est, ce qu'on a décidé et pourquoi, la suite.
 Les tâches cochables restent dans [ROADMAP.md](ROADMAP.md) ; ce fichier ne les recopie pas.
 
-_Dernière mise à jour : 2026-11-16_
+_Dernière mise à jour : 2026-11-20_
 
 ## Où on en est
 
@@ -16,9 +16,36 @@ _Dernière mise à jour : 2026-11-16_
 | M4 → M7 | embeddings en pause ; intégration DoxAI en service | voir ROADMAP.md |
 | M8 · Production | API déployée sur le VPS, checkpoint API 3/3 lors de sa préparation | suivi et livrables restants dans ROADMAP.md |
 
-Tests du projet : 487 réussis (2026-11-16) ; Ruff valide.
+Tests du projet : 517 réussis (2026-11-20) ; Ruff valide.
 
 ## Décisions
+
+- **2026-11-20 · Langue d'une annonce : le texte d'abord, la langue déclarée par l'ATS à
+  défaut.** DoxAI lit `language` pour l'attribut `lang` de la page et pour décider de
+  traduire : la Coop « Verkäufer:in Food » sortait `en`. Cause : `detect_language` comptait
+  « in » (anglais, mais aussi allemand et italien) comme mot-outil anglais, sur un titre de
+  3 mots (33 % > seuil de 5 %). L'étiquette ATS n'y était pour rien : SuccessFactors n'en
+  passait pas. Mesuré sur la copie locale (5 216 offres actives, collecte du 17.11) :
+  **2 607 offres `en`, dont 1 506 des 2 651 offres Coop**. Règle retenue
+  (`text.resolve_language`) : (1) le texte s'il est clair (≥ 2 mots-outils, ≥ 5 % des mots,
+  2× la langue suivante) ; (2) sinon la langue déclarée ; (3) sinon le texte s'il penche à
+  1,2× ; (4) sinon `other`. Le texte d'abord, car les déclarations se trompent quand le texte
+  est clair : SuccessFactors 91 désaccords sur 1 084 (EY et Nestlé « en » sur de l'allemand
+  ou du français, EPFL « fr-FR » sur de l'anglais), Oracle 8/93 (Edmond de Rothschild),
+  l'ONU 2/53 (« EN » = langue du portail) ; Prospective 0/170 et Greenhouse 0/7. La
+  déclaration ne sert donc qu'en repli, là où le texte ne dit rien : 2 545 offres
+  SuccessFactors sur 3 629 (Coop n'écrit que le titre). Mots-outils propres à une seule
+  langue (un test le vérifie), de/it reconnus ; `detect_language` garde son contrat M2
+  (fr/en/other) et `STOPWORDS` (BM25) ne change pas. Déclarations désormais lues : attribut
+  `lang` de la description SuccessFactors, `language` de Prospective, `ContentLocale`
+  d'Oracle (Greenhouse déjà) ; pas l'ONU ni Taleo/Phenom/Oracle par l'URL (langue de
+  l'interface). Gardées brutes dans `jobs.declared_language` (colonne additive) pour que
+  `rederive` et la nouvelle commande `backfill-language [--dry-run]` recalculent sans réseau.
+  Résultat local : 2 607 → **1 094 offres `en`** ; Coop : 1 506 → 2 `en`, 2 195 `de`.
+  Alternatives écartées : garder l'ATS pour les « sources fiables » (aucune ne l'est assez :
+  SuccessFactors mélange un site juste, Coop, et des sites faux, EY) ; une bibliothèque de
+  détection (lingua, fastText) : plus précise sur les textes courts, mais une dépendance
+  lourde et non explicable, et un titre seul reste indécidable de toute façon.
 
 - **2026-11-16 · Géographie suisse adossée au répertoire officiel des localités.** La
   relecture de la branche nationale a trouvé des homonymes étrangers classés suisses
@@ -421,8 +448,10 @@ Tests du projet : 487 réussis (2026-11-16) ; Ruff valide.
   les anciens chiffres romands et nDCG@10 ne valent pas mesure du corpus national.
   Après déploiement, `job-rec-ai rederive` applique la nouvelle géographie aux offres en base.
 - Coop (52,5 % du corpus) : les offres n'ont que leur titre. Récupérer la description dans
-  le connecteur SuccessFactors, sinon BM25 et embeddings n'ont rien à comparer et la langue
-  est mal détectée.
+  le connecteur SuccessFactors, sinon BM25 et embeddings n'ont rien à comparer (la langue,
+  elle, vient désormais de l'attribut `lang` de l'annonce).
+- Langue des annonces : après déploiement de l'image, `backfill-language` (voir
+  `deploy/README.md`), sinon la collecte suivante corrige les offres actives d'elle-même.
 
 1. Familles de métiers : 667 offres sur 1 884 dans « Autre » (Coop, Lonza, État de
    Fribourg) : enrichir `families.py` (allemand surtout) ou attendre l'extraction par LLM (M5).
@@ -452,6 +481,12 @@ Tests du projet : 487 réussis (2026-11-16) ; Ruff valide.
 8. Finir M0 : règles perso dans `CLAUDE.md`, Milestones GitHub.
 
 ## Journal des sessions
+
+- **2026-11-20** : langue des annonces corrigée (Coop « Verkäufer:in Food » sortait `en`) :
+  mots-outils propres à une langue, de/it reconnus, texte d'abord puis langue déclarée par
+  l'ATS (SuccessFactors, Prospective, Oracle), colonne `declared_language`, commande
+  `backfill-language --dry-run`. Mesuré sur une copie de la base locale : 2 607 → 1 094
+  offres `en`, 3 261 langues changées, second passage sans effet. Ruff valide, 517 tests.
 
 - **2026-11-17** : familles de métier pour l'onboarding de DoxAI : filtre `families` sur
   `/jobs` et `/recommend`, facette `facets.families`, routes `GET /families` et

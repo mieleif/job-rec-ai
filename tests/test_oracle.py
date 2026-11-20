@@ -94,3 +94,4 @@ def test_oracle_parse_vraie_fixture():
     assert len(jobs) == len(payload["postings"])
     assert all(j.description and "<" not in j.description and is_target(j.location)
                for j in jobs)
+    assert {j.language for j in jobs} == {"en"}  # ContentLocale : la langue du contenu

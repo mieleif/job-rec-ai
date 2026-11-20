@@ -55,6 +55,7 @@ uv run job-rec-ai eval --pool                   # offres à noter → data/priva
 uv run job-rec-ai eval                          # P@10, MRR, nDCG@10 par méthode
 uv run --env-file .env job-rec-ai benchmark    # couverture comparée à Adzuna
 uv run job-rec-ai backfill-markdown            # annonces en Markdown depuis data/raw (sans réseau)
+uv run job-rec-ai backfill-language --dry-run  # langue des offres recalculée (data/raw + texte)
 uv run --env-file .env job-rec-ai resolve-domains  # domaine web des employeurs (logos de DoxAI)
 ```
 

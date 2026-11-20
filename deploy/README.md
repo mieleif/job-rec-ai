@@ -303,3 +303,36 @@ Retour arrière : remettre l'ancien `JOB_REC_TAG` et `docker compose up -d api`.
 dans la base. L'ancienne version ignore `families` sans erreur (sur `/jobs` comme sur
 `/recommend`) : elle renverrait toutes les familles ; `/families` et `/classify` y répondent
 `404`, et `facets.families` manque.
+
+## Mise à jour du 20.11.2026 : langue des annonces
+
+`language` de `/jobs` et `/jobs/{id}` était faux pour beaucoup d'annonces (Coop « Verkäufer:in
+Food » → `en`). La base gagne une colonne `jobs.declared_language` (`ALTER TABLE … ADD COLUMN
+IF NOT EXISTS`, ajoutée par le premier processus qui ouvre la base en écriture) ; le contrat
+de l'API ne change pas. Ni le fichier Compose, ni les services, ni le timer ne changent.
+
+```bash
+cd /opt/job-rec-ai
+# 1. L'image du commit de main qui contient la correction
+grep '^JOB_REC_TAG=' .env                       # noter l'ancien tag (retour arrière)
+sed -i 's/^JOB_REC_TAG=.*/JOB_REC_TAG=<sha>/' .env
+docker compose pull api && docker compose up -d api     # recrée le seul conteneur job-rec-ai
+docker exec cv-app wget -qO- http://job-rec-ai:8000/health
+
+# 2. Recalculer la langue des offres en base, depuis data/raw (sans réseau, ~1-2 min ; pas
+#    pendant la collecte de 03:17 UTC, qui verrouille la base). D'abord le décompte, puis
+#    l'écriture. Sinon, la collecte suivante corrige d'elle-même les offres actives.
+systemctl is-active job-rec-ai-crawl            # « inactive » : la voie est libre
+docker compose --profile crawl run --rm crawl job-rec-ai backfill-language --dry-run
+docker compose --profile crawl run --rm crawl job-rec-ai backfill-language
+docker compose --profile crawl run --rm crawl job-rec-ai backfill-language --dry-run  # « 0 »
+
+# 3. Vérifier (l'API relit la base au plus 5 min après)
+set -a; . /opt/job-rec-ai/.env; set +a
+docker exec cv-app wget -qO- --header "Authorization: Bearer $JOB_REC_TOKEN" \
+  "http://job-rec-ai:8000/jobs?q=Verk%C3%A4ufer&per_page=3"
+```
+
+Retour arrière : remettre l'ancien `JOB_REC_TAG` et `docker compose up -d api`. L'ancienne
+version ignore la colonne ajoutée et sert les langues recalculées telles quelles (elle ne les
+réécrit qu'à sa prochaine collecte, avec l'ancienne règle).

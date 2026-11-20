@@ -19,21 +19,11 @@ from job_rec_ai.bm25 import BM25
 from job_rec_ai.domains import company_key
 from job_rec_ai.markdown import text_to_markdown
 from job_rec_ai.recommend import document
-from job_rec_ai.text import STOPWORDS, tokenize
+from job_rec_ai.text import STOPWORDS, WEAK_DOMINANCE, guess_language, language_tag, tokenize
 
 SNIPPET = 240  # caractères au plus, « … » compris
-LANGUAGES = ("fr", "de", "en", "it")
 ID_PATTERN = re.compile(r"^[0-9a-f]{16}$")
 
-# Détection de l'allemand et de l'italien pour le champ `language` de l'API seulement : la
-# colonne `language` de la base (fr, en, other) et les mots-outils du moteur ne changent pas,
-# sinon le classement de /recommend changerait aussi.
-_STOPWORDS_DE_IT = {
-    "de": {"der", "die", "das", "und", "mit", "für", "sie", "wir", "ihre", "unsere", "ist",
-           "von", "zu", "auf", "eine", "ein", "im", "den", "bei", "sind", "werden", "nicht"},
-    "it": {"il", "lo", "gli", "della", "delle", "degli", "del", "che", "per", "con", "una",
-           "sono", "nel", "nella", "alla", "dei", "di", "ed", "anche", "questo", "siamo"},
-}
 
 
 def job_id(url: str) -> str:
@@ -44,17 +34,10 @@ def job_id(url: str) -> str:
 
 
 def language_code(stored: str | None, text: str) -> str | None:
-    """« fr », « de », « en », « it » ou None. La base ne distingue que fr / en / other
-    (`text.detect_language`) ; « other » est précisé ici en allemand ou en italien."""
-    code = re.split(r"[-_]", (stored or "").strip().lower())[0]
-    if code in LANGUAGES:
-        return code
-    words = re.findall(r"[a-zà-ÿ]+", text.casefold())
-    if len(words) < 3:
-        return None
-    scores = {lang: sum(w in stop for w in words) for lang, stop in _STOPWORDS_DE_IT.items()}
-    best = max(scores, key=scores.get)
-    return best if scores[best] / len(words) >= 0.05 else None
+    """« fr », « de », « en », « it » ou None. La base retient la langue à la collecte
+    (`text.resolve_language`) ; « other » (aucune langue sûre) est encore précisé ici par le
+    texte : les offres collectées avant la distinction de/it n'ont que fr / en / other."""
+    return language_tag(stored) or guess_language(text, WEAK_DOMINANCE)
 
 
 def snippet(text: str, limit: int = SNIPPET) -> str:

@@ -164,6 +164,16 @@ def location_of(page: JobPostingPage, url: str, title: str | None) -> str:
     return location_from_url(url, title or "") or place or address
 
 
+def declared_language(page: JobPostingPage) -> str | None:
+    """La langue que le site déclare pour CETTE annonce : l'attribut lang de la description
+    (« de-DE »), à défaut celui du titre. Celle du contenu, pas celle de l'interface : Coop
+    sert sur le même site des annonces de-DE, fr-FR et it-IT."""
+    for tag in [*page.tags("description"), page.tag("title")]:
+        if tag is not None and tag.get("lang"):
+            return tag["lang"]
+    return None
+
+
 def posted_on(value: str | None) -> date | None:
     """« Tue Nov 03 02:00:00 CET 2026 » (format Java, tout fuseau) ou ISO → date."""
     if not value:
@@ -221,6 +231,8 @@ class SuccessFactorsConnector:
                 "description": " ".join(clean_html(str(t)) for t in page.tags("description")),
                 "description_markdown": join_markdown(html_to_markdown(str(t))
                                                       for t in page.tags("description")),
+                # Coop n'écrit souvent que le titre : le texte ne suffit pas à trancher
+                "language": declared_language(page),
                 "posted_at": posted_on(page.prop("datePosted")) or parse_date(posting["lastmod"]),
                 "source_id": job_id.group(1) if job_id else None,
                 "category": _first(details, CATEGORY_LABELS),
