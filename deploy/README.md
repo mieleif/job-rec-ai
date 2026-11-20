@@ -20,6 +20,8 @@ job-rec-ai tourne sur le même VPS que DoxAI, en conteneurs, à côté de la pil
 
 - **Image** : `ghcr.io/mieleif/job-rec-ai:<sha>` et `:latest`, publiques, publiées par
   `.github/workflows/image.yml` à chaque push sur `main` (un tag immuable par commit, comme DoxAI).
+- **Déploiement** : automatique à chaque fusion sur `main` par `.github/workflows/deploy.yml`,
+  une fois la CI et l'image réussies (voir « Déploiement automatique » ci-dessous).
 - **API** : `GET /health` (sans jeton), `GET /status`, `POST /recommend` et les pages
   d'offres `GET /jobs`, `GET /jobs/{id}`, `GET /jobs/{id}/similar` (jeton
   `Authorization: Bearer $JOB_REC_TOKEN`, sinon 401). Voir `src/job_rec_ai/api.py` et
@@ -86,6 +88,45 @@ JOB_REC_TOKEN=<la valeur de /opt/job-rec-ai/.env>
   depuis `/opt/n8n-stack` :
   `docker compose -f docker-compose.yml -f docker-compose.cv-app-release.yml up -d --force-recreate --no-deps cv-app`.
 
+## Déploiement automatique (CI)
+
+Comme cv-app : le VPS ne suit pas `latest`. Il tourne sur le **SHA exact** écrit dans
+`JOB_REC_TAG` (`.env`). C'est la CI qui change ce tag, pas un `docker compose pull` fait au
+hasard. On sait ainsi toujours ce qui tourne, et revenir en arrière revient à redéployer
+l'ancien SHA.
+
+```
+PR fusionnée → push sur main ─┬─ CI (ruff + pytest) ─┐
+                              └─ Image (GHCR :<sha>) ┴─▶ Deploy ─SSH─▶ deploy/deploy.sh sur le VPS
+```
+
+`deploy/deploy.sh` refuse si une collecte tourne (03:17 UTC, jusqu'à ~06:30), suspend le
+timer, écrit le SHA dans `.env`, tire l'image et recrée le seul conteneur `job-rec-ai`. Il
+vérifie ensuite `/health` et `/status`. Si la vérification échoue, il **remet l'ancien
+tag** et le workflow échoue. La collecte suivante lit le même `.env`, donc la même version.
+
+- **Relancer ou revenir en arrière** : GitHub → Actions → Deploy → *Run workflow*, avec un SHA
+  de `main`. Vide, c'est le dernier commit de `main`. Un SHA qui n'est pas sur `main`, ou dont
+  la CI ou l'image a échoué, est refusé.
+- **Une fusion pendant la collecte nocturne** fait échouer Deploy (« Une collecte tourne ») :
+  relancer à la main après sa fin.
+- **Sans GitHub** : même script depuis un clone, `ssh ubuntu@<vps> "TAG=<sha> bash -s" < deploy/deploy.sh`.
+
+**Installation, une fois.** Il faut quatre secrets dans l'environnement GitHub `production`
+du dépôt (Settings → Environments → production). Ce sont les mêmes noms que dans cv-app,
+qui vise le même VPS : on peut reprendre ses valeurs si son utilisateur a les droits
+ci-dessous.
+
+| Secret | Valeur |
+|---|---|
+| `PRODUCTION_SSH_HOST` | l'IP du VPS |
+| `PRODUCTION_SSH_USER` | un utilisateur qui peut écrire `/opt/job-rec-ai/.env`, lancer `docker` et `sudo systemctl` sans mot de passe (`ubuntu` aujourd'hui) |
+| `PRODUCTION_SSH_PRIVATE_KEY` | une clé **dédiée au déploiement**, sans phrase de passe, dont la publique est dans `~/.ssh/authorized_keys` de cet utilisateur |
+| `PRODUCTION_SSH_KNOWN_HOSTS` | la sortie de `ssh-keyscan -t ed25519 <ip>` vérifiée contre `~/.ssh/known_hosts` |
+
+Tant que ces secrets manquent, Deploy échoue à l'étape SSH sans rien toucher. Le VPS reste
+alors sur son tag, et la mise à jour manuelle ci-dessous fonctionne toujours.
+
 ## Au quotidien
 
 ```bash
@@ -94,7 +135,11 @@ systemctl list-timers job-rec-ai-crawl.timer          # prochaine collecte (heur
 sudo systemctl start job-rec-ai-crawl                 # lancer une collecte maintenant
 journalctl -u job-rec-ai-crawl -n 100                 # résumé et rapport qualité de la dernière
 docker compose logs --tail 50 api                     # requêtes servies (jamais le texte des CV)
-docker compose pull && docker compose up -d api       # mettre à jour (JOB_REC_TAG dans .env)
+grep '^JOB_REC_TAG=' .env                             # la version en place (posée par Deploy)
+# Mise à jour manuelle : changer le SHA puis tirer l'image. Un « pull » seul ne fait rien,
+# car un tag SHA est immuable. Avec JOB_REC_TAG=latest, « up » sans « pull » relance l'image
+# latest déjà présente sur le disque, qui peut être plus ancienne que la version en place.
+sed -i 's/^JOB_REC_TAG=.*/JOB_REC_TAG=<sha>/' .env && docker compose pull api && docker compose up -d api
 ```
 
 Données à sauvegarder : le volume `job-rec-ai_data` (`jobs.duckdb` et `raw/`). La base se

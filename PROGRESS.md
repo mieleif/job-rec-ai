@@ -46,6 +46,17 @@ Tests du projet : 517 réussis (2026-11-20) ; Ruff valide.
   SuccessFactors mélange un site juste, Coop, et des sites faux, EY) ; une bibliothèque de
   détection (lingua, fastText) : plus précise sur les textes courts, mais une dépendance
   lourde et non explicable, et un titre seul reste indécidable de toute façon.
+- **2026-11-16 · Déploiement continu sur le VPS, par SHA exact (comme cv-app).** Leif voulait
+  ne plus éditer `.env` à la main. Choix : un workflow `Deploy` déclenché quand CI et Image
+  réussissent sur `main` (et à la main pour un SHA ou un retour arrière), plutôt que de suivre
+  `latest`. Raison : savoir ce qui tourne, revenir en arrière en une action, ne jamais
+  déployer en douce. `deploy/deploy.sh` (exécuté par SSH) refuse pendant la collecte,
+  vérifie `/health` et `/status`, et remet l'ancien tag en cas d'échec. Il faut quatre secrets
+  `PRODUCTION_SSH_*` dans l'environnement `production` (mêmes noms que cv-app), à poser par
+  Leif. Le script n'a pas encore été exécuté sur le VPS.
+- **2026-11-16 · Mise en production du périmètre suisse.** VPS passé de `454eb3b` à
+  `75e33fa` (fusion de la PR 22) ; API saine ; collecte nationale lancée à 13:52 UTC. Avant :
+  1 693 offres servies, API 189 Mo / 384 Mo. Résultat de la collecte à consigner.
 
 - **2026-11-16 · Géographie suisse adossée au répertoire officiel des localités.** La
   relecture de la branche nationale a trouvé des homonymes étrangers classés suisses
