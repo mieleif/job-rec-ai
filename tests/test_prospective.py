@@ -63,3 +63,4 @@ def test_prospective_parse_vraie_fixture():
     assert len(jobs) == len(payload["postings"])  # aucune offre réelle rejetée
     assert all(j.company == "Helvetia Baloise" and is_target(j.location)
                and j.description and "<" not in j.description for j in jobs)
+    assert [j.language for j in jobs] == [p["language"] for p in payload["postings"]]

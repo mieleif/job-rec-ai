@@ -127,6 +127,18 @@ def test_successfactors_parse_vraie_fixture():
     jobs = REGISTRY["successfactors"].parse(payload)
     assert len(jobs) == len(payload["postings"])  # aucune offre réelle rejetée
     assert all(is_target(j.location) and len(j.description) > 1000 for j in jobs)
+    # La langue déclarée par l'annonce (attribut lang de la description), pas par le site
+    assert {j.language for j in jobs} == {"fr-FR"}
+
+
+def test_langue_declaree_par_l_annonce():
+    page = ('<span itemprop="title" lang="it-IT">Venditore</span>'
+            '<span itemprop="description" lang="de-DE"><p>Verkäufer:in Food</p></span>')
+    assert successfactors.declared_language(successfactors.JobPostingPage(page)) == "de-DE"
+    title_only = '<span itemprop="title" lang="it-IT">Venditore</span>'
+    assert successfactors.declared_language(
+        successfactors.JobPostingPage(title_only)) == "it-IT"
+    assert successfactors.declared_language(successfactors.JobPostingPage(RECENT)) is None
 
 
 def test_titre_hors_microdonnees(sleeps):
