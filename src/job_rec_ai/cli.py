@@ -116,7 +116,7 @@ def _cmd_quality(args, con):
     columns = [("empty_description", "desc. vide"),
                ("short_description", f"< {storage.SHORT_DESCRIPTION} car."),
                ("no_date", "sans date"), ("no_canton", "sans canton"),
-               ("other_language", "ni fr ni en")]
+               ("other_language", "langue ?")]
     print(f"{'source':<16} {'actives':>7}" + "".join(f" {label:>12}" for _, label in columns))
     for row in storage.quality(con):
         print(f"{row['source']:<16} {row['active']:>7}"
@@ -188,6 +188,19 @@ def _cmd_backfill_markdown(args, con):
     archives, updated = pipeline.backfill_markdown(con)
     print(f"{updated} offres avec leur annonce en Markdown, depuis {archives} archives de "
           f"data/raw/ ({time.perf_counter() - started:.0f} s)")
+
+
+def _cmd_backfill_language(args, con):
+    """Langue de chaque offre recalculée (texte d'abord, langue déclarée par l'ATS à défaut)."""
+    result = pipeline.backfill_language(con, dry_run=args.dry_run)
+    verb = "changeraient" if args.dry_run else "changées"
+    print(f"{result.jobs} offres, {result.archives} archives de data/raw/ relues : "
+          f"{sum(result.changes.values())} langues {verb}")
+    for (source, before, after), n in sorted(result.changes.items(),
+                                             key=lambda item: (item[0][0] or "", -item[1])):
+        print(f"  {source or '?':<16} {before or '—':>5} → {after:<5} {n:>6}")
+    if args.dry_run:
+        print("(--dry-run : rien n'a été écrit)")
 
 
 def _cmd_explore(args, con):
@@ -332,6 +345,11 @@ def build_parser() -> argparse.ArgumentParser:
     sub.add_parser("backfill-markdown",
                    help="annonces en Markdown depuis data/raw (sans réseau ni collecte)"
                    ).set_defaults(func=_cmd_backfill_markdown)
+    p = sub.add_parser("backfill-language",
+                       help="recalculer la langue des offres (data/raw + texte en base)")
+    p.add_argument("--dry-run", action="store_true",
+                   help="compter les changements par source et par langue, sans rien écrire")
+    p.set_defaults(func=_cmd_backfill_language)
     p = sub.add_parser("recommend", help="les offres les plus proches d'un CV (BM25)")
     p.add_argument("--cv", default=DEFAULT_CV, type=Path, help="PDF, .txt ou .md")
     p.add_argument("--limit", type=int, default=20)

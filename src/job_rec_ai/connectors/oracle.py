@@ -97,6 +97,7 @@ class OracleConnector:
                                         if detail.get(f)),
                 "description_markdown": join_markdown(html_to_markdown(detail[f])
                                                       for f in _TEXT_FIELDS if detail.get(f)),
+                "language": detail.get("ContentLocale"),  # la langue du contenu (« fr »)
                 "posted_at": parse_date(detail.get("ExternalPostedStartDate")),
                 "source_id": str(detail["Id"]),
                 "employment_type": detail.get("JobSchedule"),

@@ -19,21 +19,11 @@ from job_rec_ai.bm25 import BM25
 from job_rec_ai.domains import company_key
 from job_rec_ai.markdown import text_to_markdown
 from job_rec_ai.recommend import document
-from job_rec_ai.text import STOPWORDS, tokenize
+from job_rec_ai.text import STOPWORDS, WEAK_DOMINANCE, guess_language, language_tag, tokenize
 
 SNIPPET = 240  # caractères au plus, « … » compris
-LANGUAGES = ("fr", "de", "en", "it")
 ID_PATTERN = re.compile(r"^[0-9a-f]{16}$")
 
-# Détection de l'allemand et de l'italien pour le champ `language` de l'API seulement : la
-# colonne `language` de la base (fr, en, other) et les mots-outils du moteur ne changent pas,
-# sinon le classement de /recommend changerait aussi.
-_STOPWORDS_DE_IT = {
-    "de": {"der", "die", "das", "und", "mit", "für", "sie", "wir", "ihre", "unsere", "ist",
-           "von", "zu", "auf", "eine", "ein", "im", "den", "bei", "sind", "werden", "nicht"},
-    "it": {"il", "lo", "gli", "della", "delle", "degli", "del", "che", "per", "con", "una",
-           "sono", "nel", "nella", "alla", "dei", "di", "ed", "anche", "questo", "siamo"},
-}
 
 
 def job_id(url: str) -> str:
@@ -44,17 +34,10 @@ def job_id(url: str) -> str:
 
 
 def language_code(stored: str | None, text: str) -> str | None:
-    """« fr », « de », « en », « it » ou None. La base ne distingue que fr / en / other
-    (`text.detect_language`) ; « other » est précisé ici en allemand ou en italien."""
-    code = re.split(r"[-_]", (stored or "").strip().lower())[0]
-    if code in LANGUAGES:
-        return code
-    words = re.findall(r"[a-zà-ÿ]+", text.casefold())
-    if len(words) < 3:
-        return None
-    scores = {lang: sum(w in stop for w in words) for lang, stop in _STOPWORDS_DE_IT.items()}
-    best = max(scores, key=scores.get)
-    return best if scores[best] / len(words) >= 0.05 else None
+    """« fr », « de », « en », « it » ou None. La base retient la langue à la collecte
+    (`text.resolve_language`) ; « other » (aucune langue sûre) est encore précisé ici par le
+    texte : les offres collectées avant la distinction de/it n'ont que fr / en / other."""
+    return language_tag(stored) or guess_language(text, WEAK_DOMINANCE)
 
 
 def snippet(text: str, limit: int = SNIPPET) -> str:
@@ -117,6 +100,7 @@ def detail(job: dict) -> dict:
 class Query:
     q: str | None = None
     cantons: frozenset[str] = frozenset()
+    families: frozenset[str] = frozenset()  # libellés exacts de `family` (OU entre eux)
     workload_min: int | None = None
     workload_max: int | None = None
     posted_within_days: int | None = None
@@ -156,7 +140,7 @@ def search(jobs: list[dict], index: BM25, query: Query, today: date) -> dict:
     since = (today - timedelta(days=query.posted_within_days)).isoformat() \
         if query.posted_within_days is not None else None
 
-    matching = []  # tous les filtres sauf les cantons : la base des facettes
+    matching = []  # tous les filtres sauf cantons et familles : la base des facettes
     for i, job in enumerate(jobs):
         if scores is not None and scores[i] <= 0:
             continue
@@ -167,8 +151,17 @@ def search(jobs: list[dict], index: BM25, query: Query, today: date) -> dict:
             continue
         matching.append((float(scores[i]) if scores is not None else 0.0, job))
 
-    facets = Counter(job["canton"] for _, job in matching if job["canton"])
-    hits = [(s, j) for s, j in matching if not query.cantons or j["canton"] in query.cantons]
+    def in_cantons(job: dict) -> bool:
+        return not query.cantons or job["canton"] in query.cantons
+
+    def in_families(job: dict) -> bool:
+        return not query.families or job["family"] in query.families
+
+    # Chaque facette compte tous les filtres sauf le sien : on voit ce qu'élargir apporterait
+    facets = Counter(job["canton"] for _, job in matching if job["canton"] and in_families(job))
+    family_facets = Counter(job["family"] for _, job in matching
+                            if job["family"] and in_cantons(job))
+    hits = [(s, j) for s, j in matching if in_cantons(j) and in_families(j)]
 
     sort = query.sort or ("relevance" if scores is not None else "recent")
     if sort == "relevance" and scores is not None:
@@ -182,8 +175,13 @@ def search(jobs: list[dict], index: BM25, query: Query, today: date) -> dict:
         # Le nombre d'employeurs distincts parmi les résultats (« 1 701 offres de 65 entreprises »)
         "companies": len({j["company"] for _, j in hits}),
         "jobs": [summary(j) for _, j in hits[start:start + query.per_page]],
-        "facets": {"cantons": dict(sorted(facets.items(), key=lambda kv: (-kv[1], kv[0])))},
+        "facets": {"cantons": _by_count(facets), "families": _by_count(family_facets)},
     }
+
+
+def _by_count(counts: Counter) -> dict[str, int]:
+    """Le plus fréquent d'abord, puis par ordre alphabétique."""
+    return dict(sorted(counts.items(), key=lambda kv: (-kv[1], kv[0])))
 
 
 def similar(jobs: list[dict], index: BM25, position: int, k: int) -> list[dict]:

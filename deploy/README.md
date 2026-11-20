@@ -312,3 +312,72 @@ Déployer la version incluant ce correctif. Le cycle complet corrigé n'a pas é
 et les limites de mémoire restent à valider sur le VPS : conserver la surveillance du délai
 systemd de 3 h et du rapport qualité. Le nombre local ne prouve pas le nombre actuellement
 servi par le VPS. [Bilan détaillé](../docs/crawl-suisse-2026-11-15.md).
+
+
+## Mise à jour du 17.11.2026 : familles de métier (onboarding de DoxAI)
+
+Purement additif : `GET /jobs` et `POST /recommend` acceptent un filtre facultatif `families`
+(libellés exacts de `family`, OU entre eux, ET avec les autres filtres) ; `/jobs` gagne la
+facette `facets.families`. Deux routes nouvelles, sous le même jeton : `GET /families` (les 15
+familles) et `POST /classify` (`{"titles": [...]}` → leurs familles, sans modèle). Sans
+`families`, les réponses sont identiques à avant, classement de `/recommend` compris (tests sur
+les 13 fixtures). Aucune migration, aucune dépendance, ni le fichier Compose, ni le timer, ni
+la collecte ne changent : seul le conteneur `job-rec-ai` redémarre (il sert le staging comme la
+production de DoxAI ; quelques secondes, l'index se recharge au démarrage).
+
+```bash
+cd /opt/job-rec-ai
+systemctl is-active job-rec-ai-crawl            # « inactive » : pas pendant la collecte
+grep '^JOB_REC_TAG=' .env                       # noter l'ancien tag (retour arrière)
+sed -i 's/^JOB_REC_TAG=.*/JOB_REC_TAG=<sha>/' .env
+docker compose pull api && docker compose up -d api     # recrée le seul conteneur job-rec-ai
+docker exec cv-app wget -qO- http://job-rec-ai:8000/health
+
+# Vérifier (le jeton est lu dans .env, jamais affiché)
+set -a; . /opt/job-rec-ai/.env; set +a
+H="Authorization: Bearer $JOB_REC_TOKEN"
+docker exec cv-app wget -qO- --header "$H" http://job-rec-ai:8000/families
+docker exec cv-app wget -qO- --header "$H" \
+  "http://job-rec-ai:8000/jobs?families=Informatique%20%26%20Tech&per_page=2"
+docker exec cv-app wget -qO- --header "$H" --header "Content-Type: application/json" \
+  --post-data '{"titles": ["Comptable", "Développeur full-stack"]}' \
+  http://job-rec-ai:8000/classify
+```
+
+Retour arrière : remettre l'ancien `JOB_REC_TAG` et `docker compose up -d api`. Rien à défaire
+dans la base. L'ancienne version ignore `families` sans erreur (sur `/jobs` comme sur
+`/recommend`) : elle renverrait toutes les familles ; `/families` et `/classify` y répondent
+`404`, et `facets.families` manque.
+
+## Mise à jour du 20.11.2026 : langue des annonces
+
+`language` de `/jobs` et `/jobs/{id}` était faux pour beaucoup d'annonces (Coop « Verkäufer:in
+Food » → `en`). La base gagne une colonne `jobs.declared_language` (`ALTER TABLE … ADD COLUMN
+IF NOT EXISTS`, ajoutée par le premier processus qui ouvre la base en écriture) ; le contrat
+de l'API ne change pas. Ni le fichier Compose, ni les services, ni le timer ne changent.
+
+```bash
+cd /opt/job-rec-ai
+# 1. L'image du commit de main qui contient la correction
+grep '^JOB_REC_TAG=' .env                       # noter l'ancien tag (retour arrière)
+sed -i 's/^JOB_REC_TAG=.*/JOB_REC_TAG=<sha>/' .env
+docker compose pull api && docker compose up -d api     # recrée le seul conteneur job-rec-ai
+docker exec cv-app wget -qO- http://job-rec-ai:8000/health
+
+# 2. Recalculer la langue des offres en base, depuis data/raw (sans réseau, ~1-2 min ; pas
+#    pendant la collecte de 03:17 UTC, qui verrouille la base). D'abord le décompte, puis
+#    l'écriture. Sinon, la collecte suivante corrige d'elle-même les offres actives.
+systemctl is-active job-rec-ai-crawl            # « inactive » : la voie est libre
+docker compose --profile crawl run --rm crawl job-rec-ai backfill-language --dry-run
+docker compose --profile crawl run --rm crawl job-rec-ai backfill-language
+docker compose --profile crawl run --rm crawl job-rec-ai backfill-language --dry-run  # « 0 »
+
+# 3. Vérifier (l'API relit la base au plus 5 min après)
+set -a; . /opt/job-rec-ai/.env; set +a
+docker exec cv-app wget -qO- --header "Authorization: Bearer $JOB_REC_TOKEN" \
+  "http://job-rec-ai:8000/jobs?q=Verk%C3%A4ufer&per_page=3"
+```
+
+Retour arrière : remettre l'ancien `JOB_REC_TAG` et `docker compose up -d api`. L'ancienne
+version ignore la colonne ajoutée et sert les langues recalculées telles quelles (elle ne les
+réécrit qu'à sa prochaine collecte, avec l'ancienne règle).

@@ -102,17 +102,76 @@ _STOPWORDS = {
            "ist", "von", "zu", "auf", "eine", "ein", "im", "den", "bei"},
 }
 
-# Toutes langues confondues : à retirer d'une requête (un CV) avant de chercher
+# Toutes langues confondues : à retirer d'une requête (un CV) avant de chercher.
+# Liste figée : le classement BM25 de /recommend en dépend (la détection a ses propres mots).
 STOPWORDS = frozenset().union(*_STOPWORDS.values())
 
+# Les mots-outils qui servent à reconnaître la langue d'une annonce. Différents de
+# _STOPWORDS sur un point : chaque mot n'appartient qu'à UNE langue (un test le vérifie).
+# « in » est anglais, allemand ET italien : compté pour l'anglais, il a suffi à étiqueter
+# « en » le titre « Verkäufer:in Food » (3 mots, 1 mot-outil : 33 %). Écartés pour la même
+# raison : a, an, on, la, le, un, il, du, si, e (partagés entre au moins deux langues).
+_MARKERS = {
+    "fr": {"les", "des", "une", "et", "est", "pour", "dans", "nous", "vous", "avec", "sur",
+           "au", "aux", "votre", "notre", "vos", "nos", "qui", "de", "en", "sont", "être",
+           "cette", "par", "ou", "à", "êtes", "afin", "chez"},
+    "en": {"the", "and", "of", "to", "for", "with", "you", "we", "our", "your", "is", "are",
+           "will", "be", "this", "who", "as", "or", "at", "from", "that", "have", "can"},
+    "de": {"der", "die", "das", "und", "mit", "für", "sie", "wir", "ihre", "unsere", "ist",
+           "von", "zu", "auf", "eine", "ein", "im", "den", "bei", "sind", "werden", "nicht",
+           "oder", "sowie", "auch", "dich", "deine", "uns", "dem", "bist"},
+    "it": {"lo", "gli", "della", "delle", "degli", "del", "che", "per", "con", "una", "sono",
+           "nel", "nella", "alla", "dei", "di", "ed", "anche", "questo", "siamo", "tua",
+           "nostro", "nostra", "al", "è"},
+}
+LANGUAGE_CODES = tuple(_MARKERS)  # fr, en, de, it
+
+# Quand le texte est-il assez clair pour trancher ? Il faut à la fois :
+MIN_MARKERS = 2    # au moins 2 mots-outils de la langue gagnante (1 seul : un hasard ; sur
+                   # 5 000 offres, en exiger 3 laisse 500 offres de plus sans verdict du texte
+                   # pour seulement 4 désaccords de moins avec la langue déclarée par l'ATS),
+MIN_SHARE = 0.05   # au moins 5 % des mots (en dessous : une liste de compétences, pas des phrases),
+DOMINANCE = 2.0    # et deux fois plus que la langue suivante.
+# Entre 1,2 et 2 fois : une annonce dans la langue locale suivie d'un pavé standard en anglais
+# (Roche, UCB, Lombard Odier), ou vraiment bilingue (Lonza). Une indication, pas une preuve :
+# la langue déclarée par l'ATS passe avant, le texte ne sert que s'il n'y en a pas.
+WEAK_DOMINANCE = 1.2
+
+
+def guess_language(text: str | None, dominance: float = DOMINANCE) -> str | None:
+    """« fr », « en », « de » ou « it » si le texte le dit assez clairement (voir les seuils
+    ci-dessus) ; None sinon (texte court, sans phrases, ou sans langue assez majoritaire)."""
+    words = re.findall(r"[a-zà-ÿ]+", (text or "").casefold())
+    scores = sorted(((sum(w in markers for w in words), lang)
+                     for lang, markers in _MARKERS.items()), reverse=True)
+    (best, lang), (second, _) = scores[0], scores[1]
+    if best < MIN_MARKERS or best < MIN_SHARE * len(words) or best < dominance * second:
+        return None
+    return lang
+
+
+def language_tag(declared: str | None) -> str | None:
+    """Une langue déclarée par un ATS (« de-DE », « fr_CH », « EN ») → « de », « fr », « en » ;
+    None si absente ou hors des quatre langues reconnues."""
+    code = re.split(r"[-_]", (declared or "").strip().lower())[0]
+    return code if code in LANGUAGE_CODES else None
+
+
+def resolve_language(declared: str | None, text: str | None) -> str:
+    """La langue d'une annonce, par ordre de confiance :
+    1. le texte, s'il est clair (il dit ce que le candidat lira) ;
+    2. sinon la langue déclarée par l'ATS (Coop n'écrit souvent que le titre) ;
+    3. sinon le texte, s'il penche nettement d'un côté ;
+    4. sinon « other ».
+    Le texte clair passe avant l'ATS : un site déclare parfois la langue de son interface,
+    pas celle de l'annonce (EY et Nestlé : « en-US » sur des annonces en allemand ou en
+    français ; l'ONU : « EN » partout)."""
+    return (guess_language(text) or language_tag(declared)
+            or guess_language(text, WEAK_DOMINANCE) or "other")
+
+
 def detect_language(text: str) -> str:
-    """Renvoie « fr », « en » ou « other » (allemand, italien, texte vide ou trop court)."""
-    words = re.findall(r"[a-zà-ÿ]+", text.casefold())
-    if len(words) < 3:
-        return "other"
-    scores = {lang: sum(w in stop for w in words) for lang, stop in _STOPWORDS.items()}
-    best = max(scores, key=scores.get)
-    # Moins de 5 % de mots-outils : probablement ni du français, ni de l'anglais
-    if scores[best] / len(words) < 0.05 or best == "de":
-        return "other"
-    return best
+    """Renvoie « fr », « en » ou « other » (allemand, italien, texte vide ou peu clair).
+    Le contrat du checkpoint M2 ; `guess_language` distingue aussi l'allemand et l'italien."""
+    lang = resolve_language(None, text)
+    return lang if lang in ("fr", "en") else "other"

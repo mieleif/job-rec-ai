@@ -11,6 +11,7 @@ import gzip
 import json
 import logging
 import re
+from collections import Counter
 from dataclasses import asdict, dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
@@ -22,7 +23,7 @@ from job_rec_ai.families import classify
 from job_rec_ai.geo import canton_of, is_target
 from job_rec_ai.http import PoliteClient
 from job_rec_ai.models import Job
-from job_rec_ai.text import detect_language, normalize
+from job_rec_ai.text import normalize, resolve_language
 
 log = logging.getLogger(__name__)
 RAW_DIR = Path("data/raw")
@@ -36,21 +37,24 @@ MIN_SUSPECT = 5         # …et d'au moins 5 offres (3 offres sur 4 chez une PME
 
 
 def derive(title: str, location: str, description: str, category: str | None = None,
-           level: str | None = None) -> dict:
-    """Les colonnes dérivées d'une offre : recalculables à volonté, sans re-télécharger."""
+           level: str | None = None, declared_language: str | None = None) -> dict:
+    """Les colonnes dérivées d'une offre : recalculables à volonté, sans re-télécharger.
+    `declared_language` : la langue que l'ATS déclare (voir text.resolve_language)."""
     return {
-        "language": detect_language(description),
+        "language": resolve_language(declared_language, f"{title} {description}"),
         "canton": canton_of(location),
         **asdict(classify(title, description, category, level)),
     }
 
 
 def enrich(job: Job) -> dict:
-    """Job → ligne de la table jobs (champs du Job + colonnes dérivées)."""
-    row = {**job.model_dump(mode="json"),
-           **derive(job.title, job.location, job.description, job.category, job.level)}
-    row["language"] = job.language or row["language"]  # la langue déclarée par l'ATS prime
-    return row
+    """Job → ligne de la table jobs (champs du Job + colonnes dérivées).
+
+    `Job.language` est la langue déclarée par l'ATS : gardée telle quelle dans
+    `declared_language` ; `language` est celle qu'on retient (le texte d'abord)."""
+    return {**job.model_dump(mode="json"), "declared_language": job.language,
+            **derive(job.title, job.location, job.description, job.category, job.level,
+                     job.language)}
 
 
 def expiration_is_suspect(missing: int, active: int, loaded: int) -> bool:
@@ -211,6 +215,45 @@ def backfill_markdown(con, raw_dir: Path = RAW_DIR) -> tuple[int, int]:
             con, [{"url": str(j.url), "description_markdown": j.description_markdown}
                   for j in jobs])
     return len(archives), updated
+
+
+@dataclass
+class Relabeled:
+    archives: int        # archives brutes relues (la dernière de chaque entreprise)
+    jobs: int            # offres en base
+    changes: Counter     # (source, langue en base, langue recalculée) → nombre d'offres
+
+
+def backfill_language(con, raw_dir: Path = RAW_DIR, dry_run: bool = False) -> Relabeled:
+    """Recalcule `language` de toutes les offres en base, sans réseau ni collecte :
+    1. la langue déclarée par l'ATS est relue dans la dernière archive brute de chaque
+       entreprise (les offres collectées avant ce champ n'en ont pas encore) ;
+    2. la langue est recalculée depuis le titre et la description en base
+       (text.resolve_language).
+    Seules `language` et `declared_language` sont écrites, et seulement là où elles changent :
+    rejouable (un second passage ne change rien). `dry_run` : rien n'est écrit, seul le
+    décompte des changements est rendu."""
+    archives, declared = latest_archives(raw_dir), {}
+    for path in archives:
+        try:
+            with gzip.open(path, "rt", encoding="utf-8") as f:
+                payload = json.load(f)
+            jobs = dedupe(REGISTRY[payload["ats"]].parse(payload))
+        except Exception:  # une archive illisible ne doit pas bloquer les autres
+            log.exception("archive ignorée : %s", path)
+            continue
+        declared.update({str(j.url): j.language for j in jobs if j.language})
+    stored, rows, changes = storage.jobs_for_language(con), [], Counter()
+    for job in stored:
+        tag = declared.get(job["url"], job["declared_language"])
+        language = resolve_language(tag, f"{job['title']} {job['description'] or ''}")
+        if (language, tag) != (job["language"], job["declared_language"]):
+            rows.append({"url": job["url"], "language": language, "declared_language": tag})
+        if language != job["language"]:
+            changes[(job["source"], job["language"], language)] += 1
+    if not dry_run:
+        storage.update_derived(con, rows)
+    return Relabeled(len(archives), len(stored), changes)
 
 
 @dataclass

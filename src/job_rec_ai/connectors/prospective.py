@@ -57,6 +57,8 @@ class ProspectiveConnector:
                 "description": " ".join(clean_html(szas[k]) for k in _TEXT if szas.get(k)),
                 "description_markdown": join_markdown(html_to_markdown(szas[k])
                                                       for k in _TEXT if szas.get(k)),
+                # La langue de l'annonce (lang=fr de la requête ne traduit que les libellés)
+                "language": job.get("language"),
                 "source_id": str(job["id"]),
                 "employment_type": szas.get("sza_pensum"),
                 "category": szas.get("sza_field_of_activity"),

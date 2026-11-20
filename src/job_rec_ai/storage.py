@@ -73,6 +73,10 @@ ALTER TABLE jobs ADD COLUMN IF NOT EXISTS level VARCHAR;
 -- NULL tant que ni une collecte ni `backfill-markdown` ne l'a remplie ; `description` reste
 -- le texte brut que lit le moteur.
 ALTER TABLE jobs ADD COLUMN IF NOT EXISTS description_markdown VARCHAR;
+-- La langue que l'ATS déclare pour l'annonce (« de-DE », « fr »), brute ; `language` est la
+-- langue retenue (text.resolve_language : le texte d'abord, cette déclaration à défaut).
+-- Gardée pour que `rederive` et `backfill-language` puissent la recalculer sans réseau.
+ALTER TABLE jobs ADD COLUMN IF NOT EXISTS declared_language VARCHAR;
 
 CREATE TABLE IF NOT EXISTS crawl_runs (
     started_at TIMESTAMP,
@@ -432,7 +436,16 @@ def jobs_for_api(con) -> list[dict]:
 def jobs_for_derivation(con) -> list[dict]:
     """Les champs dont dépendent les colonnes dérivées, nommés (pas de couplage à l'ordre)."""
     cursor = con.execute(
-        "SELECT url, title, location, description, category, level, canton FROM jobs")
+        "SELECT url, title, location, description, category, level, declared_language, canton "
+        "FROM jobs")
+    names = [d[0] for d in cursor.description]
+    return [dict(zip(names, row)) for row in cursor.fetchall()]
+
+
+def jobs_for_language(con) -> list[dict]:
+    """Ce dont dépend la langue d'une offre, et la langue en base (toutes les offres)."""
+    cursor = con.execute("SELECT url, source, title, description, language, declared_language "
+                         "FROM jobs ORDER BY url")
     names = [d[0] for d in cursor.description]
     return [dict(zip(names, row)) for row in cursor.fetchall()]
 

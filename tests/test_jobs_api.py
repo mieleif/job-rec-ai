@@ -13,6 +13,7 @@ from fastapi.testclient import TestClient
 
 from job_rec_ai import api, catalog, pipeline, storage
 from job_rec_ai.connectors import REGISTRY
+from job_rec_ai.families import FAMILIES, FAMILY_RULES, SENIORITY_RULES
 from job_rec_ai.models import Job
 
 FIXTURES = Path(__file__).parent / "fixtures"
@@ -95,7 +96,9 @@ def test_liste_par_defaut_les_plus_recentes_sans_date_a_la_fin(client):
     assert body["total"] == 5 and body["page"] == 1 and body["per_page"] == 20
     assert _titles(body) == ["Pflegefachperson", "Data Engineer", "Développeur IA",
                              "Data Analyst", "Comptable"]
-    assert body["facets"] == {"cantons": {"GE": 2, "FR": 1, "NE": 1, "VD": 1}}
+    assert body["facets"] == {"cantons": {"GE": 2, "FR": 1, "NE": 1, "VD": 1},
+                              "families": {"Data & IA": 3, "Autre": 1,
+                                           "Finance & Comptabilité": 1}}
 
 
 def test_forme_d_un_job_summary(client):
@@ -340,3 +343,130 @@ def test_backfill_depuis_la_derniere_archive_de_chaque_entreprise(tmp_path):
     stored = dict(con.execute("SELECT url, description_markdown FROM jobs").fetchall())
     con.close()
     assert (archives, updated) == (1, len(expected)) and stored == expected
+
+
+# --- familles de métier (17.11.2026) : filtre, facette, /families, /classify --------------------
+
+def test_filtre_familles_ou_entre_elles_et_avec_les_autres_filtres(client):
+    body = client.get("/jobs", params={"families": "Data & IA"}).json()
+    assert set(_titles(body)) == {"Data Engineer", "Développeur IA", "Data Analyst"}
+    body = client.get("/jobs", params={"families": "Data & IA, Finance & Comptabilité"}).json()
+    assert body["total"] == 4 and "Comptable" in _titles(body)  # OU entre les familles
+    body = client.get("/jobs", params={"families": "Data & IA", "cantons": "GE"}).json()
+    assert _titles(body) == ["Data Engineer"]                    # ET avec les cantons
+    body = client.get("/jobs", params={"families": "Data & IA", "q": "LLM"}).json()
+    assert _titles(body) == ["Développeur IA"]                   # ET avec la recherche
+
+
+def test_familles_libelle_exact_inconnu_ne_correspond_a_rien(client):
+    """Comme un canton inconnu : pas d'erreur, il ne correspond simplement à aucune offre."""
+    for unknown in ("data & ia", "Data", "Stage / Apprentissage"):
+        response = client.get("/jobs", params={"families": unknown})
+        assert response.status_code == 200 and response.json()["total"] == 0, unknown
+    body = client.get("/jobs", params={"families": "Inconnue,Finance & Comptabilité"}).json()
+    assert _titles(body) == ["Comptable"]
+    # Que des virgules et des espaces : pas de filtre, comme pour les cantons
+    assert client.get("/jobs", params={"families": " , "}).json()["total"] == 5
+
+
+def test_facettes_chacune_sans_son_propre_filtre(client):
+    body = client.get("/jobs", params={"families": "Data & IA", "cantons": "GE"}).json()
+    # cantons : avec le filtre familles, sans le filtre cantons
+    assert body["facets"]["cantons"] == {"FR": 1, "GE": 1, "VD": 1}
+    # familles : avec le filtre cantons, sans le filtre familles
+    assert body["facets"]["families"] == {"Data & IA": 1, "Finance & Comptabilité": 1}
+
+
+def test_liste_des_familles_sans_autre_ni_seniorite():
+    assert FAMILIES == tuple(name for name, _ in FAMILY_RULES) and len(FAMILIES) == 15
+    assert "Autre" not in FAMILIES
+    assert not set(FAMILIES) & {name for name, _ in SENIORITY_RULES}
+
+
+def test_get_families(client):
+    body = client.get("/families").json()
+    assert body == {"families": list(FAMILIES)}
+    assert body["families"][0] == "Data & IA" and body["families"][-1] == "Hôtellerie & Services"
+
+
+def test_classify_familles_par_frequence_sans_autre(client):
+    titles = ["Comptable", "Développeur full-stack", "Contrôleur de gestion", "Pflegefachperson",
+              "Software Engineer", "Accountant", "  "]
+    body = client.post("/classify", json={"titles": titles}).json()
+    assert body == {"families": ["Finance & Comptabilité", "Informatique & Tech"]}
+    # À égalité : l'ordre d'apparition ; rien de reconnu : liste vide
+    body = client.post("/classify", json={"titles": ["Infirmière", "Juriste"]}).json()
+    assert body == {"families": ["Santé & Soins", "Juridique & Compliance"]}
+    assert client.post("/classify", json={"titles": ["Pflegefachperson"]}).json() == {
+        "families": []}
+    assert client.post("/classify", json={"titles": []}).json() == {"families": []}
+
+
+@pytest.mark.parametrize("body", [{}, {"titles": "Comptable"}, {"titles": ["x"] * 21},
+                                  {"titles": ["x" * 201]}])
+def test_classify_entrees_invalides(client, body):
+    assert client.post("/classify", json=body).status_code == 422
+
+
+def test_jeton_exige_sur_families_et_classify(db, monkeypatch):
+    monkeypatch.setenv("JOB_REC_TOKEN", "secret")
+    with TestClient(api.create_app(db)) as c:
+        assert c.get("/families").status_code == 401
+        assert c.post("/classify", json={"titles": ["Comptable"]}).status_code == 401
+        ok = {"Authorization": "Bearer secret"}
+        assert c.get("/families", headers=ok).status_code == 200
+        assert c.post("/classify", json={"titles": ["Comptable"]}, headers=ok).status_code == 200
+
+
+def test_families_et_classify_sans_base(tmp_path, monkeypatch):
+    """Ni l'une ni l'autre ne lit la base : elles répondent même quand l'index est absent."""
+    monkeypatch.delenv("JOB_REC_TOKEN", raising=False)
+    with TestClient(api.create_app(tmp_path / "absente.duckdb")) as c:
+        assert c.get("/families").status_code == 200
+        assert c.post("/classify", json={"titles": ["Comptable"]}).json() == {
+            "families": ["Finance & Comptabilité"]}
+
+
+def test_recommend_filtre_familles(client):
+    recos = client.post("/recommend", json={"cv_text": "Python SQL", "k": 10,
+                                            "families": ["Data & IA"]}).json()
+    assert recos and all(r["family"] == "Data & IA" for r in recos)
+    assert client.post("/recommend", json={"cv_text": "Python SQL", "k": 10,
+                                           "families": ["Inconnue"]}).json() == []
+
+
+def test_recommend_familles_meme_ordre_que_sans_filtre(tmp_path, monkeypatch):
+    """Le filtre ne fait que retirer des offres : l'ordre relatif des autres ne bouge pas."""
+    monkeypatch.delenv("JOB_REC_TOKEN", raising=False)
+    with TestClient(api.create_app(_fixtures_db(tmp_path / "jobs.duckdb"))) as c:
+        for cv_text in GOLDEN:
+            every = c.post("/recommend", json={"cv_text": cv_text, "k": 50}).json()
+            wanted = {every[0]["family"], "Data & IA"}
+            some = c.post("/recommend", json={"cv_text": cv_text, "k": 50,
+                                              "families": sorted(wanted)}).json()
+            assert some == [r for r in every if r["family"] in wanted], cv_text
+
+
+# /jobs sur la base des 13 fixtures, relevé sur main (75e33fa) AVANT l'ajout des familles :
+# total, employeurs, condensé de la liste ordonnée des id (per_page=50) et facette cantons.
+JOBS_GOLDEN = [
+    ({}, 54, 13, "2e002f2d6a3c0352", {"GE": 37, "VD": 13, "VS": 2}),
+    ({"q": "data"}, 23, 9, "4db1a1e97fe36368", {"GE": 19, "VD": 4}),
+    ({"q": "python sql", "sort": "recent"}, 3, 3, "6176097068dab51f", {"GE": 3}),
+    ({"cantons": "GE,VD"}, 50, 13, "8313181d78f87d84", {"GE": 37, "VD": 13, "VS": 2}),
+    ({"workload_min": 80}, 52, 13, "d5513116c238544d", {"GE": 35, "VD": 13, "VS": 2}),
+    ({"q": "engineer", "cantons": "ZH,GE"}, 3, 2, "fad46f46be9771f3", {"GE": 3}),
+]
+
+
+def test_jobs_sans_familles_meme_reponse_qu_avant(tmp_path, monkeypatch):
+    monkeypatch.delenv("JOB_REC_TOKEN", raising=False)
+    with TestClient(api.create_app(_fixtures_db(tmp_path / "jobs.duckdb"))) as c:
+        for params, total, companies, digest, cantons in JOBS_GOLDEN:
+            body = c.get("/jobs", params={**params, "per_page": 50}).json()
+            ids = ",".join(j["id"] for j in body["jobs"])
+            assert (body["total"], body["companies"]) == (total, companies), params
+            assert hashlib.sha256(ids.encode()).hexdigest()[:16] == digest, params
+            assert body["facets"]["cantons"] == cantons, params
+            # Sans filtre familles, leur facette compte exactement les `total` résultats
+            assert sum(body["facets"]["families"].values()) == total, params
