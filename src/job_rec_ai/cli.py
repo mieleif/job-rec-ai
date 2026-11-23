@@ -17,6 +17,7 @@ from job_rec_ai import (
     annotation,
     benchmark,
     domains,
+    embeddings,
     evaluation,
     explorer,
     pipeline,
@@ -233,13 +234,25 @@ def _private_set() -> evaluation.EvalSet | None:
 
 def _cmd_eval(args, con):
     """Pooling + page d'annotation (--pool), import des notes (--import), métriques (défaut)."""
+    client = embeddings.Client.from_env() if args.api else None
+    if args.api and client is None:
+        sys.exit("INFOMANIAK_API_TOKEN absente : uv run --env-file .env job-rec-ai eval --api")
+    with client or nullcontext():
+        _eval(args, con, client)
+
+
+def _eval(args, con, client):
+    def methods(person):
+        extra = evaluation.api_methods(client, person) if client else {}
+        return evaluation.METHODS | extra
+
     if args.pool:
         sets = [s for s in [*evaluation.load_sets(evaluation.EVAL_DIRS[:1]), _private_set()] if s]
         for es in sets:
             # Pool et notes gardés même expirés : une offre du pool reste à noter
             corpus = evaluation.Corpus.of(
                 storage.jobs_for_ranking(con, include=[*es.pool, *es.judgments]))
-            es.pool, es.drawn = evaluation.build_pool(es, corpus)
+            es.pool, es.drawn = evaluation.build_pool(es, corpus, methods=methods(es.person))
             es.pooled_at = evaluation.today()
             es.save()
             by_url = {j["url"]: j for j in corpus.jobs}
@@ -273,10 +286,16 @@ def _cmd_eval(args, con):
         print(f"\n── {es.person} : {len(es.judgments)} offres notées "
               f"(2 : {counts[2]}, 1 : {counts[1]}, 0 : {counts[0]}) ; "
               f"{len(corpus.jobs)} offres classées")
-        print(f"  {'méthode · requête':<26}{'P@10':>7}{'MRR':>7}{'nDCG@10':>9}{'jugées':>8}")
-        rows = sorted(evaluation.evaluate(es, corpus), key=lambda r: -r.ndcg)
+        print(f"  {'méthode · requête':<42}{'nDCG@10':>8}{'P@10':>6}{'MRR':>6}{'rec@50':>8}"
+              f"{'jugées':>8}{'CHF/reco':>10}  latence (ms)")
+        rows = sorted(evaluation.evaluate(es, corpus, methods=methods(es.person)),
+                      key=lambda r: -r.ndcg)
         for r in rows:
-            print(f"  {r.run:<26}{r.precision:>7.2f}{r.mrr:>7.2f}{r.ndcg:>9.3f}{r.judged:>8.0%}")
+            latency = ", ".join(f"{k} {v:.0f}" for k, v in r.trace.steps.items())
+            print(f"  {r.run:<42}{r.ndcg:>8.3f}{r.precision:>6.2f}{r.mrr:>6.2f}"
+                  f"{r.recall:>8.2f}{r.judged:>8.0%}{r.trace.chf:>10.6f}  {latency}")
+        if client:
+            print(f"  dépensé : {client.ledger.spent:.4f} CHF sur {client.ledger.budget:.2f}")
         n, random_grades = evaluation.random_baseline(es)
         if n:
             print(f"  hasard ({n} offres tirées) : {n - random_grades[0]} notée(s) ≥ 1, "
@@ -361,6 +380,8 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--import", dest="import_path", metavar="JSON",
                    help="importer les notes copiées depuis la page d'annotation")
     p.add_argument("--person", default="leif", help="jeu visé par --import")
+    p.add_argument("--api", action="store_true",
+                   help="ajouter les méthodes de l'API Infomaniak (INFOMANIAK_API_TOKEN)")
     p.set_defaults(func=_cmd_eval)
     sub.add_parser("rederive", help="recalculer langue, canton et classement").set_defaults(
         func=_cmd_rederive)
