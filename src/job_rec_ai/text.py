@@ -70,6 +70,18 @@ def tokenize(text: str | None) -> list[str]:
     return _TOKEN.findall(normalize(text or ""))
 
 
+def chunk_text(text: str, max_words: int, overlap: int) -> list[str]:
+    """Découpe en fenêtres de `max_words` mots, deux voisines partageant `overlap` mots (une
+    idée à cheval sur la coupure reste entière dans l'une des deux)."""
+    if overlap >= max_words:
+        raise ValueError("overlap doit être plus petit que max_words")
+    words = text.split()
+    step = max_words - overlap
+    # Arrêt dès qu'une fenêtre atteint la fin : pas de dernier chunk fait du seul chevauchement
+    starts = range(0, max(len(words) - overlap, 1), step) if words else ()
+    return [" ".join(words[i:i + max_words]) for i in starts]
+
+
 def compile_keywords(rules) -> list[tuple[str, re.Pattern]]:
     """[(étiquette, [mots-clés])] → [(étiquette, motif)] qui ne matche que des mots entiers
     d'un texte normalisé : « it » ne doit pas matcher « audit », ni « onex » « bonex »."""

@@ -40,6 +40,15 @@ def without_contact(text: str) -> str:
     return "\n".join(line for line in text.splitlines() if not _CONTACT.search(line))
 
 
+def for_api(text: str, names: list[str] | None = None) -> str:
+    """Le texte qui part chez un tiers : sans coordonnées, ni ligne qui nomme la personne
+    (`without_contact` garde « Prénom Nom », sans effet sur BM25 mais identifiant)."""
+    lines = without_contact(text).splitlines()
+    words = {w for name in names or [] for w in re.findall(r"\w+", name.casefold())}
+    return "\n".join(line for line in lines
+                     if not words & set(re.findall(r"\w+", line.casefold())))
+
+
 def read_cv(path: Path = DEFAULT_CV) -> str:
     """Le texte du CV : PDF (toutes les pages) ou texte brut (.txt, .md)."""
     path = Path(path)

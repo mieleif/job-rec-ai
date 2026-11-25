@@ -107,10 +107,10 @@ Lancer un checkpoint : `uv run pytest checkpoints/test_m1_collecte.py -v`
 
 - [ ] Note : qu'est-ce qu'un embedding ? (expérience FR/EN à l'appui)
 - [ ] Embeddings avec un modèle multilingue local (sentence-transformers)
-- [ ] Chunking avec chevauchement
+- [x] Chunking avec chevauchement
 - [ ] Base vectorielle (pgvector ou DuckDB VSS) + index HNSW
 - [ ] Même chose via une API : comparaison qualité / coût / latence
-- [ ] Recherche hybride BM25 + vecteurs (Reciprocal Rank Fusion)
+- [x] Recherche hybride BM25 + vecteurs (Reciprocal Rank Fusion)
 
 🖼️ Tableau BM25 vs embeddings vs hybride + carte UMAP interactive des offres.
 
@@ -149,11 +149,11 @@ Lancer un checkpoint : `uv run pytest checkpoints/test_m1_collecte.py -v`
 
 - [ ] Note : bi-encoder vs cross-encoder
 - [ ] Récupérer 100 candidats → reclasser les 10 meilleurs
-- [ ] Re-ranker cross-encoder multilingue
+- [x] Re-ranker cross-encoder multilingue
 - [ ] Variante LLM comme re-ranker (attention au biais de position)
 - [ ] ⚡ Score de fraîcheur (décroissance exponentielle, demi-vie)
 - [ ] Score combiné (similarité + re-ranker + fraîcheur)
-- [ ] ⚡ Mesurer la latence de chaque étape
+- [x] ⚡ Mesurer la latence de chaque étape
 
 🖼️ Leaderboard nDCG@10 de toutes les méthodes depuis M3.
 

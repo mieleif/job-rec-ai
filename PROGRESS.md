@@ -3,7 +3,7 @@
 Le carnet de bord du projet : où on en est, ce qu'on a décidé et pourquoi, la suite.
 Les tâches cochables restent dans [ROADMAP.md](ROADMAP.md) ; ce fichier ne les recopie pas.
 
-_Dernière mise à jour : 2026-11-20_
+_Dernière mise à jour : 2026-11-25_
 
 ## Où on en est
 
@@ -13,12 +13,37 @@ _Dernière mise à jour : 2026-11-20_
 | M1 · Collecte | **8/8** (fixtures réelles pour les 13 connecteurs) | **5 046 offres actives**, 26 cantons, 64 sources avec des annonces (collecte locale du 15–16.11). VPS à mettre à jour ; note HTTP et questions de contrôle restantes |
 | M2 · Pipeline | 7/7 (livrable : [notebook « 5 graphiques »](notebooks/marche-emploi.ipynb)) | timer actif sur le VPS (03:17 UTC) ; note ETL/ELT, questions de contrôle |
 | M3 · Baseline | code 6/6 ; BM25 en production (`recommend`), nDCG@10 0,779 sur 38 offres notées | 3-4 CV anonymisés de plus, note « mesurer avant d'optimiser », questions de contrôle |
-| M4 → M7 | embeddings en pause ; intégration DoxAI en service | voir ROADMAP.md |
+| M4 → M6 | embeddings, hybride et reranker par l'API Infomaniak codés (checkpoint M4 5/5) ; hybride Qwen3 branché sur `/recommend` (PR, inactif sans jeton) ; **54 offres à noter avant toute conclusion** | voir « Prochaines étapes » |
 | M8 · Production | API déployée sur le VPS, checkpoint API 3/3 lors de sa préparation | suivi et livrables restants dans ROADMAP.md |
 
-Tests du projet : 517 réussis (2026-11-20) ; Ruff valide.
+Tests du projet : 543 réussis (2026-11-25) ; Ruff valide.
 
 ## Décisions
+
+- **2026-11-25 · `/recommend` hybride BM25 + Qwen3-Embedding-8B (choix de Leif, avant les
+  notes : ce n'est pas une conclusion de l'évaluation).** Actif seulement avec
+  `INFOMANIAK_API_TOKEN`, ≥ 90 % des offres encodées et une réponse en moins de 4 s ; sinon
+  BM25, jamais d'erreur à cause du tiers. Encodage des offres par `job-rec-ai embed` après la
+  collecte (l'API n'encode que le CV). Reranker Qwen3 câblé mais éteint (`JOB_REC_RERANK=1`) :
+  « hybride avec Qwen » ne le tranchait pas. Vecteurs d'utilisateurs jamais sur disque ; plafond
+  de 2 CHF par mois et par processus. Repli limité aux pannes du tiers (pas `except Exception`,
+  qui avait masqué une vraie erreur) et compté dans `/status`. Un test vérifie que le classement
+  servi est celui de la méthode évaluée `bm25+qwen3-8b`.
+- **2026-11-23 · M4 par l'API Infomaniak, pas de torch.** Client `embeddings.py` (lots,
+  nouvelles tentatives, cache SQLite par (modèle, sha256 du texte), journal des tokens et CHF,
+  plafond de 3 CHF), `search.py` (RRF, cosinus exhaustif), `rerank.py`. Faits, prix et
+  longueurs : [docs/infomaniak-modeles.md](docs/infomaniak-modeles.md). Architecture en
+  entonnoir : BM25 et vecteurs en parallèle → RRF → reranker sur 60 candidats → top 10 ;
+  jamais BM25 en filtre. **Pas de base vectorielle ni de HNSW** : cosinus sur 5 235 × 4 096
+  en ~7 ms, exact, pour un corpus 200 fois trop petit pour qu'un index approché serve (case
+  ROADMAP non cochée). Confidentialité : `cv.for_api` retire, en plus du nettoyage existant,
+  la ligne qui nomme la personne (le nettoyage gardait « Prénom Nom ») ; vecteurs et scores
+  de CV dans `data/private/` ; aucun texte en cache, en log ni en message d'erreur. Le code
+  lit `INFOMANIAK_API_TOKEN` et `INFOMANIAK_PRODUCT_ID` (mêmes noms que DoxAI).
+- **2026-11-23 · À décider par Leif après les notes : MiniLM et BM25.** MiniLM est suspect
+  (FR/EN sous une paire sans rapport, 128 tokens au plus) mais `bm25+minilm · profil` est en
+  tête du tableau provisoire : rien à conclure avec 80 % du top 10 jugé. Le recall@50 de BM25
+  (0,89) est gonflé par le pooling (les 38 notes viennent de lui et de TF-IDF).
 
 - **2026-11-20 · Langue d'une annonce : le texte d'abord, la langue déclarée par l'ATS à
   défaut.** DoxAI lit `language` pour l'attribut `lang` de la page et pour décider de
@@ -442,6 +467,14 @@ Tests du projet : 517 réussis (2026-11-20) ; Ruff valide.
 
 ## Prochaines étapes
 
+- **M4 : noter les 54 offres** (pool de 92) sur la page privée
+  <https://claude.ai/artifact/J66MosDMRTnxZAHbUQGNuF> (notes lues par `ArtifactData`,
+  collection `notes`), puis `eval --import`, relancer `eval --api` et interpréter. Ne
+  conclure sur aucune méthode avant.
+- **Avant d'activer l'hybride en prod** : lire le tableau, vérifier que DoxAI n'envoie pas le
+  nom dans `cv_text` et que sa politique de confidentialité couvre cet envoi à Infomaniak,
+  clé dédiée, mémoire sous Linux ([deploy/README.md](deploy/README.md)).
+
 - Publier l'image contenant le périmètre suisse, appliquer la mise à jour documentée sur le
   VPS et lancer une collecte complète. Comparer au bilan local de 5 046 offres ; mesurer
   durée, mémoire et qualité sur le VPS (le premier essai local non corrigé dépassait 3 h) ;
@@ -481,6 +514,20 @@ Tests du projet : 517 réussis (2026-11-20) ; Ruff valide.
 8. Finir M0 : règles perso dans `CLAUDE.md`, Milestones GitHub.
 
 ## Journal des sessions
+
+- **2026-11-25** : hybride branché sur `/recommend` (PR ouverte, rien de déployé). Essai réel sur
+  5 216 offres : 182 à 327 ms (BM25 ~20 ms), 0,69 à 1,7 s avec reranker. Découvert : le pic de
+  rechargement de BM25 seul (438 Mo sous Windows) dépasse déjà le plafond de 384 Mo du conteneur.
+  `/recommend` ne connaît pas le nom de la personne (l'évaluation si) et ne peut pas retirer la
+  ligne qui le porte : à l'appelant de ne pas l'envoyer. Page de notation publiée le 25 au lieu du
+  23 (aperçu local bloqué). Dépensé : 0,484 CHF sur 3.
+
+- **2026-11-23** : M4 par l'API Infomaniak (étapes 0 à 4). 5 modèles vérifiés par appel, corpus
+  indexé (3 256 textes distincts), expérience « date de coupure ». Contraintes découvertes :
+  le rerank facture la requête à chaque document ; MiniLM refuse plus de 128 tokens. Baseline
+  mesurée sur le corpus national : `bm25 · cv` passe de 0,779 à 0,483 de nDCG@10 ; 4 offres
+  de son top 10 n'y sont pas notées et comptent 0 (cause principale probable, l'idf change aussi). Pool étendu :
+  92 offres, 54 à noter. Dépensé : 0,48 CHF sur 3.
 
 - **2026-11-20** : langue des annonces corrigée (Coop « Verkäufer:in Food » sortait `en`) :
   mots-outils propres à une langue, de/it reconnus, texte d'abord puis langue déclarée par

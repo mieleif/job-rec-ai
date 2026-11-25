@@ -47,6 +47,13 @@ def precision_at_k(ranked: list[str], relevant: set[str], k: int) -> float:
     return sum(item in relevant for item in ranked[:k]) / k
 
 
+def recall_at_k(ranked: list[str], relevant: set[str], k: int) -> float:
+    """Part des pertinents présents dans les k premiers : ce que l'étape suivante (un
+    reranker) aura une chance de voir. Rappel RELATIF : on ne connaît que les pertinents déjà
+    notés, pas tous ceux du corpus. 0 si aucun pertinent connu."""
+    return sum(item in relevant for item in ranked[:k]) / len(relevant) if relevant else 0.0
+
+
 def mean_reciprocal_rank(runs: list[tuple[list[str], set[str]]]) -> float:
     """Moyenne de 1 / rang du PREMIER pertinent (0 si aucun) : « combien faut-il lire avant
     de trouver quelque chose ? ». 1ᵉʳ → 1, 2ᵉ → 0,5, 10ᵉ → 0,1."""

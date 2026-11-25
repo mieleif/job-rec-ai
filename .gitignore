@@ -25,3 +25,6 @@ docs/learnings/*
 
 # Explorateur d'offres (régénéré après chaque collecte)
 data/offres.html
+
+# Cache des embeddings et journal des appels (recalculables)
+data/embeddings/

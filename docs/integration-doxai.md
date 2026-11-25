@@ -9,9 +9,9 @@ dans le dépôt `mieleif/cv-app-web` et suit ses règles (`CLAUDE.md`, `memory-b
 |---|---|
 | URL | `http://job-rec-ai:8000` (réseau Docker `n8n-stack_default`, pas d'URL publique) |
 | Jeton | en-tête `Authorization: Bearer $JOB_REC_TOKEN` |
-| Coût | aucun appel de modèle : pas de quota, pas de facturation (comme la compilation PDF) |
-| Latence | quelques millisecondes (BM25 sur ~1 700 offres en mémoire) |
-| Données | le texte envoyé n'est ni journalisé ni conservé |
+| Coût | BM25 : aucun. Hybride : un embedding par `/recommend`, ~0,0001 CHF (pas de quota) |
+| Latence | `/recommend` : ~20 ms en BM25, 0,2 à 0,3 s en hybride, 4 s au pire puis repli |
+| Données | le texte n'est ni journalisé ni conservé ; en hybride, il part chez Infomaniak |
 
 ### `POST /recommend`
 
@@ -26,8 +26,9 @@ dans le dépôt `mieleif/cv-app-web` et suit ses règles (`CLAUDE.md`, `memory-b
 Absent, la réponse est identique à avant ; présent, il ne fait que retirer des offres (l'ordre
 des autres ne bouge pas, `k` s'applique après le filtre).
 
-Réponse `200`, triée par score décroissant ; les offres sans aucun mot commun avec le profil
-sont écartées (la liste peut donc être plus courte que `k`) :
+Réponse `200`, triée par score décroissant. En BM25, les offres sans aucun mot commun avec le
+profil sont écartées ; en hybride (25.11.2026, voir plus bas), elles restent si les vecteurs les
+placent dans les 200 premières. La liste peut donc être plus courte que `k` :
 
 ```json
 [{ "job_id": "https://…", "id": "3f9c0a7e12b4d5c6", "url": "https://…",
@@ -46,11 +47,19 @@ l'extrait des cartes « Offres recommandées ».
 `company_domain` (ajouté le 07.11.2026, voir « Logo de l'employeur » plus bas) : présent sur
 `/recommend` comme sur les trois routes `/jobs`.
 
-`GET /status` (même jeton) : `{"offers": 1706, "loaded_at": "…"}`, pour vérifier que l'index
-est chargé. `GET /health` répond sans jeton.
+`GET /status` (même jeton) : `{"offers": 1706, "loaded_at": "…", "ranking": "hybrid",
+"vectors": 1706, "fallbacks": 0}`, pour vérifier que l'index est chargé et quel classement sert
+(`bm25` ou `hybrid`). `GET /health` répond sans jeton.
 
 Erreurs : `401` jeton absent ou faux, `422` entrée invalide, `503` base pas encore chargée.
-`score` n'a pas d'échelle absolue (BM25) : il sert à ordonner, pas à afficher.
+`score` n'a pas d'échelle absolue et change avec le classement (BM25 : ~300 ; hybride :
+~0,03 ; reranker : 0 à 1) : il sert à ordonner, pas à afficher ni à comparer à un seuil.
+
+**Hybride** : BM25 et les vecteurs `Qwen/Qwen3-Embedding-8B` classent chacun toutes les offres,
+RRF fusionne. Le contrat ne change pas (mêmes champs, mêmes filtres, `score` excepté). Le profil
+part chez Infomaniak (Suisse) à chaque appel, sans les lignes de coordonnées reconnues
+(e-mail, téléphone, profils). **Le service ne connaît pas le nom de la personne : DoxAI ne doit
+pas le mettre dans `cv_text`.** Ni le texte ni son vecteur ne sont conservés.
 
 ## Pages publiques d'offres : les routes `/jobs`
 
