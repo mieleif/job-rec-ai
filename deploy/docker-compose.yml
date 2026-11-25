@@ -17,6 +17,7 @@ services:
     restart: unless-stopped
     env_file: .env            # JOB_REC_TOKEN (le même que dans cv-app.env)
                               # (LOGO_DEV_SECRET_KEY aussi, inutile à l'API : elle lit le cache)
+                              # INFOMANIAK_API_TOKEN, INFOMANIAK_PRODUCT_ID : hybride ; absents : BM25
     volumes:
       - data:/srv/data
     networks:
@@ -24,7 +25,7 @@ services:
         aliases: [job-rec-ai]
     labels:
       - traefik.enable=false  # jamais exposée, même si Traefik expose par défaut
-    mem_limit: 384m           # VPS de 4 Go partagé avec la production DoxAI
+    mem_limit: 768m           # VPS de 4 Go partagé avec DoxAI ; pic au rechargement ~560 Mo
     logging: &logging
       driver: json-file
       options: { max-size: 10m, max-file: "3" }

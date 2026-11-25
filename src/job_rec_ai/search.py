@@ -12,7 +12,7 @@ import numpy as np
 RRF_K = 60  # valeur de l'article d'origine (Cormack et al., 2009), devenue le standard
 
 
-def rrf_fuse(rankings: list[list[str]], k: int = RRF_K) -> list[str]:
+def rrf_scores(rankings: list[list[str]], k: int = RRF_K) -> dict[str, float]:
     """Reciprocal Rank Fusion : score(d) = Σ 1 / (k + rang), rang commençant à 1.
 
     Les scores BM25 (0 à 300) et les cosinus (0,3 à 0,7) n'ont pas la même unité : on ne
@@ -22,7 +22,13 @@ def rrf_fuse(rankings: list[list[str]], k: int = RRF_K) -> list[str]:
     for ranking in rankings:
         for rank, item in enumerate(ranking, 1):
             scores[item] += 1 / (k + rank)
-    return sorted(scores, key=lambda item: -scores[item])  # tri stable : ordre d'arrivée
+    return scores
+
+
+def rrf_fuse(rankings: list[list[str]], k: int = RRF_K) -> list[str]:
+    """Les éléments par score RRF décroissant (tri stable : à égalité, l'ordre d'arrivée)."""
+    scores = rrf_scores(rankings, k)
+    return sorted(scores, key=lambda item: -scores[item])
 
 
 def cosine_scores(matrix: np.ndarray, query: np.ndarray) -> np.ndarray:

@@ -34,7 +34,7 @@ import numpy as np
 from job_rec_ai import embeddings, koans, search
 from job_rec_ai.bm25 import BM25
 from job_rec_ai.cv import for_api, read_cv
-from job_rec_ai.recommend import document, rank
+from job_rec_ai.recommend import TRUNCATION, document, passage, rank
 from job_rec_ai.rerank import CANDIDATES, rerank
 from job_rec_ai.text import chunk_text, tokenize
 
@@ -46,7 +46,6 @@ RANDOM = 10     # offres tirées au hasard dans le pool
 SEED = 13
 RECALL_DEPTH = 50  # ce que l'entonnoir transmet au reranker
 CHUNK_WORDS, CHUNK_OVERLAP = 200, 40
-TRUNCATION = 512  # tokens par offre (reranker)
 GRADES = (0, 1, 2)
 
 
@@ -117,13 +116,6 @@ class Trace:
         """Un appel d'API : la durée et le coût du VRAI appel, même relu depuis le cache."""
         self.steps[name] = call.ms
         self.chf += call.chf
-
-
-def passage(job: dict) -> str:
-    """Le texte d'une offre pour les modèles. Une offre Coop n'a que son titre, répété dans
-    sa description : on ne l'écrit qu'une fois."""
-    title, description = job["title"].strip(), (job["description"] or "").strip()
-    return f"{title}. {description}" if description and description != title else title
 
 
 @dataclass

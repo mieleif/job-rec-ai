@@ -21,6 +21,7 @@ import json
 import logging
 import os
 import sqlite3
+import threading
 import time
 from dataclasses import dataclass
 from datetime import datetime
@@ -35,7 +36,9 @@ API = "https://api.infomaniak.com"
 CACHE = Path("data/embeddings/infomaniak.sqlite")           # offres (textes publics)
 PRIVATE_CACHE = Path("data/private/infomaniak.sqlite")      # tout ce qui dérive d'un CV
 USAGE = Path("data/embeddings/usage.jsonl")                 # un appel par ligne : tokens, CHF
-BUDGET_CHF = 3.0
+BUDGET_CHF = 3.0             # évaluation : plafond total, tous lancements confondus
+MONTHLY_BUDGET_CHF = 2.0     # en service (API et `embed`), par mois ; JOB_REC_BUDGET_CHF
+ONLINE_TIMEOUT = 4.0         # secondes : au-delà, /recommend répond avec BM25 seul
 WARN_AT = 0.8
 BATCH = 32
 RETRY_STATUSES = {429, 500, 502, 503, 504}
@@ -95,17 +98,34 @@ def sha(*parts) -> str:
 
 class Ledger:
     """Journal des dépenses (JSONL) et plafond. Persistant : le plafond vaut pour toute la
-    tâche, pas pour un seul lancement."""
+    tâche, pas pour un seul lancement. `monthly` : le plafond repart à zéro chaque mois (un
+    service qui tourne sans fin). Chaque processus ne relit le fichier qu'au démarrage et au
+    changement de mois : la collecte et l'API peuvent donc dépasser un peu à elles deux."""
 
-    def __init__(self, path: Path | None = None, budget: float = BUDGET_CHF):
-        self.path, self.budget = Path(path or USAGE), budget
-        self.spent = 0.0
+    def __init__(self, path: Path | None = None, budget: float = BUDGET_CHF,
+                 monthly: bool = False):
+        self.path, self.budget, self.monthly = Path(path or USAGE), budget, monthly
+        self._lock = threading.Lock()  # l'API sert plusieurs requêtes à la fois
+        self._load()
+
+    @classmethod
+    def in_service(cls, path: Path) -> "Ledger":
+        return cls(path, float(os.environ.get("JOB_REC_BUDGET_CHF") or MONTHLY_BUDGET_CHF),
+                   monthly=True)
+
+    def _load(self) -> None:
+        self.spent, self._warned = 0.0, False
+        self._month = datetime.now().isoformat()[:7]
         if self.path.exists():
             with self.path.open(encoding="utf-8") as f:
-                self.spent = sum(json.loads(line)["chf"] for line in f if line.strip())
-        self._warned = False
+                rows = [json.loads(line) for line in f if line.strip()]
+            self.spent = sum(r["chf"] for r in rows
+                             if not self.monthly or r["at"].startswith(self._month))
 
     def check(self, upper_bound_chf: float) -> None:
+        with self._lock:
+            if self.monthly and datetime.now().isoformat()[:7] != self._month:
+                self._load()
         if self.spent + upper_bound_chf > self.budget:
             raise BudgetExceeded(
                 f"{self.spent:.3f} CHF dépensés, appel estimé à {upper_bound_chf:.3f} CHF au "
@@ -113,13 +133,14 @@ class Ledger:
 
     def record(self, kind: str, model: Model, inputs: int, tokens: int, ms: float) -> Call:
         call = Call(tokens, tokens * model.price / 1e6, ms)
-        self.spent += call.chf
-        self.path.parent.mkdir(parents=True, exist_ok=True)
         row = {"at": datetime.now().isoformat(timespec="seconds"), "kind": kind,
                "model": model.name, "inputs": inputs, "tokens": tokens,
                "chf": call.chf, "ms": round(ms)}
-        with self.path.open("a", encoding="utf-8") as f:
-            f.write(json.dumps(row) + "\n")
+        with self._lock:
+            self.spent += call.chf
+            self.path.parent.mkdir(parents=True, exist_ok=True)
+            with self.path.open("a", encoding="utf-8") as f:
+                f.write(json.dumps(row) + "\n")
         log.info("%s %s : %d textes, %d tokens, %.6f CHF, %.0f ms (total %.4f CHF)",
                  kind, model.name, inputs, tokens, call.chf, ms, self.spent)
         if self.spent > WARN_AT * self.budget and not self._warned:
@@ -148,21 +169,50 @@ class Store:
             self.db.executemany("INSERT OR REPLACE INTO cache VALUES (?, ?, ?, ?, ?)",
                                 [(k, v, c.tokens, c.chf, c.ms) for k, v, c in rows])
 
+    def prune(self, keep: set[str]) -> int:
+        """Supprime tout sauf `keep` (16 Ko par vecteur : les offres disparues s'accumulent)."""
+        gone = [(k,) for (k,) in self.db.execute("SELECT key FROM cache") if k not in keep]
+        with self.db:
+            self.db.executemany("DELETE FROM cache WHERE key = ?", gone)
+        return len(gone)
+
     def close(self) -> None:
         self.db.close()
 
 
+def read_vectors(path: Path, model: Model, texts: list[str]) -> tuple[np.ndarray, np.ndarray]:
+    """(un vecteur par texte DISTINCT, ligne de chaque texte ou -1), lus dans le cache sans
+    appel d'API ni clé. Les textes répétés (titres Coop) partagent une ligne : ~3 300 vecteurs
+    au lieu de ~5 200. Lecture seule : une collecte peut écrire le cache en même temps."""
+    keys = [sha(model.name, t) for t in texts]
+    matrix = np.empty((len(set(keys)), model.dim), dtype=np.float32)
+    known: dict[str, int] = {}
+    db = sqlite3.connect(f"{Path(path).resolve().as_uri()}?mode=ro", uri=True, timeout=5)
+    try:
+        for key in dict.fromkeys(keys):
+            row = db.execute("SELECT value FROM cache WHERE key = ?", [key]).fetchone()
+            if row:
+                matrix[len(known)] = np.frombuffer(row[0], np.float32)
+                known[key] = len(known)
+    finally:
+        db.close()
+    return matrix[:len(known)], np.array([known.get(k, -1) for k in keys], dtype=int)
+
+
 class Client:
+    """`cache` ou `private_cache` à None : rien n'est écrit sur disque de ce côté-là."""
+
     def __init__(self, api_key: str, product_id: str | int | None = None, *,
-                 ledger: Ledger | None = None, cache: Path | None = None,
-                 private_cache: Path | None = None, max_retries: int = 4,
-                 transport: httpx.BaseTransport | None = None, sleep=time.sleep):
+                 ledger: Ledger | None = None, cache: Path | None = CACHE,
+                 private_cache: Path | None = PRIVATE_CACHE, max_retries: int = 4,
+                 timeout: float = 120, transport: httpx.BaseTransport | None = None,
+                 sleep=time.sleep):
         self.ledger = ledger or Ledger()
-        self.cache = Store(cache or CACHE)
-        self.private = Store(private_cache or PRIVATE_CACHE)
+        self.cache = Store(cache) if cache else None
+        self.private = Store(private_cache) if private_cache else None
         self.max_retries, self._sleep = max_retries, sleep
         self._product_id = product_id
-        self._http = httpx.Client(base_url=API, timeout=120, transport=transport,
+        self._http = httpx.Client(base_url=API, timeout=timeout, transport=transport,
                                   headers={"Authorization": f"Bearer {api_key}"})
 
     @classmethod
@@ -171,13 +221,24 @@ class Client:
         key = os.environ.get("INFOMANIAK_API_TOKEN")
         return cls(key, os.environ.get("INFOMANIAK_PRODUCT_ID"), **kw) if key else None
 
+    @classmethod
+    def online(cls, usage: Path, **kw) -> "Client | None":
+        """Pour répondre à une requête : un seul essai, court, et aucun cache sur disque (le
+        vecteur du CV d'un utilisateur n'est pas conservé). Utilisable par plusieurs threads."""
+        return cls.from_env(ledger=Ledger.in_service(usage), cache=None, private_cache=None,
+                            max_retries=0, timeout=ONLINE_TIMEOUT, **kw)
+
+    def close(self) -> None:
+        self._http.close()
+        for store in (self.cache, self.private):
+            if store:
+                store.close()
+
     def __enter__(self):
         return self
 
     def __exit__(self, *exc):
-        self._http.close()
-        self.cache.close()
-        self.private.close()
+        self.close()
 
     # --- HTTP -------------------------------------------------------------------------------
 
@@ -274,10 +335,11 @@ class Client:
         """Le vecteur d'un CV (avec l'instruction du modèle), et ce qu'il a coûté."""
         prompt = model.query.format(text)
         key = sha(model.name, "query", prompt)
-        if hit := self.private.get(key):
+        if self.private and (hit := self.private.get(key)):
             return np.frombuffer(hit[0], np.float32), hit[1]
         vectors, call = self._embed_batch(model, [prompt])
-        self.private.put([(key, vectors[0].tobytes(), call)])
+        if self.private:
+            self.private.put([(key, vectors[0].tobytes(), call)])
         return vectors[0], call
 
     # --- reranking --------------------------------------------------------------------------
@@ -286,7 +348,7 @@ class Client:
                max_tokens: int | None = None) -> tuple[np.ndarray, Call]:
         """Le score de chaque document, dans l'ordre reçu, et le coût de l'appel."""
         key = sha(model.name, "rerank", max_tokens, query, *documents)
-        if hit := self.private.get(key):
+        if self.private and (hit := self.private.get(key)):
             return np.frombuffer(hit[0], np.float32), hit[1]
         # Majorant : la requête peut être comptée à chaque document
         self._budget(model, sum(map(len, documents)) + len(query) * len(documents))
@@ -299,7 +361,8 @@ class Client:
         scores = np.full(len(documents), -np.inf, dtype=np.float32)
         for row in body["results"]:
             scores[row["index"]] = row["relevance_score"]
-        self.private.put([(key, scores.tobytes(), call)])
+        if self.private:
+            self.private.put([(key, scores.tobytes(), call)])
         return scores, call
 
 

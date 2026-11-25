@@ -1,4 +1,4 @@
-"""API de recommandation (M8) : le moteur BM25 derrière HTTP, pour l'app DoxAI.
+"""API de recommandation (M8) : le moteur hybride (BM25 + vecteurs) derrière HTTP, pour DoxAI.
 
     GET  /health     → {"status": "ok"}           (le conteneur répond)
     GET  /status     → offres indexées, date de chargement de la base
@@ -22,36 +22,62 @@ jamais un domaine elle-même (voir domains.py).
 Le service tourne sur le réseau Docker du VPS, sans URL publique : seuls les conteneurs de
 DoxAI l'appellent. Un jeton (JOB_REC_TOKEN) peut quand même être exigé, par précaution.
 
-Les offres sont chargées en mémoire au démarrage (BM25 sur ~1 700 offres : quelques
-millisecondes par requête). La collecte nocturne écrit la base dans un AUTRE processus :
-DuckDB n'admet pas de lecteur pendant qu'un autre processus écrit. Le rechargement est donc
-opportuniste : au plus toutes les REFRESH secondes, si le fichier a changé ; si la base est
-verrouillée (collecte en cours), on garde l'index précédent et on réessaiera.
+/recommend est HYBRIDE (recommend.hybrid_rank) si trois conditions sont réunies : un jeton
+INFOMANIAK_API_TOKEN, des vecteurs pour au moins 90 % des offres (`job-rec-ai embed`, après la
+collecte) et une réponse de l'API d'embeddings en moins de 4 s. Sinon, BM25 seul : jamais
+d'erreur à cause d'un tiers. GET /status dit lequel sert (`ranking`). JOB_REC_RERANK=1 ajoute
+le reranker Qwen3 (~0,6 s) sur les 60 premières offres ; éteint par défaut.
 
-Le texte du CV n'est jamais journalisé ni conservé.
+Les offres sont chargées en mémoire au démarrage. La collecte nocturne écrit la base dans un
+AUTRE processus : DuckDB n'admet pas de lecteur pendant qu'un autre processus écrit. Le
+rechargement est donc opportuniste : au plus toutes les REFRESH secondes, si la base ou le
+cache des vecteurs a changé ; si la base est verrouillée (collecte en cours), on garde l'index
+précédent et on réessaiera.
+
+Le texte du CV n'est jamais journalisé ni conservé, son vecteur non plus. En hybride, il part
+chez Infomaniak (hébergement suisse) sans ses lignes de coordonnées.
 """
 
 import logging
 import os
+import sqlite3
 import threading
 import time
+from collections import Counter
 from contextlib import asynccontextmanager
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import UTC, date, datetime
 from pathlib import Path
 from typing import Annotated, Literal
 
 import duckdb
+import numpy as np
 from fastapi import Depends, FastAPI, Header, HTTPException, Query
 from pydantic import BaseModel, Field, StringConstraints
 
-from job_rec_ai import catalog, storage
+from job_rec_ai import catalog, embeddings, storage
 from job_rec_ai.bm25 import BM25
+from job_rec_ai.cv import for_api
 from job_rec_ai.families import FAMILIES, families_of_titles
-from job_rec_ai.recommend import document, rank
+from job_rec_ai.recommend import (
+    EMBEDDER,
+    MAX_QUERY_CHARS,
+    RERANKER,
+    TRUNCATION,
+    Vectors,
+    document,
+    hybrid_rank,
+    passage,
+    rank,
+)
+from job_rec_ai.rerank import CANDIDATES
 
 log = logging.getLogger("job_rec_ai.api")
 REFRESH = 300  # secondes entre deux vérifications du fichier de la base
+# Ce qu'un tiers peut faire échouer : appel refusé ou trop lent, plafond atteint, réponse mal
+# formée, disque plein pour le journal. Pas `Exception` : une erreur du code doit se voir.
+OUTSIDE = (embeddings.ApiError, embeddings.BudgetExceeded, LookupError, TypeError, ValueError,
+           OSError)
 
 
 @dataclass(frozen=True)
@@ -60,6 +86,11 @@ class Snapshot:
     by_id: dict[str, int]
     bm25: BM25
     search_bm25: BM25
+    vectors: Vectors | None  # None : pas de jeton, ou cache de vecteurs absent ou illisible
+
+    @property
+    def hybrid(self) -> bool:
+        return self.vectors is not None and self.vectors.usable
 
 
 class Index:
@@ -67,16 +98,19 @@ class Index:
 
     `bm25` (titre + description) est celui de /recommend et des offres semblables ;
     `search_bm25` (titre + entreprise + description) celui de GET /jobs?q=. Deux index
-    plutôt qu'un : /recommend garde exactement son classement."""
+    plutôt qu'un : /recommend garde exactement son classement. `vectors_path` : le cache des
+    vecteurs, à charger aussi (None : BM25 seul)."""
 
-    def __init__(self, path: Path):
+    def __init__(self, path: Path, vectors_path: Path | None = None):
         self.path = path
+        self.vectors_path = vectors_path
         self.jobs: list[dict] = []
         self.by_id: dict[str, int] = {}  # id → position dans jobs : GET /jobs/{id} en O(1)
         self.bm25: BM25 | None = None
         self.search_bm25: BM25 | None = None
         self.snapshot: Snapshot | None = None  # ce que lisent les routes /jobs
         self.mtime: float | None = None
+        self.vectors_mtime: float | None = None
         self.loaded_at: datetime | None = None
         self.checked = 0.0
         self.lock = threading.Lock()
@@ -91,7 +125,12 @@ class Index:
             except FileNotFoundError:
                 log.warning("base introuvable : %s", self.path)
                 return
+            vectors_mtime = self._vectors_mtime()
             if mtime == self.mtime:
+                # `embed` écrit les vecteurs après la collecte : mêmes offres, vecteurs neufs
+                if vectors_mtime != self.vectors_mtime and self.snapshot:
+                    self.snapshot = replace(self.snapshot, vectors=self._vectors(self.jobs))
+                    self.vectors_mtime = vectors_mtime
                 return
             try:
                 with duckdb.connect(str(self.path), read_only=True) as con:
@@ -105,9 +144,28 @@ class Index:
             self.by_id = {j["id"]: i for i, j in enumerate(jobs)}
             # Une seule affectation : une requête servie pendant un rechargement (autre
             # thread) lit tout de la même génération, jamais un id neuf sur l'ancienne liste
-            self.snapshot = Snapshot(self.jobs, self.by_id, self.bm25, self.search_bm25)
+            self.snapshot = Snapshot(self.jobs, self.by_id, self.bm25, self.search_bm25,
+                                     self._vectors(jobs))
             self.mtime, self.loaded_at = mtime, datetime.now(UTC)
+            self.vectors_mtime = vectors_mtime
             log.info("index rechargé : %d offres", len(jobs))
+
+    def _vectors_mtime(self) -> float | None:
+        try:
+            return self.vectors_path.stat().st_mtime if self.vectors_path else None
+        except FileNotFoundError:
+            return None
+
+    def _vectors(self, jobs: list[dict]) -> Vectors | None:
+        if self._vectors_mtime() is None:
+            return None
+        try:
+            vectors = Vectors.load(self.vectors_path, jobs)
+        except (sqlite3.Error, ValueError) as e:  # cache verrouillé, abîmé ou d'un autre modèle
+            log.warning("vecteurs illisibles (%s) : BM25 seul", type(e).__name__)
+            return None
+        log.info("vecteurs : %d offres sur %d", vectors.count, len(jobs))
+        return vectors
 
 
 CvText = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=50_000)]
@@ -196,15 +254,26 @@ def _labels(value: str | None) -> frozenset[str]:
     return frozenset(v.strip() for v in (value or "").split(",") if v.strip())
 
 
+def api_text(cv_text: str) -> str:
+    """Le texte qui part chez Infomaniak : sans coordonnées, et pas plus que l'API n'accepte."""
+    return for_api(cv_text)[:MAX_QUERY_CHARS]
+
+
 def create_app(db_path: Path | str | None = None) -> FastAPI:
     path = Path(db_path or os.environ.get("JOB_REC_DB", storage.DEFAULT_DB))
     token = os.environ.get("JOB_REC_TOKEN")
-    index = Index(path)
+    reranking = os.environ.get("JOB_REC_RERANK") == "1"
+    folder = path.parent / "embeddings"
+    infomaniak = embeddings.Client.online(folder / embeddings.USAGE.name)
+    fallbacks = Counter()  # replis sur BM25 ou sur l'ordre hybride, depuis le démarrage
+    index = Index(path, folder / embeddings.CACHE.name if infomaniak else None)
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
         index.refresh(force=True)
         yield
+        if infomaniak:
+            infomaniak.close()
 
     app = FastAPI(title="job-rec-ai", version="0.1.0", lifespan=lifespan)
 
@@ -220,22 +289,56 @@ def create_app(db_path: Path | str | None = None) -> FastAPI:
     def status() -> dict:
         index.refresh()  # sinon il montre l'index d'avant la collecte jusqu'au prochain /recommend
         return {"offers": len(index.jobs),
-                "loaded_at": index.loaded_at.isoformat() if index.loaded_at else None}
+                "loaded_at": index.loaded_at.isoformat() if index.loaded_at else None,
+                "ranking": "hybrid" if index.snapshot and index.snapshot.hybrid else "bm25",
+                "vectors": index.snapshot.vectors.count
+                if index.snapshot and index.snapshot.vectors else 0,
+                "fallbacks": fallbacks.total()}
+
+    def ranked(current: Snapshot, cv_text: str) -> tuple[list[dict], str]:
+        """(offres classées, classement servi). Une panne du tiers n'est citée que par son
+        type : son message pourrait reprendre le CV."""
+        if current.hybrid:
+            try:
+                query, _ = infomaniak.embed_query(EMBEDDER, api_text(cv_text))
+                if query.shape != (EMBEDDER.dim,) or not np.isfinite(query).all():
+                    raise ValueError("vecteur invalide")
+            except OUTSIDE as e:
+                fallbacks["embedding"] += 1
+                log.warning("embedding indisponible (%s) : BM25 seul", type(e).__name__)
+            else:
+                return (hybrid_rank(current.jobs, cv_text, query, current.vectors, current.bm25),
+                        "hybrid")
+        return [j for j in rank(current.jobs, cv_text, index=current.bm25)
+                if j["score"] > 0], "bm25"
+
+    def reranked(hits: list[dict], cv_text: str) -> list[dict]:
+        """Les CANDIDATES premières offres relues par le cross-encoder, APRÈS les filtres."""
+        head = hits[:CANDIDATES]
+        try:
+            scores, _ = infomaniak.rerank(RERANKER, api_text(cv_text),
+                                          [passage(j) for j in head], TRUNCATION)
+        except OUTSIDE as e:
+            fallbacks["rerank"] += 1
+            log.warning("reranker indisponible (%s) : ordre hybride gardé", type(e).__name__)
+            return hits
+        order = np.argsort(-scores, kind="stable")
+        return [{**head[i], "score": float(scores[i])} for i in order]
 
     @app.post("/recommend", dependencies=[Depends(authorized)])
     def recommend(req: RecommendRequest) -> list[Recommendation]:
         started = time.perf_counter()
-        index.refresh()
-        if index.bm25 is None:
-            raise HTTPException(503, "index indisponible (base absente ou en cours d'écriture)")
-        ranked = rank(index.jobs, req.cv_text, index=index.bm25)
+        current = ready()
+        jobs, ranking = ranked(current, req.cv_text)
         wanted = {c.upper() for c in req.cantons} if req.cantons else None
         families = {f.strip() for f in req.families} if req.families else None
-        hits = [j for j in ranked
-                if j["score"] > 0 and (wanted is None or j["canton"] in wanted)
-                and (families is None or j["family"] in families)][:req.k]
-        log.info("recommend k=%d cantons=%s families=%s → %d offres en %.0f ms", req.k,
-                 req.cantons, req.families, len(hits),
+        hits = [j for j in jobs if (wanted is None or j["canton"] in wanted)
+                and (families is None or j["family"] in families)]
+        if ranking == "hybrid" and reranking and hits:
+            hits, ranking = reranked(hits, req.cv_text), "hybrid+rerank"
+        hits = hits[:req.k]
+        log.info("recommend %s k=%d cantons=%s families=%s → %d offres en %.0f ms", ranking,
+                 req.k, req.cantons, req.families, len(hits),
                  1000 * (time.perf_counter() - started))
         return [Recommendation(job_id=j["url"], **{f: j.get(f) for f in Recommendation.model_fields
                                                    if f != "job_id"}) for j in hits]

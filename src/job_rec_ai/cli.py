@@ -232,6 +232,26 @@ def _private_set() -> evaluation.EvalSet | None:
     return evaluation.new_set(path, "leif", queries) if queries else None
 
 
+def _cmd_embed(args, con):
+    """Encoder les offres actives dont le texte est nouveau (cache à côté de la base)."""
+    folder = args.db.parent / "embeddings"
+    client = embeddings.Client.from_env(
+        cache=folder / embeddings.CACHE.name, private_cache=None,
+        ledger=embeddings.Ledger.in_service(folder / embeddings.USAGE.name))
+    if client is None:
+        sys.exit("INFOMANIAK_API_TOKEN absente : rien n'est encodé, /recommend reste en BM25")
+    model = recommend.EMBEDDER
+    texts = list(dict.fromkeys(recommend.passage(j) for j in storage.jobs_for_ranking(con)))
+    with client:
+        before = client.ledger.spent
+        client.embed_documents(model, texts)
+        print(f"{len(texts)} textes d'offres, {client.ledger.spent - before:.4f} CHF "
+              f"({client.ledger.spent:.4f} CHF ce mois sur {client.ledger.budget:.2f})")
+        if args.prune:
+            gone = client.cache.prune({embeddings.sha(model.name, t) for t in texts})
+            print(f"{gone} vecteurs d'offres disparues supprimés")
+
+
 def _cmd_eval(args, con):
     """Pooling + page d'annotation (--pool), import des notes (--import), métriques (défaut)."""
     client = embeddings.Client.from_env() if args.api else None
@@ -374,6 +394,10 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--limit", type=int, default=20)
     p.add_argument("--urls", action="store_true", help="afficher le lien de chaque offre")
     p.set_defaults(func=_cmd_recommend)
+    p = sub.add_parser("embed", help="encoder les offres nouvelles (INFOMANIAK_API_TOKEN)")
+    p.add_argument("--prune", action="store_true",
+                   help="supprimer les autres vecteurs (ceux de l'évaluation compris)")
+    p.set_defaults(func=_cmd_embed)
     p = sub.add_parser("eval", help="jeu d'évaluation : pooling, notes, métriques")
     p.add_argument("--pool", action="store_true",
                    help="construire le pool d'offres à noter et la page d'annotation")

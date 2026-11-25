@@ -86,6 +86,29 @@ JOB_REC_TOKEN=<la valeur de /opt/job-rec-ai/.env>
   depuis `/opt/n8n-stack` :
   `docker compose -f docker-compose.yml -f docker-compose.cv-app-release.yml up -d --force-recreate --no-deps cv-app`.
 
+## Activer la recherche hybride (25.11.2026)
+
+Sans les étapes ci-dessous, la nouvelle image sert exactement le BM25 d'avant. **À décider par
+Leif**, après les notes des 54 offres.
+
+1. Dans `/opt/job-rec-ai/.env` (chmod 600), de préférence une clé Infomaniak **dédiée**, pour
+   séparer les coûts de DoxAI : `INFOMANIAK_API_TOKEN=…` et `INFOMANIAK_PRODUCT_ID=…`
+   (facultatifs : `JOB_REC_BUDGET_CHF`, 2 CHF par mois et par processus par défaut, puis repli
+   BM25 ; `JOB_REC_RERANK=1`, le reranker Qwen3, éteint par défaut).
+2. Recopier `docker-compose.yml` (`mem_limit` de l'API : 768 Mo) et
+   `job-rec-ai-crawl.service`, puis `sudo systemctl daemon-reload`.
+3. Encoder les offres une première fois (~0,16 CHF) :
+   `docker compose --profile crawl run --rm crawl job-rec-ai embed`.
+4. `docker compose up -d api`, puis `GET /status` : `"ranking": "hybrid"`. `fallbacks` compte
+   les replis depuis le démarrage : s'il monte, l'API d'embeddings est lente ou en panne.
+
+**Revenir en arrière** : retirer `INFOMANIAK_API_TOKEN` et relancer l'API.
+
+Mémoire mesurée sous Windows (5 216 offres ; à mesurer sous Linux) : BM25 302 Mo, 438 Mo au pic
+d'un rechargement ; hybride 356 et 555 Mo. **L'ancien plafond de 384 Mo était déjà sous le pic
+de BM25 seul** sur le corpus national. Disque : 16 Ko par texte distinct (~55 Mo) ; `--prune`
+retire les offres disparues.
+
 ## Au quotidien
 
 ```bash
